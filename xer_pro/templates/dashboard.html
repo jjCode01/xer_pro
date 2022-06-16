@@ -1,0 +1,11 @@
+{% extends "_layout.html" %}
+{% block main_content %}
+<div class="container">
+<h1>Schedules: {{ schedules|length }}</h1>
+{% for sched in schedules %}
+    {% for proj in sched.PROJECT %}
+        <div>{{ proj.proj_short_name }}</div>
+    {% endfor %}
+{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "_layout.html" %}
+{% block additional_css %}
+    {{ dropzone.load_css() }}
+    <style>
+        .dropzone {
+            border-radius: 5px;
+            min-height: 250px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+{% endblock %}
+{% block main_content %}
+<div class="bg-dark h-100">
+    <div class="h-100">
+        <section class="hero bg-dark text-light py-5">
+            <div class="container">
+                <div class="d-sm-flex align-items-center justify-content-around">
+                    <div>
+                        <h1 class="">Welcome to <span class="text-warning">XER Pro</span></h1>
+                        <p class="lead my-4">Detailed schedule analysis and reporting.</p>
+                        <p class="font-weight-light">
+                            <span class="text-info">Compare</span> - document and report schedule revisions<br>
+                            <span class="text-info">Analyze</span> - discover potential schedule issues<br>
+                            <span class="text-info">Forecast</span> - visualize planned performance throuh completion
+                        </p>
+                    </div>
+                    <div>
+                        <img class="img-fluid d-none d-md-block" width="200px" src="../static/img/gantt-chart (1).png" alt="Gantt Chart">
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="container my-5 mx-auto text-center">
+            <p class="lead text-light" >Upload your .xer files to begin...</p>
+            {{ dropzone.create(action=url_for('dashboard')) }}
+            {{ dropzone.load_js() }}
+            {{ dropzone.config(
+                redirect_url='/dashboard',
+                custom_init='dz = this;
+                document.getElementById("upload-btn").addEventListener("click", function handler(e) {dz.processQueue();});',
+                custom_options='autoProcessQueue: false, addRemoveLinks: true, parallelUploads: 2,') }}
+
+            <button class="btn btn-lg btn-primary mt-3" id="upload-btn">Submit</button>
+        </div>
+    </div>
+    <footer class="w-100 py-4 bg-dark">
+        <div class="container"><a href="https://www.flaticon.com/free-icons/gantt-chart" title="gantt chart icons">Gantt chart icons created by Freepik - Flaticon</a></div>
+    </footer>
+</div>
+{% endblock %}
+{% block additional_js %}
+{% endblock %}
