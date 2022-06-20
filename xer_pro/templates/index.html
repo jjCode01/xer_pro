@@ -19,11 +19,9 @@
                 <div class="d-sm-flex align-items-center justify-content-around">
                     <div>
                         <h1 class="">Welcome to <span class="text-warning">XER Pro</span></h1>
-                        <p class="lead my-4">Detailed schedule analysis and reporting.</p>
-                        <p class="font-weight-light">
-                            <span class="text-info">Compare</span> - document and report schedule revisions<br>
-                            <span class="text-info">Analyze</span> - discover potential schedule issues<br>
-                            <span class="text-info">Forecast</span> - visualize planned performance throuh completion
+                        <p class="lead mt-4">Detailed schedule analysis and reporting.</p>
+                        <p class="font-weight-light text-info">
+                            Compare - Analyze - Forecast
                         </p>
                     </div>
                     <div>
@@ -33,16 +31,26 @@
             </div>
         </section>
         <div class="container my-5 mx-auto text-center">
-            <p class="lead text-light" >Upload your .xer files to begin...</p>
-            {{ dropzone.create(action=url_for('dashboard')) }}
+            <p class="lead text-light" >Upload your .xer files to begin... (Maximun of 2 files)</p>
+            {{ dropzone.create(action=url_for('index')) }}
             {{ dropzone.load_js() }}
-            {{ dropzone.config(
-                redirect_url='/dashboard',
-                custom_init='dz = this;
-                document.getElementById("upload-btn").addEventListener("click", function handler(e) {dz.processQueue();});',
-                custom_options='autoProcessQueue: false, addRemoveLinks: true, parallelUploads: 2,') }}
+            {{ dropzone.config(custom_init='
+                dz = this;
+                dz.on("error", file => {
+                    alert("Error in file, it will be removed.")
+                    dz.removeFile(file);
+                    btn = document.getElementById("upload-btn");
+                    if (!btn.classList.contains("disabled")) {
+                        btn.classList.add("disabled")
+                    };
+                });
+                dz.on("maxfilesreached", file => {
+                    btn = document.getElementById("upload-btn");
+                    btn.className = btn.className.replace("disabled", "");
+                });
+            ') }}
 
-            <button class="btn btn-lg btn-primary mt-3" id="upload-btn">Submit</button>
+            <a class="btn btn-lg btn-primary mt-3 disabled" id="upload-btn" role="button" href="{{ url_for('dashboard') }}">Submit</a>
         </div>
     </div>
     <footer class="w-100 py-4 bg-dark">

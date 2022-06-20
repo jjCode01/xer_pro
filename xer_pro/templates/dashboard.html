@@ -1,11 +1,280 @@
 {% extends "_layout.html" %}
+{% block nav_content %}
+    <a class="nav-link active" aria-current="page" href="{{ url_for('dashboard') }}">Home</a>
+    <a class="nav-link" href="#">Compare</a>
+    <a class="nav-link" href="#">Validate</a>
+{% endblock %}
 {% block main_content %}
-<div class="container">
-<h1>Schedules: {{ schedules|length }}</h1>
-{% for sched in schedules %}
-    {% for proj in sched.PROJECT %}
-        <div>{{ proj.proj_short_name }}</div>
-    {% endfor %}
-{% endfor %}
-</div>
+<section class="bg-primary text-light p-1 mb-4">
+    <div class="container-fluid">
+        <h6 class="mt-1">{{ curr_sched.name }}</h6>
+    </div>
+</section>
+
+<section class="px-md-4 bg-light">
+    <div class="container-lg">
+        <div class="row mb-3 gy-3 text-center">
+            <!-- Update Period -->
+            <div class="col-md-6"> 
+                <div class="card shadow-sm h-100">
+                    <div class="card-body pb-0">
+                        <p class="m-0 pb-1 mb-1 border-bottom fs-5">Update Period</p>
+                        <p class="lead mb-1"><strong>
+                            {{ prev_sched.data_date|formatdate }} <i class="bi bi-forward-fill h5"></i> {{ curr_sched.data_date|formatdate}}
+                        </strong></p>
+                        <p class="mb-1"><strong>{{ (curr_sched.data_date - prev_sched.data_date).days|formatnumber }}</strong> day update period</p>
+                        <p class="small text-secondary">
+                        {% if today_date >= curr_sched.data_date %}
+                            Updated<strong> {{ (today_date - curr_sched.data_date).days|formatnumber }}</strong> days ago
+                        {% else %}
+                            Projected<strong> {{ (curr_sched.data_date - today_date).days|formatnumber }}</strong> days ahead
+                        {% endif %}
+                        </p>
+                     
+                    </div>
+                </div>
+            </div>
+            <!-- Finish Date -->
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body pb-0">
+                        <p class="m-0 pb-1 mb-1 border-bottom fs-5">Finish Date</p>
+                        <p class="lead mb-1"><strong>
+                            {{ prev_sched.finish|formatdate }} <i class="bi bi-forward-fill h5"></i> {{ curr_sched.finish|formatdate}}
+                        </strong></p>
+                        {% with %}
+                            {% set diff = (prev_sched.finish - curr_sched.finish).days %}
+                            <p class="mb-1">
+                            {% if diff > 0 %}
+                                <i class="bi bi-caret-up-fill text-info h5"></i>
+                                Improved <strong>{{ diff|formatvariance }}</strong> days
+                            {% elif diff < 0 %}
+                                <i class="bi bi-caret-down-fill text-danger h5"></i>
+                                Lost <strong>{{ diff|formatvariance }}</strong> days
+                            {% else %}
+                                No change from previous
+                            {% endif %}
+                            </p>
+                        {% endwith %}
+                        {% with %}
+                            {% set dur_from_now = (curr_sched.finish - today_date).days %}
+                            <p class="small text-secondary">
+                            {% if dur_from_now > 0 %}
+                                Finish date is <strong>{{ dur_from_now|abs|formatnumber }}</strong> days from now
+                            {% elif dur_from_now < 0 %}
+                                Finish date was <strong>{{ dur_from_now|abs|formatnumber }}</strong> days ago
+                            {% else %}
+                                Finish date is today!
+                            {% endif %}
+                            </p>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            <!-- Work Complete -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <p class="m-0 pb-1 border-bottom fs-5">Work Complete</p>
+                        <p class="lead mb-0"><strong>{{ curr_sched.percent_complete|formatnumber }}%</strong></p>
+                        <p class="mb-1 text-secondary">Based on activity progress</p>
+                        <div class="progress mb-2" style="height: 14px;">
+                        {% with %}
+                            {% set diff = curr_sched.percent_complete - prev_sched.percent_complete %}
+                            {% if diff >= 0 %}
+                                {% set curr_val = curr_sched.percent_complete - diff %}
+                                {% set prev_val = diff %}
+                                {% set icon = 'bi-caret-up-fill' %}
+                                {% set prev_clr = "info" %}
+                            {% else %}
+                                {% set curr_val = curr_sched.percent_complete %}
+                                {% set prev_val = diff|abs %}
+                                {% set icon = 'bi-caret-down-fill' %}
+                                {% set prev_clr = "danger" %}
+                            {% endif %}
+                            <div 
+                                class="progress-bar progress-bar-striped progress-bar-animated"
+                                role="progressbar"
+                                aria-valuenow="{{ curr_val }}" aria-valuemin="0" aria-valuemax="100"
+                                style="width: {{ curr_val }}%">
+                            </div>
+                            <div 
+                                class="progress-bar bg-{{ prev_clr }} progress-bar-striped progress-bar-animated"
+                                role="progressbar"
+                                aria-valuenow="{{ prev_val }}" aria-valuemin="0" aria-valuemax="100"
+                                style="width: {{ prev_val }}%">
+                            </div>
+                        </div>
+                        <p class="small mb-0">
+                            <i class="bi {{ icon }} h5 text-{{ prev_clr }} p-0"></i>
+                            {% if diff > 0 %}
+                                Increase of <strong>{{ diff|formatvariance }}%</strong>
+                            {% elif diff < 0 %}
+                                Decrease of <strong>{{ diff|formatvariance }}%</strong>
+                            {% else %}
+                                No Change from Previous
+                            {% endif %}
+                        {% endwith %}
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+            <!-- Schedule Duration -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <p class="m-0 pb-1 border-bottom fs-5">Schedule Duration</p>
+                        {% with %}
+                            {% set total_dur = (curr_sched.finish - curr_sched.start).days %}
+                            {% set prev_dur = (prev_sched.finish - prev_sched.start).days %}
+                            {% set exp_dur = (curr_sched.data_date - curr_sched.start).days %}
+                            {% set prev_exp_dur = (prev_sched.data_date - prev_sched.start).days %}
+                            
+                            <p class="lead mb-0"><strong>{{ curr_sched.duration|formatnumber }}</strong> days</p>
+                            <p class="mb-1 text-secondary">{{ curr_sched.remaining_duration|formatnumber }} days remaining</p>
+                            <div class="progress mb-2" style="height: 14px;">
+                                <div 
+                                    class="progress-bar progress-bar-striped progress-bar-animated"
+                                    role="progressbar"
+                                    aria-valuenow="{{ (exp_dur / total_dur) * 100 }}" aria-valuemin="0" aria-valuemax="100"
+                                    style="width: {{ (exp_dur / total_dur) * 100 }}%">
+                                </div>
+                            </div>
+                            <p class="small mb-0">
+                                {% set diff = total_dur - prev_dur %}
+                                {% if diff > 0 %}
+                                    <i class="bi bi-caret-up-fill h5 text-danger"></i>
+                                    Duration increased <strong>{{ diff|formatvariance }}</strong> days
+                                {% elif diff < 0 %}
+                                    <i class="bi bi-caret-up-fill h5 text-success"></i>
+                                    Duration decreased <strong>{{ diff|formatvariance }}</strong> days
+                                {% else %}
+                                    No change from previous
+                                {% endif %}
+                            </p>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            <!-- Activities -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <p class="m-0 pb-1 border-bottom fs-5">Activities</p>
+                        <p class="lead mb-0"><strong>{{ curr_sched.tasks()|length|formatnumber }}</strong> total</p>
+                        <p class="mb-1 text-secondary">
+                            {{ curr_sched.tasks(completed=True)|length|formatnumber }} complete
+                            <i class="bi bi-caret-right"></i>
+                            {{ curr_sched.tasks(in_progress=True)|length|formatnumber }} in progress
+                        </p>
+                        <div class="progress mb-2" style="height: 14px;">
+                        {% with %} 
+                            {% set per = (curr_sched.tasks(completed=True)|length / curr_sched.tasks()|length) * 100 %}
+                            {% set prev_per = (prev_sched.tasks(completed=True)|length / prev_sched.tasks()|length) * 100 %}
+                            {% set diff = per - prev_per %}
+                            {% if diff > 0 %}
+                                {% set curr_val = per - diff %}
+                                {% set prev_val = diff %}
+                                {% set clr = 'info' %}
+                            {% elif diff <= 0 %}
+                                {% set curr_val = per %}
+                                {% set prev_val = diff|abs %}
+                                {% set clr = 'danger' %}
+                            {% endif %}
+                            <div 
+                                class="progress-bar progress-bar-striped progress-bar-animated"
+                                role="progressbar"
+                                aria-valuenow="{{ curr_val }}" aria-valuemin="0" aria-valuemax="100"
+                                style="width: {{ curr_val }}%">
+                            </div>
+                            <div 
+                                class="progress-bar bg-{{ clr }} progress-bar-striped progress-bar-animated"
+                                role="progressbar"
+                                aria-valuenow="{{ prev_val }}" aria-valuemin="0" aria-valuemax="100"
+                                style="width: {{ prev_val }}%">
+                            </div>
+                        {% endwith %}
+                        </div>
+                        <p class="small mb-0">
+                        {% with %}
+                            {% set diff = curr_sched.tasks(completed=True)|length - prev_sched.tasks(completed=True)|length %}                            
+                            {% if diff > 0 %}
+                                <i class="bi bi-caret-up-fill h5 text-info p-0"></i>
+                                <strong>{{ diff|formatvariance }}</strong> completed this update
+                            {% elif diff < 0 %}
+                                <i class="bi bi-caret-down-fill h5 text-danger p-0"></i>
+                                <strong>{{ diff|formatvariance }}</strong> completed this update
+                            {% else %}
+                                No activities completed this update
+                            {% endif %}
+                        {% endwith %}
+                        </p>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            
+        </div>
+        <div class="row mb-4 gy-4">
+            <div class="col-lg">
+                <div class="card shadow-sm col-lg">
+                    <div class="card-body">
+                        <h5 class="card-title">Activity Status</h5>
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Float</th>
+                                    <th scope="col">Curr</th>
+                                    <th scope="col">Prev</th>
+                                    <th scope="col" style="text-align: right;">Diff</th>
+                                </tr>
+                                <tr></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="pe-2 text-nowrap">Critical (TF < 1):</td>
+                                    <td class="px-2"></td>
+                                    <td class="px-2"></td>
+                                    <td class="ps-1"></td>
+                                </tr>
+                                <tr>
+                                    <td class="pe-2 text-nowrap">Near Critical (TF < 21):</td>
+                                    <td class="px-2"></td>
+                                    <td class="px-2"></td>
+                                    <td class="ps-1"></td>
+                                </tr>
+                                <tr>
+                                    <td class="pe-2 text-nowrap">Normal Float:</td>
+                                    <td class="px-2"></td>
+                                    <td class="px-2"></td>
+                                    <td class="ps-1"></td>
+                                </tr>
+                                <tr>
+                                    <td class="pe-2 text-nowrap">High Float (TF > 49):</td>
+                                    <td class="px-2"></td>
+                                    <td class="px-2"></td>
+                                    <td class="ps-1"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Activity Float</h5>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block additional_js %}
 {% endblock %}

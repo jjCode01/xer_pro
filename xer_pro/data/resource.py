@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from calendar import Calendar
-from task import Task
+from data.sched_calendar import SchedCalendar
+from data.task import Task
 
 @dataclass
 class ResourceValues:
@@ -86,7 +86,7 @@ class TaskResource:
         return self._data.get('rsrc_type')[3:]
 
     @property
-    def calendar(self) -> Calendar:
+    def calendar(self) -> SchedCalendar:
         """Calendar assigned to resource"""
         return self._data.get('calendar')
 

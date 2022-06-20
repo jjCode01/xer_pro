@@ -1,4 +1,4 @@
-from task import Task
+from data.task import Task
 
 class Relationship:
     def __init__(self, pred: Task, succ: Task, **kwargs) -> None:

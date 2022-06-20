@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from calendar import Calendar
-from wbs import Wbs
+from data.sched_calendar import SchedCalendar
+from data.wbs import Wbs
 # from services.calendar_services import rem_hours_per_day
 
 STATUS = {
@@ -59,26 +59,26 @@ class Task:
         return self._attr.get('task_code')
 
     @property
-    def calendar(self) -> Calendar:
+    def calendar(self) -> SchedCalendar:
         return self._attr.get('calendar')
 
     @calendar.setter
-    def calendar(self, calendar: Calendar):
-        if not isinstance(calendar, Calendar):
+    def calendar(self, calendar: SchedCalendar):
+        if not isinstance(calendar, SchedCalendar):
             raise ValueError("Value Error: argument must be a Calendar object")
 
         self._attr['calendar'] = calendar
 
     @property
     def finish(self) -> datetime:
-        if self.completed:
+        if self.is_completed:
             return self._attr['act_end_date']
 
         return self._attr['early_end_date']
 
     @property
     def free_float(self) -> Optional[int]:
-        if self.completed:
+        if self.is_completed:
             return None
         
         return int(self._attr['free_float_hr_cnt'] / 8)
@@ -126,7 +126,7 @@ class Task:
 
     @property
     def start(self) -> datetime:
-        if self.not_started:
+        if self.is_not_started:
             return self._attr['early_start_date']
 
         return self._attr['act_start_date']
@@ -137,7 +137,7 @@ class Task:
 
     @property
     def total_float(self) -> Optional[int]:
-        if self.completed:
+        if self.is_completed:
             return None
         
         return int(self._attr['total_float_hr_cnt'] / 8)
