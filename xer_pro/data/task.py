@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from data.sched_calendar import SchedCalendar
+from data.sched_calendar import SchedCalendar, rem_hours_per_day
 from data.wbs import Wbs
 # from services.calendar_services import rem_hours_per_day
 
@@ -95,6 +95,10 @@ class Task:
     @property
     def is_in_progress(self) -> bool:
         return self._attr.get('status_code') == 'TK_Active'
+
+    @property
+    def is_loe(self) -> bool:
+        return self.__attr.get('task_type') == 'TT_LOE'
     
     @property
     def is_longest_path(self) -> bool:
@@ -154,14 +158,14 @@ class Task:
         self._attr['wbs'] = wbs_node
 
 
-    # def get_rem_work_days(self) -> list[tuple[datetime, float]]:
-    #     if self.completed:
-    #         return []
+    def get_rem_work_days(self) -> list[tuple[datetime, float]]:
+        if self.completed:
+            return []
 
-    #     if not self.calendar:
-    #         return []
+        if not self.calendar:
+            return []
 
-    #     return rem_hours_per_day(
-    #         self.calendar,
-    #         self._kwargs['restart_date'],
-    #         self._kwargs['reend_date'])
+        return rem_hours_per_day(
+            self.calendar,
+            self._kwargs['restart_date'],
+            self._kwargs['reend_date'])
