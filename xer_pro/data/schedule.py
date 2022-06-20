@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from statistics import mean
-from collections import Counter
-from data.sched_calendar import SchedCalendar
+from collections import Counter, defaultdict, OrderedDict
+from typing import Iterator
+from data.sched_calendar import SchedCalendar, rem_hours_per_day
 from data.wbs import Wbs
 from data.task import Task
 from data.logic import Relationship
@@ -34,108 +35,9 @@ class Schedule:
         return self.data_date >= o.data_date
 
     @property
-    def duration(self) -> int:
-        return (self.finish - self.start).days
-
-    @property
-    def remaining_duration(self) -> int:
-        if self.finish <= self.data_date:
-            return 0
-
-        return (self.finish - self.data_date).days
-
-    @property
-    def data_date(self) -> datetime:
-        """Schedule Data Date"""
-        return self._project.get('last_recalc_date')
-
-    @property
-    def project_start_date(self) -> datetime:
-        """Planned start date set in the Project Date settings
-
-        Returns:
-            datetime: Planned start date
-        """
-        return self._project.get('plan_start_date')
-
-    @property
-    def start(self) -> datetime:
-        """Start date of first activity in schedule
-
-        Returns:
-            datetime: Start date of first activity
-        """
-        return min((t.start for t in self.tasks()))
-
-    @property
-    def finish(self) -> datetime:
-        """Finish date of last activity in schedule
-
-        Returns:
-            datetime: Finish date of last activity
-        """
-        return self._project.get('scd_end_date')
-
-    @property
-    def must_finish_date(self) -> datetime:
-        """Must Finish By date set in the Project Date settings
-
-        Returns:
-            datetime: Must Finish By date
-        """
-        return self._project.get('plan_end_date')
-
-    
-    def tasks(self, not_started: bool=False, in_progress: bool=False, completed: bool=False) -> list[Task]:
-        """List of all Task objects included in the schedule.
-        """
-        if not any([not_started, in_progress, completed]):
-            return self._tasks.values()
-
-        return [
-            t for t in self._tasks.values()
-            if (
-                (t.is_not_started and not_started) or
-                (t.is_in_progress and in_progress) or
-                (t.is_completed and completed)
-            )
-        ]
-
-    @property
-    def logic(self) -> list[Relationship]:
-        """List of all Relationship objects included in the schedule
-
-        Returns:
-            list[Relationship]: All Relationship objects
-        """
-        return self._logic.values()
-
-    @property
     def calendars(self) -> list[SchedCalendar]:
-        """List of all Calendar objects included in the schedule.
-
-        Returns:
-            list[Calendar]: All Calendar objects
-        """
+        """List of all Calendar objects included in the schedule"""
         return self._calendars.values()
-
-    @property
-    def wbs(self) -> list[Wbs]:
-        """List of all Wbs objects included in the schedule.
-
-        Returns:
-            list[Wbs]: All Wbs objects
-        """
-        return self._wbs.values()
-
-    @property
-    def resources(self) -> list[TaskResource]:
-        """List of all TaskResource objects included in the schedule.
-
-        Returns:
-            list[TaskResource]: All TaskResource objects
-        """
-        return self._task_resources.values()
 
     @property
     def cost(self) -> ResourceValues:
@@ -146,12 +48,51 @@ class Schedule:
             remaining=sum((r.cost.remaining for r in self.resources)))
 
     @property
-    def unit_qty(self) -> ResourceValues:
-        return ResourceValues(
-            budget=sum((r.unit_qty.budget for r in self.resources)),
-            actual=sum((r.unit_qty.actual for r in self.resources)),
-            this_period=sum((r.unit_qty.this_period for r in self.resources)),
-            remaining=sum((r.unit_qty.remaining for r in self.resources)))
+    def data_date(self) -> datetime:
+        """Schedule Data Date"""
+        return self._project.get('last_recalc_date')
+
+    @property
+    def duration(self) -> int:
+        """Total duration in calendar days"""
+        return (self.finish - self.start).days
+        
+    @property
+    def finish(self) -> datetime:
+        """Finish date of last activity in schedule"""
+        return self._project.get('scd_end_date')
+
+    def iter_performance_dates(self, remaining_only: bool=True) -> Iterator[datetime]:
+        """
+        Iterates through all dates from the start date through
+        the schedule end date.
+
+        Returns:
+            iter: dates between the project start and finish dates
+
+        Yields:
+            Iterator[iter]: datetime object
+        """
+        next_date = self.data_date if remaining_only else self.start
+        while next_date <= self.end_date:
+            yield next_date
+            next_date += timedelta(days=1)
+        
+    def logic(self, fs: bool=False, ff: bool=False, ss: bool=False, sf: bool=False) -> list[Relationship]:
+        """List of Relationship objects included in the schedule"""
+        if not any([fs, ff, ss, sf]):
+            return self._logic.values()
+
+        return [rel for rel in self._logic.values()
+                if ((rel.link == 'FS' and fs) or
+                    (rel.link == 'FF' and ff) or
+                    (rel.link == 'SS' and ss) or
+                    (rel.link == 'SF' and sf))]
+
+    @property
+    def must_finish_date(self) -> datetime:
+        """Must Finish By date set in the Project Date settings"""
+        return self._project.get('plan_end_date')
 
     @property
     def percent_complete(self) -> float:
@@ -164,8 +105,70 @@ class Schedule:
 
         return mean([dur_comp, status_comp]) * 100
 
-    # def tasks_completed(self) -> list[Task]:
-    #     return [t for t in self.tasks(completed=True) if t.is_completed]
+    @property
+    def project_start_date(self) -> datetime:
+        """Planned start date set in the Project Date settings"""
+        return self._project.get('plan_start_date')
+
+    @property
+    def remaining_duration(self) -> int:
+        """Sum of all activities remaining duration"""
+        if self.finish <= self.data_date:
+            return 0
+        return (self.finish - self.data_date).days
+   
+    @property
+    def resources(self) -> list[TaskResource]:
+        """List of all TaskResource objects included in the schedule"""
+        return self._task_resources.values()
+
+    @property
+    def start(self) -> datetime:
+        """Start date of first activity in schedule"""
+        return min((t.start for t in self.tasks()))
+
+    def tasks(self, not_started: bool=False, in_progress: bool=False, completed: bool=False) -> list[Task]:
+        """List of all Task objects included in the schedule."""
+        if not any([not_started, in_progress, completed]):
+            return self._tasks.values()
+
+        return [t for t in self._tasks.values()
+                if ((t.is_not_started and not_started) or
+                    (t.is_in_progress and in_progress) or
+                    (t.is_completed and completed))]
+
+    @property
+    def unit_qty(self) -> ResourceValues:
+        return ResourceValues(
+            budget=sum((r.unit_qty.budget for r in self.resources)),
+            actual=sum((r.unit_qty.actual for r in self.resources)),
+            this_period=sum((r.unit_qty.this_period for r in self.resources)),
+            remaining=sum((r.unit_qty.remaining for r in self.resources)))
+
+    @property
+    def wbs(self) -> list[Wbs]:
+        """List of all Wbs objects included in the schedule"""
+        return self._wbs.values()
+
+    def cash_flow(self, interval='month', adj_late=False) -> dict:
+        """Generate a monthly cash flow."""
+        def interval_date(date: datetime) -> datetime:
+            return datetime(date.year, date.month, 1, 0, 0, 0)
+
+        forecast = defaultdict(lambda: {'Actual': 0, 'Early': 0, 'Late': 0})
+
+        # zero remaining cost in the schedule
+        if len(self.resources) == 0:
+            return {}
+
+        for res in self.resources:
+            if res.cost.remaining == 0:
+                continue
+            for day in rem_hours_per_day(res.calendar, res.remaining_start, res.remaining_finish):
+                early = forecast[interval_date(day[0])].get('Early', 0)
+                forecast[interval_date(day[0])]['Early'] += res.remaining_cost_per_hour * day[1]
+        return OrderedDict(sorted(forecast.items()))
+        # return dict(sorted(forecast.items(), key=lambda x: x[0]))
 
     def _generate_tasks(self, table: list) -> dict[str, Task]:
         for row in table:
