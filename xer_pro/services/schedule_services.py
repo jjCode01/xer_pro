@@ -12,16 +12,6 @@ def group_by_status(schedule: Schedule) -> dict[str, list[Task]]:
 
     return status
 
-def filter_by_status(schedule: Schedule, not_started: bool=False, in_progress: bool=False, completed: bool=False) -> list[Task]:
-    if not any([not_started, in_progress, completed]):
-        return []
-
-    return [
-        t for t in schedule.tasks if
-        (t.is_not_started and not_started) or
-        (t.is_in_progress and in_progress) or
-        (t.is_completed and completed)]
-
 def group_by_float(schedule: Schedule, near_critical: int = 20, high_float: int = 50) -> dict[str, list[Task]]:
     float = {
         'Critical': list(),
