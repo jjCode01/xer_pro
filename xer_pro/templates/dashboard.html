@@ -5,13 +5,13 @@
     <a class="nav-link" href="#">Validate</a>
 {% endblock %}
 {% block main_content %}
-<section class="bg-primary text-light p-1 mb-4">
+<section class="bg-primary text-light p-1">
     <div class="container-fluid">
         <h6 class="mt-1">{{ curr_sched.name }}</h6>
     </div>
 </section>
 
-<section class="px-md-4 bg-light">
+<section class="pt-3 px-md-4 bg-light">
     <div class="container-lg">
         <div class="row mb-3 gy-3 text-center">
             <!-- Update Period -->
@@ -214,51 +214,64 @@
                     </div>
                 </div>
             </div>
-            
-            
         </div>
-        <div class="row mb-4 gy-4">
-            <div class="col-lg">
-                <div class="card shadow-sm col-lg">
+        <div class="row mb-3 gy-3 text-center">
+            <!-- Cost Loading -->
+            <div class="col">
+                <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <h5 class="card-title">Activity Status</h5>
-                        <table class="table table-sm table-hover">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Float</th>
-                                    <th scope="col">Curr</th>
-                                    <th scope="col">Prev</th>
-                                    <th scope="col" style="text-align: right;">Diff</th>
-                                </tr>
-                                <tr></tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="pe-2 text-nowrap">Critical (TF < 1):</td>
-                                    <td class="px-2"></td>
-                                    <td class="px-2"></td>
-                                    <td class="ps-1"></td>
-                                </tr>
-                                <tr>
-                                    <td class="pe-2 text-nowrap">Near Critical (TF < 21):</td>
-                                    <td class="px-2"></td>
-                                    <td class="px-2"></td>
-                                    <td class="ps-1"></td>
-                                </tr>
-                                <tr>
-                                    <td class="pe-2 text-nowrap">Normal Float:</td>
-                                    <td class="px-2"></td>
-                                    <td class="px-2"></td>
-                                    <td class="ps-1"></td>
-                                </tr>
-                                <tr>
-                                    <td class="pe-2 text-nowrap">High Float (TF > 49):</td>
-                                    <td class="px-2"></td>
-                                    <td class="px-2"></td>
-                                    <td class="ps-1"></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <p class="m-0 pb-1 border-bottom fs-5">Cost Loading</p>
+                        <div class="row gy-3">
+                            <div class="pe-lg-4">
+                                <p class="lead mb-0"><strong>${{ curr_sched.cost.budget|formatnumber }}</strong> budget</p>
+                                <p class="mb-1 text-secondary">
+                                    ${{ curr_sched.cost.actual|formatnumber }} to date
+                                </p>
+                                <div class="progress mb-2" style="height: 14px;">
+                                    {% with %} 
+                                        {% set diff = curr_sched.cost.percent - prev_sched.cost.percent %}
+                                        {% if diff > 0 %}
+                                            {% set curr_val = curr_sched.cost.percent - diff %}
+                                            {% set prev_val = diff %}
+                                            {% set clr = 'info' %}
+                                        {% elif diff <= 0 %}
+                                            {% set curr_val = curr_sched.cost.percent %}
+                                            {% set prev_val = diff|abs %}
+                                            {% set clr = 'danger' %}
+                                        {% endif %}
+                                        <div 
+                                            class="progress-bar progress-bar-striped progress-bar-animated"
+                                            role="progressbar"
+                                            aria-valuenow="{{ curr_val }}" aria-valuemin="0" aria-valuemax="100"
+                                            style="width: {{ curr_val }}%">
+                                        </div>
+                                        <div 
+                                            class="progress-bar bg-{{ clr }} progress-bar-striped progress-bar-animated"
+                                            role="progressbar"
+                                            aria-valuenow="{{ prev_val }}" aria-valuemin="0" aria-valuemax="100"
+                                            style="width: {{ prev_val }}%">
+                                        </div>
+                                    {% endwith %}
+                                </div>
+                                <p class="small mb-0">
+                                {% with %}
+                                    {% set diff = curr_sched.cost.actual - prev_sched.cost.actual %}                            
+                                    {% if diff > 0 %}
+                                        <i class="bi bi-caret-up-fill h5 text-info p-0"></i>
+                                        <strong>${{ diff|formatvariance }}</strong> this period
+                                    {% elif diff < 0 %}
+                                        <i class="bi bi-caret-down-fill h5 text-danger p-0"></i>
+                                        <strong>${{ diff|formatvariance }}</strong> this period
+                                    {% else %}
+                                        No actual cost this update
+                                    {% endif %}
+                                {% endwith %}
+                                </p>
+                            </div>
+                            <div class="pt-3 px-2" style="height: 350px;">
+                                <canvas id="costLoadingChart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -277,4 +290,85 @@
 </section>
 {% endblock %}
 {% block additional_js %}
+<script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+<script src="{{ url_for('static', filename='js/date_adapter.js') }}"></script>
+<script>
+    const COLORS = {
+        BL4: "#1984c5",
+        BL3: "#22a7f0",
+        BL2: "#63bff0",
+        BL1: "#a7d5ed",
+        MID: "#e2e2e2",
+        RD1: "#e1a692",
+        RD2: "#de6e56",
+        RD3: "#e14b31",
+        RD4: "#c23728",
+        DANGER: "#dc3545",
+        SUCCESS: "#20c997",
+    }
+    const sched_data = JSON.parse('{{ curr_sched.cash_flow() | tojson | safe}}')
+    
+    let early_data = []
+    let late_data = []
+    let actual_data = []
+    for (const [key, value] of Object.entries(sched_data)) {
+        early_data.push({x: key, y: value['Early']})
+        late_data.push({x: key, y: value['Late']})
+        actual_data.push({x: key, y: value['Actual']})
+    }
+
+    let ctxCostChart = document.getElementById('costLoadingChart');
+    let costChart = new Chart(ctxCostChart, {
+        type: 'bar',
+        data: {
+            datasets: [
+                {
+                    label: 'Actual Cost',
+                    data: actual_data,
+                    backgroundColor: [COLORS.BL4 + 'B3'],
+                    borderColor: [COLORS.BL4],
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Early Cost',
+                    data: early_data,
+                    backgroundColor: [COLORS.SUCCESS + 'B3'],
+                    borderColor: [COLORS.SUCCESS],
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Late Cost',
+                    data: late_data,
+                    backgroundColor: [COLORS.DANGER + 'B3'],
+                    borderColor: [COLORS.DANGER],
+                    borderWidth: 1,
+                },
+            ]
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Month'
+                    },
+                    type: 'time',
+                    time: {
+                        unit: 'month',
+                        displayFormats: {
+                            month: 'MMM-yyyy'
+                        }
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Cost'
+                    },
+                },
+            },
+            maintainAspectRatio: false
+        }
+    });
+</script>
 {% endblock %}

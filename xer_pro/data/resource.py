@@ -152,6 +152,14 @@ class TaskResource:
         return self._attr.get('reend_date')
 
     @property
+    def remaining_late_start(self) -> Optional[datetime]:
+        return self._attr.get('rem_late_start_date')
+
+    @property
+    def remaining_late_finish(self) -> Optional[datetime]:
+        return self._attr.get('rem_late_end_date')
+
+    @property
     def remaining_cost_per_hour(self) -> float:
         ###### UNTESTED #######
         """

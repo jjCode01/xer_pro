@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from statistics import mean
 from collections import Counter, defaultdict, OrderedDict
 from typing import Iterator
@@ -7,6 +8,8 @@ from data.wbs import Wbs
 from data.task import Task
 from data.logic import Relationship
 from data.resource import ResourceValues, TaskResource
+from data.financial import FinancialPeriod, ResourceFinancial
+
 
 class Schedule:
     def __init__(self, proj_id: str, **tables) -> None:
@@ -14,6 +17,9 @@ class Schedule:
         self._project = self._get_project(tables.get('PROJECT', []))
         self._calendars = {cal['clndr_id']: SchedCalendar(**cal)
                           for cal in tables.get('CALENDAR', {})}
+
+        self._fin_dates = {fin['fin_dates_id']: FinancialPeriod(**fin)
+                           for fin in tables.get('FINDATES', {})}
 
         self._wbs = {wbs['wbs_id']: Wbs(**wbs)
                     for wbs in tables.get('PROJWBS', {})
@@ -24,8 +30,8 @@ class Schedule:
         self._tasks = {id: task for id, task in self._generate_tasks(tables.get('TASK', []))}
         self._logic = {id: rel for id, rel in self._generate_logic(tables.get('TASKPRED', []))}
         self._resources = {r['rsrc_id']: r for r in tables.get('RSRC', [])}
-        self._task_resources = {id: res for id, res in self._generate_resources(tables.get('TASKRSRC', []))}
-
+        self._task_resources = {res['taskrsrc_id']: res for res in self._generate_resources(tables.get('TASKRSRC', []))}
+        self._financials = {id: fin for id, fin in self._generate_financials(tables.get('TRSRCFIN', []))}
         self._task_code_to_id_map = {t['task_code']: t['task_id'] for t in self.tasks()}
     
     def __str__(self) -> str:
@@ -155,6 +161,9 @@ class Schedule:
         def interval_date(date: datetime) -> datetime:
             return datetime(date.year, date.month, 1, 0, 0, 0)
 
+        def date_str(date: datetime) -> str:
+            return datetime.strftime(date, '%Y-%m-%d')
+
         forecast = defaultdict(lambda: {'Actual': 0, 'Early': 0, 'Late': 0})
 
         # zero remaining cost in the schedule
@@ -164,11 +173,23 @@ class Schedule:
         for res in self.resources:
             if res.cost.remaining == 0:
                 continue
+
             for day in rem_hours_per_day(res.calendar, res.remaining_start, res.remaining_finish):
-                early = forecast[interval_date(day[0])].get('Early', 0)
                 forecast[interval_date(day[0])]['Early'] += res.remaining_cost_per_hour * day[1]
-        return OrderedDict(sorted(forecast.items()))
-        # return dict(sorted(forecast.items(), key=lambda x: x[0]))
+
+            for day in rem_hours_per_day(res.calendar, res.remaining_late_start, res.remaining_late_finish):
+                forecast[interval_date(day[0])]['Late'] += res.remaining_cost_per_hour * day[1]
+
+        last_period = self.data_date - relativedelta(months=1)
+        forecast[interval_date(last_period)]['Actual'] += self.cost.this_period
+
+        for per in self._financials.values():
+            if interval_date(per.period.start) == interval_date(per.period.finish):
+                forecast[interval_date(per.period.start)]['Actual'] += per.cost
+
+        ordered_forecast =  OrderedDict(sorted(forecast.items()))
+
+        return {date_str(dt): val for dt, val in ordered_forecast.items()}
 
     def _generate_tasks(self, table: list) -> dict[str, Task]:
         for row in table:
@@ -192,10 +213,19 @@ class Schedule:
                 row['calendar'] = self._calendars.get(resource['clndr_id']) if resource else self._calendars.get(row['task']['clndr_id'])
                 row['name'] = resource.get('rsrc_name', '')
                 row['account'] = "" #### Need to work on this
+                row['comp_id'] = (row['task']['task_code'], row['name'], row['account'])
 
-                id = (row['task']['task_code'], row['name'], row['account'])
+                yield TaskResource(**row)
 
-                yield (id, TaskResource(**row))
+    def _generate_financials(self, table: list) -> dict[tuple[str, FinancialPeriod]]:
+        for row in table:
+            if row['proj_id'] == self._id:
+                row['period'] = self._fin_dates[row['fin_dates_id']]
+                row['task_resource'] = self._task_resources[row['taskrsrc_id']]
+                row['task'] = self._tasks.get(row['task_id'])
+                id = (row['period'].name, row['task']['task_code'], row['task_resource'].name)
+
+                yield (id, ResourceFinancial(**row))
     
     def _get_project(self, table: list) -> dict:
         for row in table:
