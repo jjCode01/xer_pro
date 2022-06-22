@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from statistics import mean
 from collections import Counter, defaultdict, OrderedDict
-from typing import Iterator
+from typing import Iterator, Optional
 from data.sched_calendar import SchedCalendar, rem_hours_per_day
 from data.wbs import Wbs
 from data.task import Task
@@ -83,6 +83,13 @@ class Schedule:
         while next_date <= self.end_date:
             yield next_date
             next_date += timedelta(days=1)
+
+    @property
+    def last_financial_period(self) -> Optional[FinancialPeriod]:
+        if not self._project['last_fin_dates_id']:
+            return None
+
+        return self._fin_dates.get(self._project['last_fin_dates_id'])
         
     def logic(self, fs: bool=False, ff: bool=False, ss: bool=False, sf: bool=False) -> list[Relationship]:
         """List of Relationship objects included in the schedule"""
@@ -156,40 +163,32 @@ class Schedule:
         """List of all Wbs objects included in the schedule"""
         return self._wbs.values()
 
-    def cash_flow(self, interval='month', adj_late=False) -> dict:
-        """Generate a monthly cash flow."""
-        def interval_date(date: datetime) -> datetime:
-            return datetime(date.year, date.month, 1, 0, 0, 0)
+    @property
+    def average_tf(self) -> float:
+        return mean((t.total_float for t in self.tasks(not_started=True, in_progress=True)))
 
-        def date_str(date: datetime) -> str:
-            return datetime.strftime(date, '%Y-%m-%d')
+    @property
+    def lowest_tf(self) -> float:
+        return min((t.total_float for t in self.tasks(not_started=True, in_progress=True)))
+        
+    def group_by_float(self, near_critical: int = 20, high_float: int = 50) -> dict[str, list[Task]]:
+        
+        def parse_tf(tf: int, near_critical: int, high_float: int) -> str:
+            if tf <= 0: return "Critical"
+            if 0 < tf <= near_critical: return "Near Critical"
+            if near_critical < tf < high_float: return "Normal Float"
+            if tf >= high_float: return "High Float"
 
-        forecast = defaultdict(lambda: {'Actual': 0, 'Early': 0, 'Late': 0})
+        float = {
+            'Critical': 0,
+            'Near Critical': 0,
+            'Normal Float': 0,
+            'High Float': 0}
 
-        # zero remaining cost in the schedule
-        if len(self.resources) == 0:
-            return {}
-
-        for res in self.resources:
-            if res.cost.remaining == 0:
-                continue
-
-            for day in rem_hours_per_day(res.calendar, res.remaining_start, res.remaining_finish):
-                forecast[interval_date(day[0])]['Early'] += res.remaining_cost_per_hour * day[1]
-
-            for day in rem_hours_per_day(res.calendar, res.remaining_late_start, res.remaining_late_finish):
-                forecast[interval_date(day[0])]['Late'] += res.remaining_cost_per_hour * day[1]
-
-        last_period = self.data_date - relativedelta(months=1)
-        forecast[interval_date(last_period)]['Actual'] += self.cost.this_period
-
-        for per in self._financials.values():
-            if interval_date(per.period.start) == interval_date(per.period.finish):
-                forecast[interval_date(per.period.start)]['Actual'] += per.cost
-
-        ordered_forecast =  OrderedDict(sorted(forecast.items()))
-
-        return {date_str(dt): val for dt, val in ordered_forecast.items()}
+        for t in self.tasks(in_progress=True, not_started=True):
+            float[parse_tf(t.total_float, near_critical, high_float)] += 1
+        
+        return float
 
     def _generate_tasks(self, table: list) -> dict[str, Task]:
         for row in table:
@@ -209,9 +208,9 @@ class Schedule:
         for row in table:
             if row['proj_id'] == self._id:
                 row['task'] = self._tasks.get(row['task_id'])
-                resource = self._resources.get(row['rsrc_id'], {})
-                row['calendar'] = self._calendars.get(resource['clndr_id']) if resource else self._calendars.get(row['task']['clndr_id'])
-                row['name'] = resource.get('rsrc_name', '')
+                row['resource'] = self._resources.get(row['rsrc_id'], {})
+                row['calendar'] = self._calendars.get(row['task']['clndr_id'])
+                row['name'] = row['resource'].get('rsrc_name', '')
                 row['account'] = "" #### Need to work on this
                 row['comp_id'] = (row['task']['task_code'], row['name'], row['account'])
 
@@ -238,3 +237,9 @@ class Schedule:
                 return w['wbs_name']
 
         return ""
+
+def _interval_date(date: datetime) -> datetime:
+    return datetime(date.year, date.month, 1, 0, 0, 0)
+
+def _date_str(date: datetime) -> str:
+    return datetime.strftime(date, '%Y-%m-%d')

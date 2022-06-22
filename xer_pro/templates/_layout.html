@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-100">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,8 +11,8 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
   {% block additional_css %}{% endblock %}
 </head>
-<body class="h-100">
-  <div class="h-100">
+<body>
+  <div>
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
       <div class="container-fluid">
         <a class="navbar-brand mx-2" href="/">XER Pro</a>
@@ -26,12 +26,12 @@
         </div>
       </div>
     </nav>
-    <div class="h-100">
+    <div>
         {% block main_content %}{% endblock %}
     </div>
   </div>
-  <script src="{{ url_for('static', filename='js/popper.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/packages/popper.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/packages/bootstrap.js') }}"></script>
   {% block additional_js %}{% endblock %}
 
 </body>

@@ -112,6 +112,20 @@ class TaskResource:
         self._attr['calendar'] = cal
 
     @property
+    def finish(self) -> datetime:
+        if self._attr['act_end_date']:
+            return self._attr['act_end_date']
+
+        return self._attr['reend_date']
+
+    @property
+    def start(self) -> datetime:
+        if self._attr['act_start_date']:
+            return self._attr['act_start_date']
+
+        return self._attr['restart_date']
+
+    @property
     def task(self) -> Task:
         """Task the resource is assigned to"""
         return self._attr.get('task')
@@ -159,22 +173,22 @@ class TaskResource:
     def remaining_late_finish(self) -> Optional[datetime]:
         return self._attr.get('rem_late_end_date')
 
-    @property
-    def remaining_cost_per_hour(self) -> float:
-        ###### UNTESTED #######
-        """
-        Calculates the remaining cost per hour
+    # @property
+    # def remaining_cost_per_hour(self) -> float:
+    #     ###### UNTESTED #######
+    #     """
+    #     Calculates the remaining cost per hour
 
-        Returns:
-            float: Remaining cost per hour
-        """
-        if self.cost.remaining == 0.0:
-            return 0.0
+    #     Returns:
+    #         float: Remaining cost per hour
+    #     """
+    #     if self.cost.remaining == 0.0:
+    #         return 0.0
 
-        if (rem_hours:=self.task['remain_drtn_hr_cnt']):
-            return self.cost.remaining / rem_hours
+    #     if (rem_hours:=self.task['remain_drtn_hr_cnt']):
+    #         return self.cost.remaining / rem_hours
 
-        return self.cost.remaining
+    #     return self.cost.remaining
 
 #     def remaining_cost_days(self) -> list[tuple(datetime, float)]:
 #         if (start:=self._data['restart_date']) and (finish:=self._data['reend_date']):

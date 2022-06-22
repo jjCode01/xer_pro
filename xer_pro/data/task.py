@@ -117,6 +117,14 @@ class Task:
         return self._attr.get('status_code') != 'TK_Complete'
 
     @property
+    def late_finish(self) -> Optional[datetime]:
+        return self._attr['late_end_date']
+
+    @property
+    def late_start(self) -> Optional[datetime]:
+        return self._attr['late_start_date']
+
+    @property
     def name(self) -> str:
         return self._attr.get('task_name')
 
@@ -156,7 +164,6 @@ class Task:
             raise ValueError("Value Error: argument must be a Wbs object")
 
         self._attr['wbs'] = wbs_node
-
 
     def get_rem_work_days(self) -> list[tuple[datetime, float]]:
         if self.completed:

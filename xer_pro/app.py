@@ -1,11 +1,12 @@
 from flask import Flask, redirect, request, render_template, url_for
 from flask_dropzone import Dropzone
-import os
+# import os
 from datetime import datetime
 
 from data.schedule import Schedule
 
 from data.parse import parse_xer_file, find_xer_errors
+from services.schedule_services import parse_schedule_cash_flow, parse_schedule_work_flow, parse_float_chart_data
 
 CODEC = 'cp1252'  # Encoding standard for xer file
 
@@ -30,6 +31,9 @@ dropzone = Dropzone(app)
 
 files = []
 new_files = []
+
+cash_flow = {}
+work_flow = {}
 
 @app.context_processor
 def inject_today_date():
@@ -73,6 +77,8 @@ def format_var(val):
 def index():
     global files
     global new_files
+    global cash_flow
+    global work_flow
 
     if request.method == 'GET':
         new_files = []
@@ -95,9 +101,12 @@ def index():
 def dashboard():
     global files
     global new_files
+    global cash_flow
+    global work_flow
 
     if new_files:
         files = new_files[:]
+        new_files = []
 
     if not files:
         return redirect(url_for('index'))
@@ -109,7 +118,20 @@ def dashboard():
         curr_sched: Schedule = files[1]
         prev_sched: Schedule = files[0]
 
-    return render_template('dashboard.html', curr_sched=curr_sched, prev_sched=prev_sched)
+    cash_flow['current'] = parse_schedule_cash_flow(curr_sched)
+    cash_flow['previous'] = parse_schedule_cash_flow(prev_sched)
+    work_flow['current'] = parse_schedule_work_flow(curr_sched, curr_sched.start, curr_sched.finish)
+    work_flow['previous'] = parse_schedule_work_flow(prev_sched, prev_sched.start, prev_sched.finish)
+
+    float_data = parse_float_chart_data(curr_sched.tasks(), prev_sched.tasks())
+
+    return render_template(
+        'dashboard.html',
+        curr_sched=curr_sched,
+        prev_sched=prev_sched,
+        cash_flow=cash_flow,
+        work_flow=work_flow,
+        float_data=float_data)
 
 def main():
     app.run(debug=True)

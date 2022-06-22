@@ -11,12 +11,12 @@
     </div>
 </section>
 
-<section class="pt-3 px-md-4 bg-light">
+<section class="py-3 px-md-4 bg-light">
     <div class="container-lg">
         <div class="row mb-3 gy-3 text-center">
             <!-- Update Period -->
             <div class="col-md-6"> 
-                <div class="card shadow-sm h-100">
+                <div class="card h-100">
                     <div class="card-body pb-0">
                         <p class="m-0 pb-1 mb-1 border-bottom fs-5">Update Period</p>
                         <p class="lead mb-1"><strong>
@@ -36,7 +36,7 @@
             </div>
             <!-- Finish Date -->
             <div class="col-md-6">
-                <div class="card shadow-sm h-100">
+                <div class="card h-100">
                     <div class="card-body pb-0">
                         <p class="m-0 pb-1 mb-1 border-bottom fs-5">Finish Date</p>
                         <p class="lead mb-1"><strong>
@@ -73,7 +73,7 @@
             </div>
             <!-- Work Complete -->
             <div class="col-lg-4">
-                <div class="card shadow-sm h-100">
+                <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Work Complete</p>
                         <p class="lead mb-0"><strong>{{ curr_sched.percent_complete|formatnumber }}%</strong></p>
@@ -122,7 +122,7 @@
             </div>
             <!-- Schedule Duration -->
             <div class="col-lg-4">
-                <div class="card shadow-sm h-100">
+                <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Schedule Duration</p>
                         {% with %}
@@ -159,7 +159,7 @@
             </div>
             <!-- Activities -->
             <div class="col-lg-4">
-                <div class="card shadow-sm h-100">
+                <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Activities</p>
                         <p class="lead mb-0"><strong>{{ curr_sched.tasks()|length|formatnumber }}</strong> total</p>
@@ -215,43 +215,96 @@
                 </div>
             </div>
         </div>
+
+        <div class="row mb-3 gy-3 text-center">
+            <!-- Activity Float -->
+            <div class="col-md-5">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="m-0 pb-1 border-bottom fs-5">Activity Float</p>
+                        <p class="lead mb-0">Average total float <strong>{{ curr_sched.average_tf|formatnumber }}</strong></p>
+                        {% with %}
+                            <p class="small">
+                            {% set diff = curr_sched.average_tf - prev_sched.average_tf %}
+                            {% if diff > 0 %}
+                                <i class="bi bi-caret-up-fill h5 text-info p-0"></i>
+                                Up <strong>{{ diff|formatvariance }}</strong> days
+                            {% elif diff < 0 %}
+                                <i class="bi bi-caret-down-fill h5 text-danger p-0"></i>
+                                Down <strong>{{ diff|formatvariance }}</strong> days
+                            {% endif %}
+                            </p>
+                        {% endwith %}
+                        <p class="lead mb-0">Lowest total float <strong>{{ curr_sched.lowest_tf|formatnumber }}</strong></p>
+                        {% with %}
+                            <p class="small">
+                            {% set diff = curr_sched.lowest_tf - prev_sched.lowest_tf %}
+                            {% if diff > 0 %}
+                                <i class="bi bi-caret-up-fill h5 text-info p-0"></i>
+                                Up <strong>{{ diff|formatvariance }}</strong> days
+                            {% elif diff < 0 %}
+                                <i class="bi bi-caret-down-fill h5 text-danger p-0"></i>
+                                Down <strong>{{ diff|formatvariance }}</strong> days
+                            {% else %}
+                                No change from previous
+                            {% endif %}
+                            </p>
+                        {% endwith %}
+                    </div>
+                </div>       
+            </div>
+            <!-- Activity Float -->
+            <div class="col-md-7">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="m-0 pb-1 border-bottom fs-5">Float Chart</p>
+                        <div class="pt-3 px-2" style="height: 150px;">
+                            <canvas id="floatChart"></canvas>
+                        </div>
+                    </div>
+                </div>       
+            </div>
+        </div>
         <div class="row mb-3 gy-3 text-center">
             <!-- Cost Loading -->
-            <div class="col">
-                <div class="card shadow-sm h-100">
+            <div class="col-lg-6">
+                <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Cost Loading</p>
                         <div class="row gy-3">
                             <div class="pe-lg-4">
+                            {% if not curr_sched.cost %}
+                                <p class="lead">Schedule is not cost loaded</p>
+                            {% else %}
                                 <p class="lead mb-0"><strong>${{ curr_sched.cost.budget|formatnumber }}</strong> budget</p>
                                 <p class="mb-1 text-secondary">
                                     ${{ curr_sched.cost.actual|formatnumber }} to date
                                 </p>
                                 <div class="progress mb-2" style="height: 14px;">
-                                    {% with %} 
-                                        {% set diff = curr_sched.cost.percent - prev_sched.cost.percent %}
-                                        {% if diff > 0 %}
-                                            {% set curr_val = curr_sched.cost.percent - diff %}
-                                            {% set prev_val = diff %}
-                                            {% set clr = 'info' %}
-                                        {% elif diff <= 0 %}
-                                            {% set curr_val = curr_sched.cost.percent %}
-                                            {% set prev_val = diff|abs %}
-                                            {% set clr = 'danger' %}
-                                        {% endif %}
-                                        <div 
-                                            class="progress-bar progress-bar-striped progress-bar-animated"
-                                            role="progressbar"
-                                            aria-valuenow="{{ curr_val }}" aria-valuemin="0" aria-valuemax="100"
-                                            style="width: {{ curr_val }}%">
-                                        </div>
-                                        <div 
-                                            class="progress-bar bg-{{ clr }} progress-bar-striped progress-bar-animated"
-                                            role="progressbar"
-                                            aria-valuenow="{{ prev_val }}" aria-valuemin="0" aria-valuemax="100"
-                                            style="width: {{ prev_val }}%">
-                                        </div>
-                                    {% endwith %}
+                                {% with %} 
+                                    {% set diff = curr_sched.cost.percent - prev_sched.cost.percent %}
+                                    {% if diff > 0 %}
+                                        {% set curr_val = curr_sched.cost.percent - diff %}
+                                        {% set prev_val = diff %}
+                                        {% set clr = 'info' %}
+                                    {% elif diff <= 0 %}
+                                        {% set curr_val = curr_sched.cost.percent %}
+                                        {% set prev_val = diff|abs %}
+                                        {% set clr = 'danger' %}
+                                    {% endif %}
+                                    <div 
+                                        class="progress-bar progress-bar-striped progress-bar-animated"
+                                        role="progressbar"
+                                        aria-valuenow="{{ curr_val }}" aria-valuemin="0" aria-valuemax="100"
+                                        style="width: {{ curr_val }}%">
+                                    </div>
+                                    <div 
+                                        class="progress-bar bg-{{ clr }} progress-bar-striped progress-bar-animated"
+                                        role="progressbar"
+                                        aria-valuenow="{{ prev_val }}" aria-valuemin="0" aria-valuemax="100"
+                                        style="width: {{ prev_val }}%">
+                                    </div>
+                                {% endwith %}
                                 </div>
                                 <p class="small mb-0">
                                 {% with %}
@@ -267,108 +320,59 @@
                                     {% endif %}
                                 {% endwith %}
                                 </p>
+                            {% endif %}
                             </div>
-                            <div class="pt-3 px-2" style="height: 350px;">
-                                <canvas id="costLoadingChart"></canvas>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row g-4">
-            <div class="col-lg">
-                <div class="card shadow-sm">
+        <div class="row mb-3 gy-3 text-center">
+            <div class="col">
+                <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title">Activity Float</h5>
-                        
+                        <p class="m-0 pb-1 border-bottom fs-5">Progress Histogram</p>
+                        <div class="pt-3 px-2" style="height: 400px;">
+                            <canvas id="progressChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        {% if curr_sched.cost %}
+        <div class="row mb-3 gy-3 text-center">
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="m-0 pb-1 border-bottom fs-5">Cost Histogram</p>
+                        <div class="pt-3 px-2" style="height: 400px;">
+                            <canvas id="costLoadingChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </section>
 {% endblock %}
 {% block additional_js %}
-<script src="{{ url_for('static', filename='js/chart.js') }}"></script>
-<script src="{{ url_for('static', filename='js/date_adapter.js') }}"></script>
+<script src="{{ url_for('static', filename='js/packages/chart.js') }}"></script>
+<script src="{{ url_for('static', filename='js/packages/date_adapter.js') }}"></script>
+<script src="{{ url_for('static', filename='js/time_charts.js') }}"></script>
 <script>
-    const COLORS = {
-        BL4: "#1984c5",
-        BL3: "#22a7f0",
-        BL2: "#63bff0",
-        BL1: "#a7d5ed",
-        MID: "#e2e2e2",
-        RD1: "#e1a692",
-        RD2: "#de6e56",
-        RD3: "#e14b31",
-        RD4: "#c23728",
-        DANGER: "#dc3545",
-        SUCCESS: "#20c997",
-    }
-    const sched_data = JSON.parse('{{ curr_sched.cash_flow() | tojson | safe}}')
-    
-    let early_data = []
-    let late_data = []
-    let actual_data = []
-    for (const [key, value] of Object.entries(sched_data)) {
-        early_data.push({x: key, y: value['Early']})
-        late_data.push({x: key, y: value['Late']})
-        actual_data.push({x: key, y: value['Actual']})
-    }
+    const cost_data = JSON.parse('{{ cash_flow.current | tojson | safe}}')
+    const work_data = JSON.parse('{{ work_flow.current | tojson | safe}}')
+    const float_data = JSON.parse('{{ float_data | tojson | safe}}')
+
+    let ctxWorkChart = document.getElementById('progressChart');
+    let workChart = new timeChart(ctxWorkChart, work_data)
 
     let ctxCostChart = document.getElementById('costLoadingChart');
-    let costChart = new Chart(ctxCostChart, {
-        type: 'bar',
-        data: {
-            datasets: [
-                {
-                    label: 'Actual Cost',
-                    data: actual_data,
-                    backgroundColor: [COLORS.BL4 + 'B3'],
-                    borderColor: [COLORS.BL4],
-                    borderWidth: 1,
-                },
-                {
-                    label: 'Early Cost',
-                    data: early_data,
-                    backgroundColor: [COLORS.SUCCESS + 'B3'],
-                    borderColor: [COLORS.SUCCESS],
-                    borderWidth: 1,
-                },
-                {
-                    label: 'Late Cost',
-                    data: late_data,
-                    backgroundColor: [COLORS.DANGER + 'B3'],
-                    borderColor: [COLORS.DANGER],
-                    borderWidth: 1,
-                },
-            ]
-        },
-        options: {
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Month'
-                    },
-                    type: 'time',
-                    time: {
-                        unit: 'month',
-                        displayFormats: {
-                            month: 'MMM-yyyy'
-                        }
-                    },
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Cost'
-                    },
-                },
-            },
-            maintainAspectRatio: false
-        }
-    });
+    let costChart = new timeChart(ctxCostChart, cost_data)
+
+    let ctxFloatChart = document.getElementById('floatChart');
+    let floatChart = new horizontalStackedChart(ctxFloatChart, float_data)
 </script>
 {% endblock %}
