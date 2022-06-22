@@ -7,7 +7,7 @@
 {% block main_content %}
 <section class="bg-primary text-light p-1">
     <div class="container-fluid">
-        <h6 class="mt-1">{{ curr_sched.name }}</h6>
+        <h6 class="mt-1">{{ schedules.current.name }}</h6>
     </div>
 </section>
 
@@ -20,14 +20,14 @@
                     <div class="card-body pb-0">
                         <p class="m-0 pb-1 mb-1 border-bottom fs-5">Update Period</p>
                         <p class="lead mb-1"><strong>
-                            {{ prev_sched.data_date|formatdate }} <i class="bi bi-forward-fill h5"></i> {{ curr_sched.data_date|formatdate}}
+                            {{ schedules.previous.data_date|formatdate }} <i class="bi bi-forward-fill h5"></i> {{ schedules.current.data_date|formatdate}}
                         </strong></p>
-                        <p class="mb-1"><strong>{{ (curr_sched.data_date - prev_sched.data_date).days|formatnumber }}</strong> day update period</p>
+                        <p class="mb-1"><strong>{{ (schedules.current.data_date - schedules.previous.data_date).days|formatnumber }}</strong> day update period</p>
                         <p class="small text-secondary">
-                        {% if today_date >= curr_sched.data_date %}
-                            Updated<strong> {{ (today_date - curr_sched.data_date).days|formatnumber }}</strong> days ago
+                        {% if today_date >= schedules.current.data_date %}
+                            Updated<strong> {{ (today_date - schedules.current.data_date).days|formatnumber }}</strong> days ago
                         {% else %}
-                            Projected<strong> {{ (curr_sched.data_date - today_date).days|formatnumber }}</strong> days ahead
+                            Projected<strong> {{ (schedules.current.data_date - today_date).days|formatnumber }}</strong> days ahead
                         {% endif %}
                         </p>
                      
@@ -40,10 +40,10 @@
                     <div class="card-body pb-0">
                         <p class="m-0 pb-1 mb-1 border-bottom fs-5">Finish Date</p>
                         <p class="lead mb-1"><strong>
-                            {{ prev_sched.finish|formatdate }} <i class="bi bi-forward-fill h5"></i> {{ curr_sched.finish|formatdate}}
+                            {{ schedules.previous.finish|formatdate }} <i class="bi bi-forward-fill h5"></i> {{ schedules.current.finish|formatdate}}
                         </strong></p>
                         {% with %}
-                            {% set diff = (prev_sched.finish - curr_sched.finish).days %}
+                            {% set diff = (schedules.previous.finish - schedules.current.finish).days %}
                             <p class="mb-1">
                             {% if diff > 0 %}
                                 <i class="bi bi-caret-up-fill text-info h5"></i>
@@ -57,7 +57,7 @@
                             </p>
                         {% endwith %}
                         {% with %}
-                            {% set dur_from_now = (curr_sched.finish - today_date).days %}
+                            {% set dur_from_now = (schedules.current.finish - today_date).days %}
                             <p class="small text-secondary">
                             {% if dur_from_now > 0 %}
                                 Finish date is <strong>{{ dur_from_now|abs|formatnumber }}</strong> days from now
@@ -72,22 +72,22 @@
                 </div>
             </div>
             <!-- Work Complete -->
-            <div class="col-lg-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Work Complete</p>
-                        <p class="lead mb-0"><strong>{{ curr_sched.percent_complete|formatnumber }}%</strong></p>
+                        <p class="lead mb-0"><strong>{{ schedules.current.percent_complete|formatnumber }}%</strong></p>
                         <p class="mb-1 text-secondary">Based on activity progress</p>
                         <div class="progress mb-2" style="height: 14px;">
                         {% with %}
-                            {% set diff = curr_sched.percent_complete - prev_sched.percent_complete %}
+                            {% set diff = schedules.current.percent_complete - schedules.previous.percent_complete %}
                             {% if diff >= 0 %}
-                                {% set curr_val = curr_sched.percent_complete - diff %}
+                                {% set curr_val = schedules.current.percent_complete - diff %}
                                 {% set prev_val = diff %}
                                 {% set icon = 'bi-caret-up-fill' %}
                                 {% set prev_clr = "info" %}
                             {% else %}
-                                {% set curr_val = curr_sched.percent_complete %}
+                                {% set curr_val = schedules.current.percent_complete %}
                                 {% set prev_val = diff|abs %}
                                 {% set icon = 'bi-caret-down-fill' %}
                                 {% set prev_clr = "danger" %}
@@ -121,18 +121,18 @@
                 </div>
             </div>
             <!-- Schedule Duration -->
-            <div class="col-lg-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Schedule Duration</p>
                         {% with %}
-                            {% set total_dur = (curr_sched.finish - curr_sched.start).days %}
-                            {% set prev_dur = (prev_sched.finish - prev_sched.start).days %}
-                            {% set exp_dur = (curr_sched.data_date - curr_sched.start).days %}
-                            {% set prev_exp_dur = (prev_sched.data_date - prev_sched.start).days %}
+                            {% set total_dur = (schedules.current.finish - schedules.current.start).days %}
+                            {% set prev_dur = (schedules.previous.finish - schedules.previous.start).days %}
+                            {% set exp_dur = (schedules.current.data_date - schedules.current.start).days %}
+                            {% set prev_exp_dur = (schedules.previous.data_date - schedules.previous.start).days %}
                             
-                            <p class="lead mb-0"><strong>{{ curr_sched.duration|formatnumber }}</strong> days</p>
-                            <p class="mb-1 text-secondary">{{ curr_sched.remaining_duration|formatnumber }} days remaining</p>
+                            <p class="lead mb-0"><strong>{{ schedules.current.duration|formatnumber }}</strong> days</p>
+                            <p class="mb-1 text-secondary">{{ schedules.current.remaining_duration|formatnumber }} days remaining</p>
                             <div class="progress mb-2" style="height: 14px;">
                                 <div 
                                     class="progress-bar progress-bar-striped progress-bar-animated"
@@ -158,20 +158,20 @@
                 </div>
             </div>
             <!-- Activities -->
-            <div class="col-lg-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Activities</p>
-                        <p class="lead mb-0"><strong>{{ curr_sched.tasks()|length|formatnumber }}</strong> total</p>
+                        <p class="lead mb-0"><strong>{{ schedules.current.tasks()|length|formatnumber }}</strong> total</p>
                         <p class="mb-1 text-secondary">
-                            {{ curr_sched.tasks(completed=True)|length|formatnumber }} complete
+                            {{ schedules.current.tasks(completed=True)|length|formatnumber }} complete
                             <i class="bi bi-caret-right"></i>
-                            {{ curr_sched.tasks(in_progress=True)|length|formatnumber }} in progress
+                            {{ schedules.current.tasks(in_progress=True)|length|formatnumber }} in progress
                         </p>
                         <div class="progress mb-2" style="height: 14px;">
                         {% with %} 
-                            {% set per = (curr_sched.tasks(completed=True)|length / curr_sched.tasks()|length) * 100 %}
-                            {% set prev_per = (prev_sched.tasks(completed=True)|length / prev_sched.tasks()|length) * 100 %}
+                            {% set per = (schedules.current.tasks(completed=True)|length / schedules.current.tasks()|length) * 100 %}
+                            {% set prev_per = (schedules.previous.tasks(completed=True)|length / schedules.previous.tasks()|length) * 100 %}
                             {% set diff = per - prev_per %}
                             {% if diff > 0 %}
                                 {% set curr_val = per - diff %}
@@ -198,7 +198,7 @@
                         </div>
                         <p class="small mb-0">
                         {% with %}
-                            {% set diff = curr_sched.tasks(completed=True)|length - prev_sched.tasks(completed=True)|length %}                            
+                            {% set diff = schedules.current.tasks(completed=True)|length - schedules.previous.tasks(completed=True)|length %}                            
                             {% if diff > 0 %}
                                 <i class="bi bi-caret-up-fill h5 text-info p-0"></i>
                                 <strong>{{ diff|formatvariance }}</strong> completed this update
@@ -214,18 +214,15 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="row mb-3 gy-3 text-center">
             <!-- Activity Float -->
-            <div class="col-md-5">
+            <div class="col-lg-5 col-md-6">
                 <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Activity Float</p>
-                        <p class="lead mb-0">Average total float <strong>{{ curr_sched.average_tf|formatnumber }}</strong></p>
+                        <p class="lead mb-0">Average total float <strong>{{ schedules.current.average_tf|formatnumber }}</strong> days</p>
                         {% with %}
-                            <p class="small">
-                            {% set diff = curr_sched.average_tf - prev_sched.average_tf %}
+                            <p class="mb-1 small">
+                            {% set diff = schedules.current.average_tf - schedules.previous.average_tf %}
                             {% if diff > 0 %}
                                 <i class="bi bi-caret-up-fill h5 text-info p-0"></i>
                                 Up <strong>{{ diff|formatvariance }}</strong> days
@@ -235,10 +232,10 @@
                             {% endif %}
                             </p>
                         {% endwith %}
-                        <p class="lead mb-0">Lowest total float <strong>{{ curr_sched.lowest_tf|formatnumber }}</strong></p>
+                        <p class="lead mb-0">Lowest total float <strong>{{ schedules.current.lowest_tf|formatnumber }}</strong></p>
                         {% with %}
-                            <p class="small">
-                            {% set diff = curr_sched.lowest_tf - prev_sched.lowest_tf %}
+                            <p class="mb-0 small">
+                            {% set diff = schedules.current.lowest_tf - schedules.previous.lowest_tf %}
                             {% if diff > 0 %}
                                 <i class="bi bi-caret-up-fill h5 text-info p-0"></i>
                                 Up <strong>{{ diff|formatvariance }}</strong> days
@@ -253,8 +250,8 @@
                     </div>
                 </div>       
             </div>
-            <!-- Activity Float -->
-            <div class="col-md-7">
+            <!-- Activity Float Chart -->
+            <div class="col-lg-7">
                 <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Float Chart</p>
@@ -267,28 +264,28 @@
         </div>
         <div class="row mb-3 gy-3 text-center">
             <!-- Cost Loading -->
-            <div class="col-lg-6">
+            <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Cost Loading</p>
                         <div class="row gy-3">
                             <div class="pe-lg-4">
-                            {% if not curr_sched.cost %}
+                            {% if not schedules.current.cost %}
                                 <p class="lead">Schedule is not cost loaded</p>
                             {% else %}
-                                <p class="lead mb-0"><strong>${{ curr_sched.cost.budget|formatnumber }}</strong> budget</p>
+                                <p class="lead mb-0"><strong>${{ schedules.current.cost.budget|formatnumber }}</strong> budget</p>
                                 <p class="mb-1 text-secondary">
-                                    ${{ curr_sched.cost.actual|formatnumber }} to date
+                                    ${{ schedules.current.cost.actual|formatnumber }} to date
                                 </p>
                                 <div class="progress mb-2" style="height: 14px;">
                                 {% with %} 
-                                    {% set diff = curr_sched.cost.percent - prev_sched.cost.percent %}
+                                    {% set diff = schedules.current.cost.percent - schedules.previous.cost.percent %}
                                     {% if diff > 0 %}
-                                        {% set curr_val = curr_sched.cost.percent - diff %}
+                                        {% set curr_val = schedules.current.cost.percent - diff %}
                                         {% set prev_val = diff %}
                                         {% set clr = 'info' %}
                                     {% elif diff <= 0 %}
-                                        {% set curr_val = curr_sched.cost.percent %}
+                                        {% set curr_val = schedules.current.cost.percent %}
                                         {% set prev_val = diff|abs %}
                                         {% set clr = 'danger' %}
                                     {% endif %}
@@ -308,15 +305,76 @@
                                 </div>
                                 <p class="small mb-0">
                                 {% with %}
-                                    {% set diff = curr_sched.cost.actual - prev_sched.cost.actual %}                            
+                                    {% set diff = schedules.current.cost.actual - schedules.previous.cost.actual %}                            
                                     {% if diff > 0 %}
                                         <i class="bi bi-caret-up-fill h5 text-info p-0"></i>
-                                        <strong>${{ diff|formatvariance }}</strong> this period
+                                        <strong>${{ diff|formatvariance }}</strong> from previous
                                     {% elif diff < 0 %}
                                         <i class="bi bi-caret-down-fill h5 text-danger p-0"></i>
-                                        <strong>${{ diff|formatvariance }}</strong> this period
+                                        <strong>${{ diff|formatvariance }}</strong> from previous
                                     {% else %}
-                                        No actual cost this update
+                                        No actual cost change this update
+                                    {% endif %}
+                                {% endwith %}
+                                </p>
+                            {% endif %}
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Resource Loading -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="m-0 pb-1 border-bottom fs-5">Resource Loading</p>
+                        <div class="row gy-3">
+                            <div class="pe-lg-4">
+                            {% if not schedules.current.unit_qty %}
+                                <p class="lead">Schedule is not resource loaded</p>
+                            {% else %}
+                                <p class="lead mb-0"><strong>{{ schedules.current.unit_qty.budget|formatnumber }}</strong> budgeted units</p>
+                                <p class="mb-1 text-secondary">
+                                    {{ schedules.current.unit_qty.actual|formatnumber }} units to date
+                                </p>
+                                <div class="progress mb-2" style="height: 14px;">
+                                {% with %} 
+                                    {% set diff = schedules.current.unit_qty.percent - schedules.previous.unit_qty.percent %}
+                                    {% if diff > 0 %}
+                                        {% set curr_val = schedules.current.unit_qty.percent - diff %}
+                                        {% set prev_val = diff %}
+                                        {% set clr = 'info' %}
+                                    {% elif diff <= 0 %}
+                                        {% set curr_val = schedules.current.unit_qty.percent %}
+                                        {% set prev_val = diff|abs %}
+                                        {% set clr = 'danger' %}
+                                    {% endif %}
+                                    <div 
+                                        class="progress-bar progress-bar-striped progress-bar-animated"
+                                        role="progressbar"
+                                        aria-valuenow="{{ curr_val }}" aria-valuemin="0" aria-valuemax="100"
+                                        style="width: {{ curr_val }}%">
+                                    </div>
+                                    <div 
+                                        class="progress-bar bg-{{ clr }} progress-bar-striped progress-bar-animated"
+                                        role="progressbar"
+                                        aria-valuenow="{{ prev_val }}" aria-valuemin="0" aria-valuemax="100"
+                                        style="width: {{ prev_val }}%">
+                                    </div>
+                                {% endwith %}
+                                </div>
+                                <p class="small mb-0">
+                                {% with %}
+                                    {% set diff = schedules.current.unit_qty.actual - schedules.previous.unit_qty.actual %}                            
+                                    {% if diff > 0 %}
+                                        <i class="bi bi-caret-up-fill h5 text-info p-0"></i>
+                                        <strong>{{ diff|formatvariance }}</strong> from previous
+                                    {% elif diff < 0 %}
+                                        <i class="bi bi-caret-down-fill h5 text-danger p-0"></i>
+                                        <strong>{{ diff|formatvariance }}</strong> from previous
+                                    {% else %}
+                                        No actual quantity change this update
                                     {% endif %}
                                 {% endwith %}
                                 </p>
@@ -340,7 +398,7 @@
                 </div>
             </div>
         </div>
-        {% if curr_sched.cost %}
+        {% if schedules.current.cost %}
         <div class="row mb-3 gy-3 text-center">
             <div class="col">
                 <div class="card h-100">
@@ -369,8 +427,10 @@
     let ctxWorkChart = document.getElementById('progressChart');
     let workChart = new timeChart(ctxWorkChart, work_data)
 
-    let ctxCostChart = document.getElementById('costLoadingChart');
-    let costChart = new timeChart(ctxCostChart, cost_data)
+    if (!(Object.keys(cost_data).length === 0)) {
+        let ctxCostChart = document.getElementById('costLoadingChart');
+        let costChart = new timeChart(ctxCostChart, cost_data)
+    }
 
     let ctxFloatChart = document.getElementById('floatChart');
     let floatChart = new horizontalStackedChart(ctxFloatChart, float_data)

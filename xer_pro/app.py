@@ -77,8 +77,6 @@ def format_var(val):
 def index():
     global files
     global new_files
-    global cash_flow
-    global work_flow
 
     if request.method == 'GET':
         new_files = []
@@ -101,8 +99,7 @@ def index():
 def dashboard():
     global files
     global new_files
-    global cash_flow
-    global work_flow
+    schedules = {}
 
     if new_files:
         files = new_files[:]
@@ -112,23 +109,21 @@ def dashboard():
         return redirect(url_for('index'))
 
     if files[0] >= files[1]:
-        curr_sched: Schedule = files[0]
-        prev_sched: Schedule = files[1]
+        schedules['current'] = files[0]
+        schedules['previous'] = files[1]
     else:
-        curr_sched: Schedule = files[1]
-        prev_sched: Schedule = files[0]
+        schedules['current'] = files[1]
+        schedules['previous'] = files[0]
 
-    cash_flow['current'] = parse_schedule_cash_flow(curr_sched)
-    cash_flow['previous'] = parse_schedule_cash_flow(prev_sched)
-    work_flow['current'] = parse_schedule_work_flow(curr_sched, curr_sched.start, curr_sched.finish)
-    work_flow['previous'] = parse_schedule_work_flow(prev_sched, prev_sched.start, prev_sched.finish)
+    for version in ['current', 'previous']:
+        cash_flow[version] = parse_schedule_cash_flow(schedules[version])
+        work_flow[version] = parse_schedule_work_flow(schedules[version], schedules[version].start, schedules[version].finish)
 
-    float_data = parse_float_chart_data(curr_sched.tasks(), prev_sched.tasks())
+    float_data = parse_float_chart_data(schedules['current'].tasks(), schedules['previous'].tasks())
 
     return render_template(
         'dashboard.html',
-        curr_sched=curr_sched,
-        prev_sched=prev_sched,
+        schedules=schedules,
         cash_flow=cash_flow,
         work_flow=work_flow,
         float_data=float_data)
