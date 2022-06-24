@@ -12,8 +12,8 @@
     </style>
 {% endblock %}
 {% block main_content %}
-<div class="bg-dark h-100">
-    <div class="h-100">
+<div class="bg h-100 test">
+    <div>
         <section class="hero bg-dark text-light py-5">
             <div class="container">
                 <div class="d-sm-flex align-items-center justify-content-around">
@@ -25,36 +25,39 @@
                         </p>
                     </div>
                     <div>
-                        <img class="img-fluid d-none d-md-block" width="200px" src="../static/img/gantt-chart (1).png" alt="Gantt Chart">
+                        <!-- <i class="bi bi-bar-chart-steps text-light"></i> -->
+                        <img class="img-fluid d-none d-md-block" width="200px" src="../static/img/gantt-chart.png" alt="Gantt Chart">
                     </div>
                 </div>
             </div>
         </section>
-        <div class="container my-5 mx-auto text-center">
-            <p class="lead text-light" >Upload your .xer files to begin... (Maximun of 2 files)</p>
-            {{ dropzone.create(action=url_for('index')) }}
-            {{ dropzone.load_js() }}
-            {{ dropzone.config(custom_init='
-                dz = this;
-                dz.on("error", file => {
-                    alert("Error in file, it will be removed.")
-                    dz.removeFile(file);
-                    btn = document.getElementById("upload-btn");
-                    if (!btn.classList.contains("disabled")) {
-                        btn.classList.add("disabled")
-                    };
-                });
-                dz.on("maxfilesreached", file => {
-                    btn = document.getElementById("upload-btn");
-                    btn.className = btn.className.replace("disabled", "");
-                });
-            ') }}
+        <div class="my-5 mx-auto bg-light text-dark text-center">
+            <div class="container">
+                <p class="lead" >Upload your .xer files to begin... (Maximun of 2 files)</p>
+                {{ dropzone.create(action=url_for('index')) }}
+                {{ dropzone.load_js() }}
+                {{ dropzone.config(custom_init='
+                    dz = this;
+                    dz.on("error", file => {
+                        alert("Error in file, it will be removed.")
+                        dz.removeFile(file);
+                        btn = document.getElementById("upload-btn");
+                        if (!btn.classList.contains("disabled")) {
+                            btn.classList.add("disabled")
+                        };
+                    });
+                    dz.on("maxfilesreached", file => {
+                        btn = document.getElementById("upload-btn");
+                        btn.className = btn.className.replace("disabled", "");
+                    });
+                ') }}
 
-            <a class="btn btn-lg btn-primary mt-3 disabled" id="upload-btn" role="button" href="{{ url_for('dashboard') }}">Submit</a>
+                <a class="btn btn-lg btn-primary mt-3 disabled" id="upload-btn" role="button" href="{{ url_for('dashboard') }}">Submit</a>
+            </div>
         </div>
     </div>
-    <footer class="w-100 py-4 bg-dark">
-        <div class="container"><a href="https://www.flaticon.com/free-icons/gantt-chart" title="gantt chart icons">Gantt chart icons created by Freepik - Flaticon</a></div>
+    <footer class="w-100 h-100 py-4 mt-auto">
+        <div class="container-fluid h-100"><a href="https://www.flaticon.com/free-icons/gantt-chart" title="gantt chart icons">Gantt chart icons created by Freepik - Flaticon</a></div>
     </footer>
 </div>
 {% endblock %}

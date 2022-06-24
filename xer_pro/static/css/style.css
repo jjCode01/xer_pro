@@ -2,3 +2,6 @@ td {font-size: 0.8em;}
 th {font-size: 0.9em;}
 .card:hover {box-shadow:0 .25rem .5rem rgba(0,0,0,.075)!important;}
 .card {transition:.3s;}
+html, body {
+    min-height: 100%;
+}

@@ -43,7 +43,7 @@ class Task:
         self._attr = kwargs
 
     def __eq__(self, o: object) -> bool:
-        return self._attr['task_code'] == o._kwargs['task_code']
+        return self._attr['task_code'] == o._attr['task_code']
 
     def __getitem__(self, name: str):
         return self._attr[name]

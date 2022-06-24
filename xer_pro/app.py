@@ -6,7 +6,7 @@ from datetime import datetime
 from data.schedule import Schedule
 
 from data.parse import parse_xer_file, find_xer_errors
-from services.schedule_services import parse_schedule_cash_flow, parse_schedule_work_flow, parse_float_chart_data
+from services.schedule_services import parse_schedule_cash_flow, parse_schedule_work_flow, parse_float_chart_data, get_task_changes
 
 CODEC = 'cp1252'  # Encoding standard for xer file
 
@@ -31,9 +31,12 @@ dropzone = Dropzone(app)
 
 files = []
 new_files = []
+schedules = {}
 
 cash_flow = {}
 work_flow = {}
+float_data = {}
+changes = {}
 
 @app.context_processor
 def inject_today_date():
@@ -52,6 +55,8 @@ def format_int(val):
         return f'{val:,}'
     if isinstance(val, float):
         return f'{val:,.2f}'
+    if val is None:
+        return "-"
     
     return val
 
@@ -76,12 +81,11 @@ def format_var(val):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     global files
-    global new_files
 
     if request.method == 'GET':
-        new_files = []
+        files = []
     if request.method == 'POST':
-        file = parse_xer_file(request.files.get('file').read().decode(CODEC))
+        file: Schedule = parse_xer_file(request.files.get('file').read().decode(CODEC))
         if not (errors:=find_xer_errors(file)) is None:
             error_str = '\r\n'.join(errors)
             return f'XER contains errors!\r\n{error_str}', 400
@@ -91,35 +95,37 @@ def index():
             return f'XER contains multiple schedules!', 400
 
         proj_id = export_xer_projects[0]['proj_id']
-        new_files.append(Schedule(proj_id, **file))
+        files.append(Schedule(proj_id, **file))
 
     return render_template('index.html')
 
 @app.route('/dashboard')
 def dashboard():
     global files
-    global new_files
-    schedules = {}
+    global schedules
+    global cash_flow
+    global work_flow
+    global float_data
+    global changes
 
-    if new_files:
-        files = new_files[:]
-        new_files = []
+    if files:
+        if files[0] >= files[1]:
+            schedules['current'] = files[0]
+            schedules['previous'] = files[1]
+        else:
+            schedules['current'] = files[1]
+            schedules['previous'] = files[0]
 
-    if not files:
+        for version in ['current', 'previous']:
+            cash_flow[version] = parse_schedule_cash_flow(schedules[version])
+            work_flow[version] = parse_schedule_work_flow(schedules[version], schedules[version].start, schedules[version].finish)
+
+        float_data = parse_float_chart_data(schedules['current'].tasks(), schedules['previous'].tasks())
+
+        changes = get_task_changes(schedules['current'].tasks(), schedules['previous'].tasks())
+
+    if not schedules:
         return redirect(url_for('index'))
-
-    if files[0] >= files[1]:
-        schedules['current'] = files[0]
-        schedules['previous'] = files[1]
-    else:
-        schedules['current'] = files[1]
-        schedules['previous'] = files[0]
-
-    for version in ['current', 'previous']:
-        cash_flow[version] = parse_schedule_cash_flow(schedules[version])
-        work_flow[version] = parse_schedule_work_flow(schedules[version], schedules[version].start, schedules[version].finish)
-
-    float_data = parse_float_chart_data(schedules['current'].tasks(), schedules['previous'].tasks())
 
     return render_template(
         'dashboard.html',
@@ -127,6 +133,19 @@ def dashboard():
         cash_flow=cash_flow,
         work_flow=work_flow,
         float_data=float_data)
+
+@app.route('/comparison')
+def comparison():
+    global schedules
+    global changes
+    if not schedules:
+        return redirect(url_for('index'))
+
+    return render_template('compare.html', schedules=schedules, task_changes=changes)
+
+@app.route('/warnings')
+def warnings():
+    return render_template('warnings.html')
 
 def main():
     app.run(debug=True)

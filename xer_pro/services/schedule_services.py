@@ -1,8 +1,6 @@
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from datetime import datetime, timedelta
-from hashlib import new
-import sched
-from webbrowser import BackgroundBrowser
+from fuzzywuzzy import fuzz, process
 
 from data.schedule import Schedule
 from data.task import Task
@@ -222,22 +220,6 @@ def parse_float_chart_data(curr_tasks: list[Task], prev_tasks: list[Task], near_
                 'backgroundColor': [COLORS['PRIMARY']],
             }]}
     
-def filter_by_float(self, **float) -> list[Task]:
-    open_tasks = [t for t in self.tasks if not t.is_completed]
-    if float.keys() >= {'high', 'low'}:
-        low, high = min(float['high'], float['low']), max(float['high'], float['low'])
-        return [t for t in open_tasks if low <= t.total_float <= high]
-
-    if 'low' in float:
-        return [t for t in open_tasks if float['low'] <= t.total_float]
-
-    if 'high' in float:
-        return [t for t in open_tasks if t.total_float <= float['high']]
-
-    if 'equals' in float:
-        return [t for t in open_tasks if t.total_float == float['equals']]
-
-    return []
 
 def group_by_link(self) -> dict[str, list[Relationship]]:
     links = defaultdict(list)
@@ -251,3 +233,38 @@ def _interval_date(date: datetime) -> str:
 
 def _date_str(date: datetime) -> str:
     return datetime.strftime(date, '%Y-%m-%d')
+
+def _clean_date(date: datetime) -> datetime:
+    return date.replace(hour=0, minute=0, second=0, microsecond=0)
+
+def get_task_changes(sched_a_tasks: list[Task], sched_b_tasks: list[Task]) -> dict[str, list]:
+    b_tasks = {t.activity_id: t for t in sched_b_tasks}
+
+    changes = defaultdict(list)
+
+    changes['added'] = list(set(sched_a_tasks) - set(sched_b_tasks))
+    changes['deleted'] = list(set(sched_b_tasks) - set(sched_a_tasks))
+
+    for task in sched_a_tasks:
+        if task in sched_b_tasks:
+            other = b_tasks.get(task.activity_id)
+
+            if task.name != other.name:
+                changes['name'].append((task, other, fuzz.ratio(task.name, other.name)))
+
+            if task.original_duration != other.original_duration:
+                changes['orig_duration'].append((task, other))
+            else:
+                if (task.is_not_started and other.is_not_started) and task.remaining_duration != other.remaining_duration:    
+                    changes['rem_duration'].append((task, other))
+
+            if not other.is_not_started:
+                if task.start.date() != other.start.date():
+                    changes['act_start'].append((task, other))
+
+            if other.is_completed:
+                if task.finish.date() != other.finish.date():
+                    changes['act_finish'].append((task, other))
+
+
+    return changes

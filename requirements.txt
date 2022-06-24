@@ -1,2 +1,4 @@
 flask
 python-dateutil
+fuzzywuzzy
+python-Levenshtein
