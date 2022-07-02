@@ -12,7 +12,6 @@ from typing import Iterator
 
 from services.calendar_services import calc_time_var_hrs, conv_excel_date, conv_time, clean_dates, clean_date
 
-
 CALENDAR_TYPES = {
     'CA_Base': 'Global',
     'CA_Rsrc': 'Resource',
@@ -151,19 +150,22 @@ class SchedCalendar:
         Compare two Calendar objects and return True if equal, False if not equal.
         """
         return (
-            self._kwargs['clndr_name'] == o._kwargs['clndr_name'] and 
-            self._kwargs['clndr_type'] == o._kwargs['clndr_type'])
+            self._data['clndr_name'] == o._data['clndr_name'] and 
+            self._data['clndr_type'] == o._data['clndr_type'])
 
     def __hash__(self) -> int:
         """
         Return a hash representation of a Calendar object.
         """
-        return hash((self._kwargs['clndr_name'], self._kwargs['clndr_type']))
+        return hash((self._data['clndr_name'], self._data['clndr_type']))
 
     def __str__(self) -> str:
         """
         Return a string representation of a Calendar object.
         """
+        return f'{self._data["clndr_name"]} [{self.type}]'
+
+    def print_cal(self) -> str:
         clr_blue = TERM_COLORS['BLUE_FG']
         clr_native = TERM_COLORS['NATIVE_FG']
 

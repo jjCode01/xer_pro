@@ -4,9 +4,11 @@ from typing import Optional
 from data.sched_calendar import SchedCalendar
 from data.task import Task
 
-class RsrcAccount:
+
+class CostAccount:
     def __init__(self) -> None:
         pass
+
 
 @dataclass
 class ResourceValues:
@@ -43,12 +45,13 @@ class ResourceValues:
         self.variance = self.at_completion - self.budget
         self.percent = 0.0 \
             if (self.budget == 0 or self.actual == 0) \
-            else  self.actual / self.budget * 100
+            else self.actual / self.budget * 100
 
     def __bool__(self) -> bool:
         return (
             self.budget != 0 and
             self.actual != 0)
+
 
 class TaskResource:
     """
@@ -81,14 +84,22 @@ class TaskResource:
         return self._attr[name]
 
     def __eq__(self, other) -> bool:
-        return (self._attr['task'] == other._data['task'] and
-                self._attr['name'] == other._data['name'] and
-                self._attr['account'] == other._data['account'])
+        return (self._attr['task'] == other._attr['task'] and
+                self._attr['name'] == other._attr['name'] and
+                self._attr['account'] == other._attr['account'] and
+                self._attr['rsrc_type'] == other._attr['rsrc_type'] and
+                self._attr['target_qty'] == other._attr['target_qty'] and
+                self._attr['target_lag_drtn_hr_cnt'] == other._attr['target_lag_drtn_hr_cnt'] and
+                self._attr['target_cost'] == other._attr['target_cost'])
 
     def __hash__(self) -> int:
-        return hash((self._attr['task']['task_code'],
+        return hash((self._attr['task'],
                      self._attr['name'],
-                     self._attr['account']))
+                     self._attr['account'],
+                     self._attr['rsrc_type'],
+                     self._attr['target_qty'],
+                     self._attr['target_lag_drtn_hr_cnt'],
+                     self._attr['target_cost'],))
 
     @property
     def name(self) -> str:
@@ -144,18 +155,18 @@ class TaskResource:
     @property
     def cost(self) -> ResourceValues:
         return ResourceValues(
-            budget = self._attr.get('target_cost'),
-            actual = self._attr.get('act_reg_cost') + self._attr.get('act_ot_cost'),
-            this_period = self._attr.get('act_this_per_cost'),
-            remaining = self._attr.get('remain_cost'))
+            budget=self._attr.get('target_cost'),
+            actual=self._attr.get('act_reg_cost') + self._attr.get('act_ot_cost'),
+            this_period=self._attr.get('act_this_per_cost'),
+            remaining=self._attr.get('remain_cost'))
 
     @property
     def unit_qty(self) -> ResourceValues:
         return ResourceValues(
-            budget = self._attr.get('target_qty'),
-            actual = self._attr.get('act_reg_qty') + self._attr.get('act_ot_qty'),
-            this_period = self._attr.get('act_this_per_qty'),
-            remaining = self._attr.get('remain_qty'))
+            budget=self._attr.get('target_qty'),
+            actual=self._attr.get('act_reg_qty') + self._attr.get('act_ot_qty'),
+            this_period=self._attr.get('act_this_per_qty'),
+            remaining=self._attr.get('remain_qty'))
 
     @property
     def remaining_start(self) -> Optional[datetime]:
@@ -172,47 +183,3 @@ class TaskResource:
     @property
     def remaining_late_finish(self) -> Optional[datetime]:
         return self._attr.get('rem_late_end_date')
-
-    # @property
-    # def remaining_cost_per_hour(self) -> float:
-    #     ###### UNTESTED #######
-    #     """
-    #     Calculates the remaining cost per hour
-
-    #     Returns:
-    #         float: Remaining cost per hour
-    #     """
-    #     if self.cost.remaining == 0.0:
-    #         return 0.0
-
-    #     if (rem_hours:=self.task['remain_drtn_hr_cnt']):
-    #         return self.cost.remaining / rem_hours
-
-    #     return self.cost.remaining
-
-#     def remaining_cost_days(self) -> list[tuple(datetime, float)]:
-#         if (start:=self._data['restart_date']) and (finish:=self._data['reend_date']):
-
-#             if start.date() == finish.date():
-#                 return [(start.replace(microsecond=0, second=0, minute=0, hour=0),
-#                          calc_time_variance_hrs(start.time(), finish.time()))]
-
-#             rem_days = list(self.calendar.iter_workdays(start, finish))
-
-#             if 
-
-#             if start.time() == self.calendar._work_week.get(f'{start:%A}').start:
-#                 rcd.append((start, ))
-
-
-# def calc_time_variance_hrs(start: time, finish: time) -> float:
-#     ###### NEEDS TO BE TESTED ########
-#     if not isinstance(start, time) or not isinstance(finish, time):
-#         raise ValueError('Arguments must be time objects')
-
-#     start_date = datetime.combine(datetime.today().date(), start)
-#     finish_date = datetime.combine(datetime.today().date(), start)
-
-#     hrs = (max(start_date, finish_date) - min(start_date, finish_date)).total_seconds() / 3600
-#     return hrs
-

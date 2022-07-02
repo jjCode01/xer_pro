@@ -5,5 +5,116 @@
     <a class="nav-link active" aria-current="page" href="#">Warnings</a>
 {% endblock %}
 {% block main_content %}
-    <h1 class="text-center">Hello You've reached the warnings page</h1>
+<section class="bg-light text-dark border-bottom p-1">
+    <div class="container-fluid">
+        <h5 class="mt-1">{{ schedules.current.name }}</h5>
+    </div>
+</section>
+
+<section class="py-3 px-md-4 bg-white">
+    {% from 'components/badged_element.j2' import badge %}
+    <div class="container-lg">
+        <h5>Schedule Warnings Summary</h5>
+        <div class="row gx-5 mb-4">
+            {{ badge('*Durations > 20 Days', 0) }}
+            {{ badge('Duplicate Names', warnings.duplicate_names|length) }}
+            {{ badge('*Open Predecessors', 0, 1) }}
+            {{ badge('*Open Successors', 0, 1) }}
+            {{ badge('*Open Starts', 0) }}
+            {{ badge('*Open Finishes', 0) }}
+            {{ badge('*Negative Lags', 0) }}
+            {{ badge('*Finish-Start Lags', 0) }}
+            {{ badge('*Start-Finish Logic', 0) }}
+            {{ badge('Duplicate Logic', warnings.duplicate_logic|length) }}
+            {{ badge('Redundant Logic', warnings.redundant_logic|length) }}
+            {{ badge('*Cost Variances', 0) }}
+            {{ badge('*Earned Value Variances', 0) }}
+        </div>
+    </div>
+</section>
+<section class="py-3 px-md-4 bg-white">
+    <div class="container-lg">
+        {% if warnings.duplicate_names|length %}
+        <div>
+            <table class="table table-hover caption-top w-100">
+                <caption class="h5 text-dark m-0"><button class="btn btn-light h5 w-100 text-start" data-bs-toggle="collapse" data-bs-target="#duplicateNames" aria-expanded="true">Duplicate Names</button></caption>
+                <tbody class="collapse show" id="duplicateNames">
+                {% for tasks in warnings.duplicate_names %}
+                    <tr>
+                        <th colspan="3">{{ tasks[0].name }}: {{ tasks|length|formatnumber }}</th>
+                    </tr>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ task.activity_id }}</td>
+                        <td>{{ task.name }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if warnings.duplicate_logic|length %}
+        <div>
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Duplicate Logic</caption>
+                <thead>
+                    <tr class="table-secondary shadow-sm">
+                        <th>Pred ID</th>
+                        <th>Pred Name</th>
+                        <th>Succ ID</th>
+                        <th>Succ Name</th>
+                        <th>Link</th>
+                        <th>Lag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for rels in warnings.duplicate_logic %}
+                    {% for rel in rels %}
+                        <tr>
+                            <td class="text-nowrap">{{ rel.predecessor.activity_id }}</td>
+                            <td>{{ rel.predecessor.name }}</td>
+                            <td class="text-nowrap">{{ rel.successor.activity_id }}</td>
+                            <td>{{ rel.successor.name }}</td>
+                            <td>{{ rel.link }}</td>
+                            <td>{{ rel.lag|formatnumber }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if warnings.redundant_logic|length %}
+        <div>
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Redundant Logic</caption>
+                <thead>
+                    <tr class="table-secondary shadow-sm">
+                        <th>Pred ID</th>
+                        <th>Pred Name</th>
+                        <th>Succ ID</th>
+                        <th>Succ Name</th>
+                        <th>Link</th>
+                        <th>Lag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for rel in warnings.redundant_logic %}
+                    <tr>
+                        <td class="text-nowrap">{{ rel.predecessor.activity_id }}</td>
+                        <td>{{ rel.predecessor.name }}</td>
+                        <td class="text-nowrap">{{ rel.successor.activity_id }}</td>
+                        <td>{{ rel.successor.name }}</td>
+                        <td>{{ rel.link }}</td>
+                        <td>{{ rel.lag|formatnumber }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}

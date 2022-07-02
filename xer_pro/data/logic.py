@@ -1,5 +1,6 @@
 from data.task import Task
 
+
 class Relationship:
     def __init__(self, pred: Task, succ: Task, **kwargs) -> None:
         self._attr = kwargs
@@ -17,6 +18,9 @@ class Relationship:
             self.predecessor.activity_id,
             self.successor.activity_id,
             self.link))
+
+    def __str__(self) -> str:
+        return f'{self.predecessor.activity_id} --> {self.successor.activity_id} [{self.link}:{self.lag}]'
 
     @property
     def lag(self) -> int:

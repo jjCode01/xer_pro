@@ -1,9 +1,8 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
 from data.sched_calendar import SchedCalendar, rem_hours_per_day
 from data.wbs import Wbs
-# from services.calendar_services import rem_hours_per_day
 
 STATUS = {
     'TK_NotStart': 'Not Started',
@@ -38,6 +37,7 @@ CONSTRAINTTYPES = {
     'CS_MSOB': 'Start On or Before',
 }
 
+
 class Task:
     def __init__(self, **kwargs) -> None:
         self._attr = kwargs
@@ -70,6 +70,20 @@ class Task:
         self._attr['calendar'] = calendar
 
     @property
+    def constraint_prime(self) -> Optional[dict]:
+        if (constraint := self._attr['cstr_type']) is None:
+            return None
+
+        return {'type': CONSTRAINTTYPES[constraint], 'date': self._attr['cstr_date']}
+
+    @property
+    def constraint_second(self) -> Optional[dict]:
+        if (constraint := self._attr['cstr_type2']) is None:
+            return None
+
+        return {'type': CONSTRAINTTYPES[constraint], 'date': self._attr['cstr_date2']}
+
+    @property
     def finish(self) -> datetime:
         if self.is_completed:
             return self._attr['act_end_date']
@@ -80,13 +94,13 @@ class Task:
     def free_float(self) -> Optional[int]:
         if self.is_completed:
             return None
-        
+
         return int(self._attr['free_float_hr_cnt'] / 8)
-        
+
     @property
     def is_completed(self) -> bool:
         return self._attr.get('status_code') == 'TK_Complete'
-    
+
     @property
     def is_critical(self) -> bool:
         return (not self.completed and
@@ -99,7 +113,7 @@ class Task:
     @property
     def is_loe(self) -> bool:
         return self.__attr.get('task_type') == 'TT_LOE'
-    
+
     @property
     def is_longest_path(self) -> bool:
         return self._attr.get('driving_pathflag')
@@ -111,7 +125,7 @@ class Task:
     @property
     def is_not_started(self) -> bool:
         return self._attr.get('status_code') == 'TK_NotStart'
-    
+
     @property
     def is_open(self) -> bool:
         return self._attr.get('status_code') != 'TK_Complete'
@@ -151,8 +165,12 @@ class Task:
     def total_float(self) -> Optional[int]:
         if self.is_completed:
             return None
-        
+
         return int(self._attr['total_float_hr_cnt'] / 8)
+
+    @property
+    def type(self) -> str:
+        return TASKTYPES[self._attr['task_type']]
 
     @property
     def wbs(self) -> Optional[Wbs]:

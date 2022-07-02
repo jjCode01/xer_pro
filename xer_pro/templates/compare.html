@@ -12,43 +12,41 @@
 </section>
 
 <section class="py-3 px-md-4 bg-white">
+    {% from 'components/badged_element.j2' import badge %}
     <div class="container-lg">
-        <div class="row">
-            <div class="col-sm-6 col-md-4">
-                <table class="table caption-top w-100">
-                    <caption>Activity Changes</caption>
-                    <tbody>
-                        <tr>
-                            <td>Added Activities:</td>
-                            <td class="text-end">{{ task_changes.added|length }}</td>
-                        </tr>
-                        <tr>
-                            <td>Deleted Activities:</td>
-                            <td class="text-end">{{ task_changes.deleted|length }}</td>
-                        </tr>
-                        <tr>
-                            <td>Revised Names:</td>
-                            <td class="text-end">{{ task_changes.name|length }}</td>
-                        </tr>
-                        <tr>
-                            <td>Revised Durations:</td>
-                            <td class="text-end">{{ (task_changes.orig_duration|length + task_changes.rem_duration|length)|formatnumber }}</td>
-                        </tr>
-                        <tr>
-                            <td>Revised Actual Dates:</td>
-                            <td class="text-end">{{ (task_changes.act_start|length + task_changes.act_finish|length)|formatnumber }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col-sm-6 col-md-4">
-                <table class="table caption-top w-100">
-                    <caption>Relationship Changes</caption>
-                    <tbody>
-
-                    </tbody>
-                </table>
-            </div>
+        <h5>Schedule Revisions Summary</h5>
+        <div class="row gx-5 mb-4">
+            {{ badge('Added Activities', task_changes.added_tasks|length) }}
+            {{ badge('Deleted Activities', task_changes.deleted_tasks|length) }}
+            {{ badge('Revised Names', task_changes.name|length) }}
+            {{ badge('Revised Durations', task_changes.orig_duration|length + task_changes.rem_duration|length) }}
+            {{ badge('Revised Actual Dates', task_changes.act_start|length + task_changes.act_finish|length) }}
+            {{ badge('Revised Task Calendars', task_changes.act_calendar|length) }}
+            {{ badge('Revised Task WBS', task_changes.act_wbs|length) }}
+            {{ badge('Revised Task Types', task_changes.act_type|length) }}
+            {{ badge('Added Constraints', task_changes.added_constraint|length) }}
+            {{ badge('Deleted Constraints', task_changes.deleted_constraint|length) }}
+            {{ badge('Revised Constraints', task_changes.revised_constraint|length) }}
+            {{ badge('Added Logic', task_changes.added_logic|length) }}
+            {{ badge('Deleted Logic', task_changes.deleted_logic|length) }}
+            {{ badge('Revised Logic', task_changes.revised_logic|length) }}
+            {{ badge('**Added Resource', 0) }}
+            {{ badge('**Deleted Resource', 0) }}
+            {{ badge('**Revised Cost', 0) }}
+            {{ badge('**Revised Unit Qty', 0) }}
+            {{ badge('**Added WBS', 0) }}
+            {{ badge('**Deleted WBS', 0) }}
+            {{ badge('**Revised WBS', 0) }}
+            {{ badge('**Added Memo', 0) }}
+            {{ badge('**Deleted Memo', 0) }}
+            {{ badge('**Revised Memo', 0) }}
+            {{ badge('**Added Calendars', 0) }}
+            {{ badge('**Deleted Calendars', 0) }}
+            {{ badge('**Revised Work Weeks', 0) }}
+            {{ badge('**Added Non-Work Days', 0) }}
+            {{ badge('**Deleted Non-Work Days', 0) }}
+            {{ badge('**Added Work Days', 0) }}
+            {{ badge('**Deleted Work Days', 0) }}
         </div>
     </div>
 </section>
@@ -56,13 +54,13 @@
 <section class="py-3 px-md-4 bg-white">
     <div class="container-lg">
 
-        {% if task_changes.added|length %}
+        {% if task_changes.added_tasks|length %}
         <!-- Added tasks -->
         <div class="table-responsive-md mb-5">
-            <table class="table table-striped table-hover caption-top">
-                <caption class="h5 text-dark m-0">Added Activities: {{ task_changes.added|length|formatnumber }}</caption>
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Added Activities: {{ task_changes.added_tasks|length|formatnumber }}</caption>
                 <thead>
-                    <tr>
+                    <tr class="table-secondary shadow-sm">
                         <th scope="col">#</th>
                         <th scope="col" class="text-start">ID</th>
                         <th scope="col" class="text-start">Name</th>
@@ -74,7 +72,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for task in task_changes.added %}
+                    {% for task in task_changes.added_tasks %}
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ task.activity_id }}</td>
@@ -92,12 +90,12 @@
         {% endif %}
 
         <!-- Deleted tasks -->
-        {% if task_changes.deleted|length %}
+        {% if task_changes.deleted_tasks|length %}
         <div class="table-responsive-md  mb-5">
-            <table class="table table-striped table-hover caption-top">
-                <caption class="h5 text-dark m-0">Deleted Activities: {{ task_changes.deleted|length|formatnumber }}</caption>
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Deleted Activities: {{ task_changes.deleted_tasks|length|formatnumber }}</caption>
                 <thead>
-                    <tr>
+                    <tr class="table-secondary">
                         <th scope="col">#</th>
                         <th scope="col" class="text-start">ID</th>
                         <th scope="col" class="text-start">Name</th>
@@ -109,7 +107,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for task in task_changes.deleted %}
+                    {% for task in task_changes.deleted_tasks %}
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ task.activity_id }}</td>
@@ -129,10 +127,10 @@
         <!-- Name Changes -->
         {% if task_changes.name %}
         <div class="table-responsive-md  mb-5">
-            <table class="table table-striped table-hover caption-top">
+            <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Activity Name Changes: {{ task_changes.name|length|formatnumber }}</caption>
                 <thead>
-                    <tr>
+                    <tr class="table-secondary">
                         <th scope="col">#</th>
                         <th scope="col">ID</th>
                         <th scope="col">New Name</th>
@@ -147,10 +145,10 @@
                         <td class="text-nowrap">{{ task[0].activity_id }}</td>
                         <td>{{ task[0].name }}</td>
                         <td>{{ task[1].name }}</td>
-                        {% if 60 <= task[2] < 80 %}
-                            <td class="text-center bg-warning">{{ task[2] }}%</td>
-                        {% elif task[2] < 60 %}
-                            <td class="text-center bg-danger text-light">{{ task[2] }}%</td>
+                        {% if (60 <= task[2] < 80) and task[3] != 100 %}
+                            <td class="text-center bg-warning rounded"><strong>{{ task[2] }}%</strong></td>
+                        {% elif task[2] < 60 and task[3] != 100  %}
+                            <td class="text-center bg-danger text-light rounded"><strong>{{ task[2] }}%</strong></td>
                         {% else %}
                             <td class="text-center">{{ task[2] }}%</td>
                         {% endif %}
@@ -164,10 +162,10 @@
         <!-- Original Duration Changes -->
         {% if task_changes.orig_duration %}
         <div class="table-responsive-md  mb-5">
-            <table class="table table-striped table-hover caption-top">
+            <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Original Duration Changes: {{ task_changes.orig_duration|length|formatnumber }}</caption>
                 <thead>
-                    <tr>
+                    <tr class="table-secondary">
                         <th scope="col">#</th>
                         <th scope="col" class="text-start">ID</th>
                         <th scope="col" class="text-start">Name</th>
@@ -201,10 +199,10 @@
         <!-- Remaining Duration Changes -->
         {% if task_changes.rem_duration %}
         <div class="table-responsive-md  mb-5">
-            <table class="table table-striped table-hover caption-top">
+            <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Remaining Duration Changes: {{ task_changes.rem_duration|length|formatnumber }}</caption>
                 <thead>
-                    <tr>
+                    <tr class="table-secondary">
                         <th scope="col">#</th>
                         <th scope="col" class="text-start">ID</th>
                         <th scope="col" class="text-start">Name</th>
@@ -238,10 +236,10 @@
         <!-- Actual Start Changes -->
         {% if task_changes.act_start %}
         <div class="table-responsive-md  mb-5">
-            <table class="table table-striped table-hover caption-top">
+            <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Actual Start Changes: {{ task_changes.act_start|length|formatnumber }}</caption>
                 <thead>
-                    <tr>
+                    <tr class="table-secondary">
                         <th scope="col">#</th>
                         <th scope="col" class="text-start">ID</th>
                         <th scope="col" class="text-start">Name</th>
@@ -276,13 +274,13 @@
         </div>
         {% endif %}
 
-        <!-- Actual Start Changes -->
+        <!-- Actual Finish Changes -->
         {% if task_changes.act_finish %}
         <div class="table-responsive-md  mb-5">
-            <table class="table table-striped table-hover caption-top">
+            <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Actual Finish Changes: {{ task_changes.act_finish|length|formatnumber }}</caption>
                 <thead>
-                    <tr>
+                    <tr class="table-secondary">
                         <th scope="col">#</th>
                         <th scope="col" class="text-start">ID</th>
                         <th scope="col" class="text-start">Name</th>
@@ -310,6 +308,287 @@
                         {% endif %}
                         <td class="text-center {{ color }}">{{ diff|formatvariance }}</td>
                         {% endwith %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Activity Calendar Changes -->
+        {% if task_changes.act_calendar %}
+        <div class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Activity Calendar Changes: {{ task_changes.act_calendar|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">ID</th>
+                        <th scope="col" class="text-start">Name</th>
+                        <th scope="col" class="text-center">New Calendar</th>
+                        <th scope="col" class="text-center">Old Calendar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in task_changes.act_calendar %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
+                        <td class="text-start">{{ task[0].name }}</td>
+                        <td class="text-center">{{ task[0].calendar|string }}</td>
+                        <td class="text-center">{{ task[1].calendar|string }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Activity Wbs Changes -->
+        {% if task_changes.act_wbs %}
+        <div class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Activity WBS Changes: {{ task_changes.act_wbs|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">ID</th>
+                        <th scope="col" class="text-start">Name</th>
+                        <th scope="col" class="text-start">New WBS Path</th>
+                        <th scope="col" class="text-start">Old WBS Path</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in task_changes.act_wbs %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
+                        <td class="text-start">{{ task[0].name }}</td>
+                        <td class="text-start">{{ task[1] }}</td>
+                        <td class="text-start">{{ task[2] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Activity Type Changes -->
+        {% if task_changes.act_type %}
+        <div class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Activity Type Changes: {{ task_changes.act_type|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">ID</th>
+                        <th scope="col" class="text-start">Name</th>
+                        <th scope="col" class="text-center">New Type</th>
+                        <th scope="col" class="text-center">Old Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in task_changes.act_type %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
+                        <td class="text-start">{{ task[0].name }}</td>
+                        <td class="text-center">{{ task[0].type }}</td>
+                        <td class="text-center">{{ task[1].type }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Added Constraints -->
+        {% if task_changes.added_constraint %}
+        <div class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Added Constraints: {{ task_changes.added_constraint|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">ID</th>
+                        <th scope="col" class="text-start">Name</th>
+                        <th scope="col" class="text-start">Type</th>
+                        <th scope="col" class="text-start">Constraint</th>
+                        <th scope="col" class="text-center">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in task_changes.added_constraint %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
+                        <td class="text-start">{{ task[0].name }}</td>
+                        <td class="text-start">{{ task[2].name }}</td>
+                        <td class="text-center">{{ task[1].type }}</td>
+                        <td class="text-center">{{ task[1].date|formatdate }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Deleted Constraints -->
+        {% if task_changes.deleted_constraint %}
+        <div class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Deleted Constraints: {{ task_changes.deleted_constraint|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">ID</th>
+                        <th scope="col" class="text-start">Name</th>
+                        <th scope="col" class="text-start">Type</th>
+                        <th scope="col" class="text-start">Constraint</th>
+                        <th scope="col" class="text-center">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in task_changes.deleted_constraint %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
+                        <td class="text-start">{{ task[0].name }}</td>
+                        <td class="text-start">{{ task[2].name }}</td>
+                        <td class="text-center">{{ task[1].type }}</td>
+                        <td class="text-center">{{ task[1].date|formatdate }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Revised Constraints -->
+        {% if task_changes.revised_constraint %}
+        <div class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Revised Constraints: {{ task_changes.revised_constraint|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">ID</th>
+                        <th scope="col" class="text-start">Name</th>
+                        <th scope="col" class="text-start">Constraint</th>
+                        <th scope="col" class="text-start">Type</th>
+                        <th scope="col" class="text-center">New Date</th>
+                        <th scope="col" class="text-center">Old Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in task_changes.revised_constraint %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
+                        <td class="text-start">{{ task[0].name }}</td>
+                        <td class="text-start">{{ task[3] }}</td>
+                        <td class="text-center">{{ task[1].type }}</td>
+                        <td class="text-center">{{ task[1].date|formatdate }}</td>
+                        <td class="text-center">{{ task[2].date|formatdate }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Added Relationships -->
+        {% if task_changes.added_logic %}
+        <div class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Added Relationships: {{ task_changes.added_logic|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">Pred ID</th>
+                        <th scope="col" class="text-start">Pred Name</th>
+                        <th scope="col" class="text-start">Succ ID</th>
+                        <th scope="col" class="text-start">Succ Name</th>
+                        <th scope="col" class="text-center">Link</th>
+                        <th scope="col" class="text-center">Lag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rel in task_changes.added_logic %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ rel.predecessor.activity_id }}</td>
+                        <td class="text-start">{{ rel.predecessor.name }}</td>
+                        <td class="text-start text-nowrap">{{ rel.successor.activity_id }}</td>
+                        <td class="text-start">{{ rel.successor.name }}</td>
+                        <td class="text-center">{{ rel.link }}</td>
+                        <td class="text-center">{{ rel.lag|formatnumber }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Deleted Relationships -->
+        {% if task_changes.deleted_logic %}
+        <div class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Deleted Relationships: {{ task_changes.deleted_logic|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">Pred ID</th>
+                        <th scope="col" class="text-start">Pred Name</th>
+                        <th scope="col" class="text-start">Succ ID</th>
+                        <th scope="col" class="text-start">Succ Name</th>
+                        <th scope="col" class="text-center">Link</th>
+                        <th scope="col" class="text-center">Lag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rel in task_changes.deleted_logic %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ rel.predecessor.activity_id }}</td>
+                        <td class="text-start">{{ rel.predecessor.name }}</td>
+                        <td class="text-start text-nowrap">{{ rel.successor.activity_id }}</td>
+                        <td class="text-start">{{ rel.successor.name }}</td>
+                        <td class="text-center">{{ rel.link }}</td>
+                        <td class="text-center">{{ rel.lag|formatnumber }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Revised Relationships -->
+        {% if task_changes.revised_logic %}
+        <div class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Revised Relationships: {{ task_changes.revised_logic|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">Pred ID</th>
+                        <th scope="col" class="text-start">Pred Name</th>
+                        <th scope="col" class="text-start">Succ ID</th>
+                        <th scope="col" class="text-start">Succ Name</th>
+                        <th scope="col" class="text-center">New Link:Lag</th>
+                        <th scope="col" class="text-center">Old Link:Lag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rel in task_changes.revised_logic %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ rel[0].predecessor.activity_id }}</td>
+                        <td class="text-start">{{ rel[0].predecessor.name }}</td>
+                        <td class="text-start text-nowrap">{{ rel[0].successor.activity_id }}</td>
+                        <td class="text-start">{{ rel[0].successor.name }}</td>
+                        <td class="text-center">{{ rel[0].link }}:{{ rel[0].lag|formatnumber }} </td>
+                        <td class="text-center">{{ rel[1].link }}:{{ rel[1].lag|formatnumber }} </td>
                     </tr>
                     {% endfor %}
                 </tbody>
