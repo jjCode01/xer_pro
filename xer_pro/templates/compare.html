@@ -16,24 +16,22 @@
     <div class="container-lg">
         <h5>Schedule Revisions Summary</h5>
         <div class="row gx-5 mb-4">
-            {{ badge('Added Activities', task_changes.added_tasks|length) }}
-            {{ badge('Deleted Activities', task_changes.deleted_tasks|length) }}
-            {{ badge('Revised Names', task_changes.name|length) }}
-            {{ badge('Revised Durations', task_changes.orig_duration|length + task_changes.rem_duration|length) }}
-            {{ badge('Revised Actual Dates', task_changes.act_start|length + task_changes.act_finish|length) }}
-            {{ badge('Revised Task Calendars', task_changes.act_calendar|length) }}
-            {{ badge('Revised Task WBS', task_changes.act_wbs|length) }}
-            {{ badge('Revised Task Types', task_changes.act_type|length) }}
-            {{ badge('Added Constraints', task_changes.added_constraint|length) }}
-            {{ badge('Deleted Constraints', task_changes.deleted_constraint|length) }}
-            {{ badge('Revised Constraints', task_changes.revised_constraint|length) }}
-            {{ badge('Added Logic', task_changes.added_logic|length) }}
-            {{ badge('Deleted Logic', task_changes.deleted_logic|length) }}
-            {{ badge('Revised Logic', task_changes.revised_logic|length) }}
-            {{ badge('**Added Resource', 0) }}
-            {{ badge('**Deleted Resource', 0) }}
-            {{ badge('**Revised Cost', 0) }}
-            {{ badge('**Revised Unit Qty', 0) }}
+            {{ badge('Added Activities', 'addedTaskTable', task_changes.added_tasks|length) }}
+            {{ badge('Deleted Activities', 'deletedTaskTable', task_changes.deleted_tasks|length) }}
+            {{ badge('Revised Names', 'taskNameChangeTable', task_changes.name|length) }}
+            {{ badge('Revised Durations', 'durationChangeTables', task_changes.orig_duration|length + task_changes.rem_duration|length) }}
+            {{ badge('Revised Actual Dates', 'actDateChangeTable', task_changes.act_start|length + task_changes.act_finish|length) }}
+            {{ badge('Revised Task Calendars', 'taskCalendarChangeTable', task_changes.act_calendar|length) }}
+            {{ badge('Revised Task WBS', 'taskWbsChangeTable', task_changes.act_wbs|length) }}
+            {{ badge('Revised Task Types', 'taskTypeChangeTable', task_changes.act_type|length) }}
+            {{ badge('Revised Constraints', 'constraintChangeTables', task_changes.revised_constraint|length) }}
+            {{ badge('Added Logic', 'addedLogicTable', task_changes.added_logic|length) }}
+            {{ badge('Deleted Logic', 'deletedLogicTable', task_changes.deleted_logic|length) }}
+            {{ badge('Revised Logic', 'revisedLogicTable', task_changes.revised_logic|length) }}
+            {{ badge('Added Resource', 'addedResourceTable', task_changes.added_resource|length) }}
+            {{ badge('Deleted Resource', 'deletedResourceTable', task_changes.deleted_resource|length) }}
+            {{ badge('Revised Cost', 'revisedCostTable', task_changes.revised_cost|length) }}
+            {{ badge('Revised Unit Qty', 'revisedQtyTable', task_changes.revised_qty|length) }}
             {{ badge('**Added WBS', 0) }}
             {{ badge('**Deleted WBS', 0) }}
             {{ badge('**Revised WBS', 0) }}
@@ -55,8 +53,7 @@
     <div class="container-lg">
 
         {% if task_changes.added_tasks|length %}
-        <!-- Added tasks -->
-        <div class="table-responsive-md mb-5">
+        <div id="addedTaskTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Added Activities: {{ task_changes.added_tasks|length|formatnumber }}</caption>
                 <thead>
@@ -89,9 +86,8 @@
         </div>
         {% endif %}
 
-        <!-- Deleted tasks -->
         {% if task_changes.deleted_tasks|length %}
-        <div class="table-responsive-md  mb-5">
+        <div id="deletedTaskTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Deleted Activities: {{ task_changes.deleted_tasks|length|formatnumber }}</caption>
                 <thead>
@@ -124,9 +120,8 @@
         </div>
         {% endif %}
 
-        <!-- Name Changes -->
         {% if task_changes.name %}
-        <div class="table-responsive-md  mb-5">
+        <div id="taskNameChangeTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Activity Name Changes: {{ task_changes.name|length|formatnumber }}</caption>
                 <thead>
@@ -159,165 +154,168 @@
         </div>
         {% endif %}
 
-        <!-- Original Duration Changes -->
-        {% if task_changes.orig_duration %}
-        <div class="table-responsive-md  mb-5">
-            <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Original Duration Changes: {{ task_changes.orig_duration|length|formatnumber }}</caption>
-                <thead>
-                    <tr class="table-secondary">
-                        <th scope="col">#</th>
-                        <th scope="col" class="text-start">ID</th>
-                        <th scope="col" class="text-start">Name</th>
-                        <th scope="col" class="text-center">New Dur</th>
-                        <th scope="col" class="text-center">Old Dur</th>
-                        <th scope="col" class="text-center">Diff</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in task_changes.orig_duration %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                        <td class="text-start">{{ task[0].name }}</td>
-                        <td class="text-center">{{ task[0].original_duration|formatnumber }}</td>
-                        <td class="text-center">{{ task[1].original_duration|formatnumber }}</td>
-                        {% with %}
-                        {% set diff = task[0].original_duration - task[1].original_duration %}
-                        {% if diff < 0 %}
-                            {% set color = 'text-danger' %}
-                        {% endif %}
-                        <td class="text-center {{ color }}">{{ diff|formatvariance }}</td>
-                        {% endwith %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% endif %}
-
-        <!-- Remaining Duration Changes -->
-        {% if task_changes.rem_duration %}
-        <div class="table-responsive-md  mb-5">
-            <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Remaining Duration Changes: {{ task_changes.rem_duration|length|formatnumber }}</caption>
-                <thead>
-                    <tr class="table-secondary">
-                        <th scope="col">#</th>
-                        <th scope="col" class="text-start">ID</th>
-                        <th scope="col" class="text-start">Name</th>
-                        <th scope="col" class="text-center">New Dur</th>
-                        <th scope="col" class="text-center">Old Dur</th>
-                        <th scope="col" class="text-center">Diff</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in task_changes.rem_duration %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                        <td class="text-start">{{ task[0].name }}</td>
-                        <td class="text-center">{{ task[0].remaining_duration|formatnumber }}</td>
-                        <td class="text-center">{{ task[1].remaining_duration|formatnumber }}</td>
-                        {% with %}
-                        {% set diff = task[0].remaining_duration - task[1].remaining_duration %}
-                        {% if diff < 0 %}
-                            {% set color = 'text-danger' %}
-                        {% endif %}
-                        <td class="text-center {{ color }}">{{ (task[0].remaining_duration - task[1].remaining_duration)|formatvariance }}</td>
-                        {% endwith %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% endif %}
-
-        <!-- Actual Start Changes -->
-        {% if task_changes.act_start %}
-        <div class="table-responsive-md  mb-5">
-            <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Actual Start Changes: {{ task_changes.act_start|length|formatnumber }}</caption>
-                <thead>
-                    <tr class="table-secondary">
-                        <th scope="col">#</th>
-                        <th scope="col" class="text-start">ID</th>
-                        <th scope="col" class="text-start">Name</th>
-                        <th scope="col" class="text-center">New Start</th>
-                        <th scope="col" class="text-center">Old Start</th>
-                        <th scope="col" class="text-center">Diff</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in task_changes.act_start %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                        <td class="text-start">{{ task[0].name }}</td>
-                        <td class="text-center">{{ task[0].act_start_date|formatdate }}</td>
-                        <td class="text-center">{{ task[1].act_start_date|formatdate }}</td>
-                        {% with %}
-                        {% if not task[0].act_start_date is none and not task[1].act_start_date is none %}
-                            {% set diff = (task[0].act_start_date - task[1].act_start_date).days %}
+        {% if task_changes.orig_duration or task_changes.rem_duration %}
+        <div id="durationChangeTables">
+            {% if task_changes.orig_duration %}
+            <div id="taskOrigDurChangeTable" class="table-responsive-md  mb-5">
+                <table class="table table-hover caption-top">
+                    <caption class="h5 text-dark m-0">Original Duration Changes: {{ task_changes.orig_duration|length|formatnumber }}</caption>
+                    <thead>
+                        <tr class="table-secondary">
+                            <th scope="col">#</th>
+                            <th scope="col" class="text-start">ID</th>
+                            <th scope="col" class="text-start">Name</th>
+                            <th scope="col" class="text-center">New Dur</th>
+                            <th scope="col" class="text-center">Old Dur</th>
+                            <th scope="col" class="text-center">Diff</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in task_changes.orig_duration %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
+                            <td class="text-start">{{ task[0].name }}</td>
+                            <td class="text-center">{{ task[0].original_duration|formatnumber }}</td>
+                            <td class="text-center">{{ task[1].original_duration|formatnumber }}</td>
+                            {% with %}
+                            {% set diff = task[0].original_duration - task[1].original_duration %}
                             {% if diff < 0 %}
                                 {% set color = 'text-danger' %}
                             {% endif %}
-                        {% else %}
-                            {% set diff = '-' %}
-                        {% endif %}
-                        <td class="text-center {{ color }}">{{ diff|formatvariance }}</td>
-                        {% endwith %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% endif %}
+                            <td class="text-center {{ color }}">{{ diff|formatvariance }}</td>
+                            {% endwith %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
 
-        <!-- Actual Finish Changes -->
-        {% if task_changes.act_finish %}
-        <div class="table-responsive-md  mb-5">
-            <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Actual Finish Changes: {{ task_changes.act_finish|length|formatnumber }}</caption>
-                <thead>
-                    <tr class="table-secondary">
-                        <th scope="col">#</th>
-                        <th scope="col" class="text-start">ID</th>
-                        <th scope="col" class="text-start">Name</th>
-                        <th scope="col" class="text-center">New Finish</th>
-                        <th scope="col" class="text-center">Old Finish</th>
-                        <th scope="col" class="text-center">Diff</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in task_changes.act_finish %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                        <td class="text-start">{{ task[0].name }}</td>
-                        <td class="text-center">{{ task[0].act_end_date|formatdate }}</td>
-                        <td class="text-center">{{ task[1].act_end_date|formatdate }}</td>
-                        {% with %}
-                        {% if not task[0].act_end_date is none and not task[1].act_end_date is none %}
-                            {% set diff = (task[0].act_end_date - task[1].act_end_date).days %}
+            {% if task_changes.rem_duration %}
+            <div id="taskRemDurChangeTable" class="table-responsive-md  mb-5">
+                <table class="table table-hover caption-top">
+                    <caption class="h5 text-dark m-0">Remaining Duration Changes: {{ task_changes.rem_duration|length|formatnumber }}</caption>
+                    <thead>
+                        <tr class="table-secondary">
+                            <th scope="col">#</th>
+                            <th scope="col" class="text-start">ID</th>
+                            <th scope="col" class="text-start">Name</th>
+                            <th scope="col" class="text-center">New Dur</th>
+                            <th scope="col" class="text-center">Old Dur</th>
+                            <th scope="col" class="text-center">Diff</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in task_changes.rem_duration %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
+                            <td class="text-start">{{ task[0].name }}</td>
+                            <td class="text-center">{{ task[0].remaining_duration|formatnumber }}</td>
+                            <td class="text-center">{{ task[1].remaining_duration|formatnumber }}</td>
+                            {% with %}
+                            {% set diff = task[0].remaining_duration - task[1].remaining_duration %}
                             {% if diff < 0 %}
                                 {% set color = 'text-danger' %}
                             {% endif %}
-                        {% else %}
-                            {% set diff = '-' %}
-                        {% endif %}
-                        <td class="text-center {{ color }}">{{ diff|formatvariance }}</td>
-                        {% endwith %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            <td class="text-center {{ color }}">{{ (task[0].remaining_duration - task[1].remaining_duration)|formatvariance }}</td>
+                            {% endwith %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
         </div>
         {% endif %}
 
-        <!-- Activity Calendar Changes -->
+        {% if task_changes.act_start or task_changes.act_finish %}
+        <div id="actDateChangeTable">
+            {% if task_changes.act_start %}
+            <div id="actStartChangeTable" class="table-responsive-md  mb-5">
+                <table class="table table-hover caption-top">
+                    <caption class="h5 text-dark m-0">Actual Start Changes: {{ task_changes.act_start|length|formatnumber }}</caption>
+                    <thead>
+                        <tr class="table-secondary">
+                            <th scope="col">#</th>
+                            <th scope="col" class="text-start">ID</th>
+                            <th scope="col" class="text-start">Name</th>
+                            <th scope="col" class="text-center">New Start</th>
+                            <th scope="col" class="text-center">Old Start</th>
+                            <th scope="col" class="text-center">Diff</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in task_changes.act_start %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
+                            <td class="text-start">{{ task[0].name }}</td>
+                            <td class="text-center">{{ task[0].act_start_date|formatdate }}</td>
+                            <td class="text-center">{{ task[1].act_start_date|formatdate }}</td>
+                            {% with %}
+                            {% if not task[0].act_start_date is none and not task[1].act_start_date is none %}
+                                {% set diff = (task[0].act_start_date - task[1].act_start_date).days %}
+                                {% if diff < 0 %}
+                                    {% set color = 'text-danger' %}
+                                {% endif %}
+                            {% else %}
+                                {% set diff = '-' %}
+                            {% endif %}
+                            <td class="text-center {{ color }}">{{ diff|formatvariance }}</td>
+                            {% endwith %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            {% if task_changes.act_finish %}
+            <div id="actFinishChangeTable" class="table-responsive-md  mb-5">
+                <table class="table table-hover caption-top">
+                    <caption class="h5 text-dark m-0">Actual Finish Changes: {{ task_changes.act_finish|length|formatnumber }}</caption>
+                    <thead>
+                        <tr class="table-secondary">
+                            <th scope="col">#</th>
+                            <th scope="col" class="text-start">ID</th>
+                            <th scope="col" class="text-start">Name</th>
+                            <th scope="col" class="text-center">New Finish</th>
+                            <th scope="col" class="text-center">Old Finish</th>
+                            <th scope="col" class="text-center">Diff</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in task_changes.act_finish %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
+                            <td class="text-start">{{ task[0].name }}</td>
+                            <td class="text-center">{{ task[0].act_end_date|formatdate }}</td>
+                            <td class="text-center">{{ task[1].act_end_date|formatdate }}</td>
+                            {% with %}
+                            {% if not task[0].act_end_date is none and not task[1].act_end_date is none %}
+                                {% set diff = (task[0].act_end_date - task[1].act_end_date).days %}
+                                {% if diff < 0 %}
+                                    {% set color = 'text-danger' %}
+                                {% endif %}
+                            {% else %}
+                                {% set diff = '-' %}
+                            {% endif %}
+                            <td class="text-center {{ color }}">{{ diff|formatvariance }}</td>
+                            {% endwith %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
         {% if task_changes.act_calendar %}
-        <div class="table-responsive-md  mb-5">
+        <div id="taskCalendarChangeTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Activity Calendar Changes: {{ task_changes.act_calendar|length|formatnumber }}</caption>
                 <thead>
@@ -344,9 +342,8 @@
         </div>
         {% endif %}
 
-        <!-- Activity Wbs Changes -->
         {% if task_changes.act_wbs %}
-        <div class="table-responsive-md  mb-5">
+        <div id="taskWbsChangeTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Activity WBS Changes: {{ task_changes.act_wbs|length|formatnumber }}</caption>
                 <thead>
@@ -373,9 +370,8 @@
         </div>
         {% endif %}
 
-        <!-- Activity Type Changes -->
         {% if task_changes.act_type %}
-        <div class="table-responsive-md  mb-5">
+        <div id="taskTypeChangeTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Activity Type Changes: {{ task_changes.act_type|length|formatnumber }}</caption>
                 <thead>
@@ -402,71 +398,8 @@
         </div>
         {% endif %}
 
-        <!-- Added Constraints -->
-        {% if task_changes.added_constraint %}
-        <div class="table-responsive-md  mb-5">
-            <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Added Constraints: {{ task_changes.added_constraint|length|formatnumber }}</caption>
-                <thead>
-                    <tr class="table-secondary">
-                        <th scope="col">#</th>
-                        <th scope="col" class="text-start">ID</th>
-                        <th scope="col" class="text-start">Name</th>
-                        <th scope="col" class="text-start">Type</th>
-                        <th scope="col" class="text-start">Constraint</th>
-                        <th scope="col" class="text-center">Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in task_changes.added_constraint %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                        <td class="text-start">{{ task[0].name }}</td>
-                        <td class="text-start">{{ task[2].name }}</td>
-                        <td class="text-center">{{ task[1].type }}</td>
-                        <td class="text-center">{{ task[1].date|formatdate }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% endif %}
-
-        <!-- Deleted Constraints -->
-        {% if task_changes.deleted_constraint %}
-        <div class="table-responsive-md  mb-5">
-            <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Deleted Constraints: {{ task_changes.deleted_constraint|length|formatnumber }}</caption>
-                <thead>
-                    <tr class="table-secondary">
-                        <th scope="col">#</th>
-                        <th scope="col" class="text-start">ID</th>
-                        <th scope="col" class="text-start">Name</th>
-                        <th scope="col" class="text-start">Type</th>
-                        <th scope="col" class="text-start">Constraint</th>
-                        <th scope="col" class="text-center">Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in task_changes.deleted_constraint %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                        <td class="text-start">{{ task[0].name }}</td>
-                        <td class="text-start">{{ task[2].name }}</td>
-                        <td class="text-center">{{ task[1].type }}</td>
-                        <td class="text-center">{{ task[1].date|formatdate }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% endif %}
-
-        <!-- Revised Constraints -->
         {% if task_changes.revised_constraint %}
-        <div class="table-responsive-md  mb-5">
+        <div id="constraintChangeTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Revised Constraints: {{ task_changes.revised_constraint|length|formatnumber }}</caption>
                 <thead>
@@ -475,8 +408,9 @@
                         <th scope="col" class="text-start">ID</th>
                         <th scope="col" class="text-start">Name</th>
                         <th scope="col" class="text-start">Constraint</th>
-                        <th scope="col" class="text-start">Type</th>
+                        <th scope="col" class="text-start">New Type</th>
                         <th scope="col" class="text-center">New Date</th>
+                        <th scope="col" class="text-start">Old Type</th>
                         <th scope="col" class="text-center">Old Date</th>
                     </tr>
                 </thead>
@@ -488,8 +422,9 @@
                         <td class="text-start">{{ task[0].name }}</td>
                         <td class="text-start">{{ task[3] }}</td>
                         <td class="text-center">{{ task[1].type }}</td>
-                        <td class="text-center">{{ task[1].date|formatdate }}</td>
-                        <td class="text-center">{{ task[2].date|formatdate }}</td>
+                        <td class="text-center text-nowrap">{{ task[1].date|formatdate }}</td>
+                        <td class="text-center">{{ task[2].type }}</td>
+                        <td class="text-center text-nowrap">{{ task[2].date|formatdate }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -497,9 +432,8 @@
         </div>
         {% endif %}
 
-        <!-- Added Relationships -->
         {% if task_changes.added_logic %}
-        <div class="table-responsive-md  mb-5">
+        <div id="addedLogicTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Added Relationships: {{ task_changes.added_logic|length|formatnumber }}</caption>
                 <thead>
@@ -530,9 +464,8 @@
         </div>
         {% endif %}
 
-        <!-- Deleted Relationships -->
         {% if task_changes.deleted_logic %}
-        <div class="table-responsive-md  mb-5">
+        <div id="deletedLogicTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Deleted Relationships: {{ task_changes.deleted_logic|length|formatnumber }}</caption>
                 <thead>
@@ -563,9 +496,8 @@
         </div>
         {% endif %}
 
-        <!-- Revised Relationships -->
         {% if task_changes.revised_logic %}
-        <div class="table-responsive-md  mb-5">
+        <div id="revisedLogicTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
                 <caption class="h5 text-dark m-0">Revised Relationships: {{ task_changes.revised_logic|length|formatnumber }}</caption>
                 <thead>
@@ -589,6 +521,126 @@
                         <td class="text-start">{{ rel[0].successor.name }}</td>
                         <td class="text-center">{{ rel[0].link }}:{{ rel[0].lag|formatnumber }} </td>
                         <td class="text-center">{{ rel[1].link }}:{{ rel[1].lag|formatnumber }} </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.added_resource %}
+        <div id="addedResourceTable" class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Added Resources: {{ task_changes.added_resource|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">ID</th>
+                        <th scope="col" class="text-start">Activity Name</th>
+                        <th scope="col" class="text-start">Resource</th>
+                        <th scope="col" class="text-end">Budgeted Cost</th>
+                        <th scope="col" class="text-end">Budgeted Qty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for res in task_changes.added_resource %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ res.task.activity_id }}</td>
+                        <td class="text-start">{{ res.task.name }}</td>
+                        <td class="text-start text-nowrap">{{ res.name }}</td>
+                        <td class="text-end">{{ res.cost.budget|formatnumber }}</td>
+                        <td class="text-end">{{ res.unit_qty.budget|formatnumber }} </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.deleted_resource %}
+        <div id="deletedResourceTable" class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Deleted Resources: {{ task_changes.deleted_resource|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">ID</th>
+                        <th scope="col" class="text-start">Activity Name</th>
+                        <th scope="col" class="text-start">Resource</th>
+                        <th scope="col" class="text-end">Budgeted Cost</th>
+                        <th scope="col" class="text-end">Budgeted Qty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for res in task_changes.deleted_resource %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ res.task.activity_id }}</td>
+                        <td class="text-start">{{ res.task.name }}</td>
+                        <td class="text-start text-nowrap">{{ res.name }}</td>
+                        <td class="text-end">{{ res.cost.budget|formatnumber }}</td>
+                        <td class="text-end">{{ res.unit_qty.budget|formatnumber }} </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.revised_cost %}
+        <div id="revisedCostTable" class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Revised Cost: {{ task_changes.revised_cost|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">ID</th>
+                        <th scope="col" class="text-start">Activity Name</th>
+                        <th scope="col" class="text-start">Resource</th>
+                        <th scope="col" class="text-end">New Cost</th>
+                        <th scope="col" class="text-end">Old Cost</th>
+                        <th scope="col" class="text-end">Variance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for res in task_changes.revised_cost %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ res[0].task.activity_id }}</td>
+                        <td class="text-start">{{ res[0].task.name }}</td>
+                        <td class="text-start text-nowrap">{{ res[0].name }}</td>
+                        <td class="text-end">{{ res[0].cost.budget|formatnumber }}</td>
+                        <td class="text-end">{{ res[1].cost.budget|formatnumber }} </td>
+                        <td class="text-end">{{ (res[0].cost.budget - res[1].cost.budget)|formatvariance }} </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.revised_qty %}
+        <div id="revisedQtyTable" class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark m-0">Revised Unit Qty: {{ task_changes.revised_qty|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">ID</th>
+                        <th scope="col" class="text-start">Activity Name</th>
+                        <th scope="col" class="text-start">Resource</th>
+                        <th scope="col" class="text-end">New Unit Qty</th>
+                        <th scope="col" class="text-end">Old Unit Qty</th>
+                        <th scope="col" class="text-end">Variance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for res in task_changes.revised_qty %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ res[0].task.activity_id }}</td>
+                        <td class="text-start">{{ res[0].task.name }}</td>
+                        <td class="text-start text-nowrap">{{ res[0].name }}</td>
+                        <td class="text-end">{{ res[0].unit_qty.budget|formatnumber }}</td>
+                        <td class="text-end">{{ res[1].unit_qty.budget|formatnumber }} </td>
+                        <td class="text-end">{{ (res[0].unit_qty.budget - res[1].unit_qty.budget)|formatvariance }} </td>
                     </tr>
                     {% endfor %}
                 </tbody>

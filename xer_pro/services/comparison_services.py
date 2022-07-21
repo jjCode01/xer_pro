@@ -1,13 +1,14 @@
-from collections import defaultdict
+from collections import defaultdict, Counter
 from fuzzywuzzy import fuzz
 from data.schedule import Schedule
-from services.wbs_services import get_all_wbs_levels
+from data.resource import TaskResource
 
 
 def get_schedule_changes(schedule: Schedule, other_schedule: Schedule) -> dict[str, list]:
     changes = defaultdict(list)
     changes.update(get_task_changes(schedule, other_schedule))
     changes.update(get_logic_changes(schedule, other_schedule))
+    changes.update(get_resource_changes(schedule.resources, other_schedule.resources))
     return changes
 
 
@@ -47,83 +48,20 @@ def get_task_changes(schedule: Schedule, other_schedule: Schedule) -> dict[str, 
         if task.calendar != other.calendar:
             changes['act_calendar'].append((task, other))
 
-        task_wbs_nodes = _get_task_wbs_string(
-            task._attr['wbs_id'],
-            schedule._wbs)
+        task_wbs_string = u"\U0001F80A".join((w.short_name for w in task.wbs.path(include_proj_node=False)))
+        other_wbs_string = u"\U0001F80A".join((w.short_name for w in other.wbs.path(include_proj_node=False)))
 
-        other_wbs_nodes = _get_task_wbs_string(
-            other._attr['wbs_id'],
-            other_schedule._wbs)
-
-        if task_wbs_nodes != other_wbs_nodes:
-            changes['act_wbs'].append((task, task_wbs_nodes, other_wbs_nodes))
+        if task_wbs_string != other_wbs_string:
+            changes['act_wbs'].append((task, task_wbs_string, other_wbs_string))
 
         if task._attr['task_type'] != other._attr['task_type']:
             changes['act_type'].append((task, other))
 
         if task.constraint_prime != other.constraint_prime:
-            if (task.constraint_prime and other.constraint_prime is None):
-                changes['added_constraint'].append((
-                    task,
-                    task.constraint_prime,
-                    'Primary'))
-
-            elif task.constraint_prime is None and other.constraint_prime:
-                changes['deleted_constraint'].append((
-                    task,
-                    other.constraint_prime,
-                    'Primary'))
-
-            elif task.constraint_prime and other.constraint_prime:
-                if task.constraint_prime['type'] != other.constraint_prime['type']:
-                    changes['added_constraint'].append((
-                        task,
-                        task.constraint_prime,
-                        'Primary'))
-
-                    changes['deleted_constraint'].append((
-                        task,
-                        other.constraint_prime,
-                        'Primary'))
-
-                else:
-                    changes['revised_constraint'].append((
-                        task,
-                        task.constraint_prime,
-                        other.constraint_prime,
-                        'Primary'))
+            changes['revised_constraint'].append((task, task.constraint_prime, other.constraint_prime, 'Primary'))
 
         if task.constraint_second != other.constraint_second:
-            if task.constraint_second and other.constraint_second is None:
-                changes['added_constraint'].append((
-                    task,
-                    task.constraint_second,
-                    'Secondary'))
-
-            elif task.constraint_second is None and other.constraint_second:
-                changes['deleted_constraint'].append((
-                    task,
-                    other.constraint_second,
-                    'Secondary'))
-
-            elif task.constraint_second and other.constraint_second:
-                if task.constraint_second['type'] != other.constraint_second['type']:
-                    changes['added_constraint'].append((
-                        task,
-                        task.constraint_second,
-                        'Secondary'))
-
-                    changes['deleted_constraint'].append((
-                        task,
-                        other.constraint_second,
-                        'Secondary'))
-
-                else:
-                    changes['revised_constraint'].append((
-                        task,
-                        task.constraint_second,
-                        other.constraint_second,
-                        'Secondary'))
+            changes['revised_constraint'].append((task, task.constraint_second, other.constraint_second, 'Secondary'))
 
     return changes
 
@@ -147,10 +85,45 @@ def get_logic_changes(schedule: Schedule, other_schedule: Schedule):
     return changes
 
 
-def get_resource_changes(schedule: Schedule, other_schedule: Schedule):
-    pass
+def get_resource_changes(resources: list[TaskResource], other_resources: list[TaskResource]):
+    def _shallow_compare1(res_1: TaskResource, res_2: TaskResource) -> bool:
+        if res_1.task != res_2.task or \
+                res_1.name != res_2.name or \
+                res_1.account != res_2.account or \
+                res_1.resource_type != res_2.resource_type or \
+                res_1.lag != res_2.lag:
+            return False
+        return True
 
+    resources_changes = defaultdict(list)
 
-def _get_task_wbs_string(id: str, wbs: dict) -> str:
-    nodes = get_all_wbs_levels(id, wbs)
-    return u"\U0001F80A".join((node._attr['wbs_short_name'] for node in nodes))
+    res_counter = Counter(resources)
+    res_counter.subtract(Counter(other_resources))
+
+    for res, count in res_counter.items():
+        if count > 0:
+            resources_changes['added_resource'].extend([res] * count)
+
+        elif count < 0:
+            resources_changes['deleted_resource'].extend([res] * abs(count))
+
+    for res in resources_changes['added_resource'][:]:
+        for old_res in resources_changes['deleted_resource'][:]:
+            if _shallow_compare1(res, old_res):
+                budget_change_flag = False
+                if res.cost.budget != old_res.cost.budget:
+                    resources_changes['revised_cost'].append((res, old_res))
+                    budget_change_flag = True
+
+                if res.unit_qty.budget != old_res.unit_qty.budget:
+                    resources_changes['revised_qty'].append((res, old_res))
+                    budget_change_flag = True
+
+                if not budget_change_flag:
+                    resources_changes['revised_resource'].append((res, old_res))
+
+                resources_changes['added_resource'].remove(res)
+                resources_changes['deleted_resource'].remove(old_res)
+                break
+
+    return resources_changes

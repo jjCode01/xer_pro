@@ -1,7 +1,7 @@
-from data.wbs import Wbs
+from data.wbs import WbsNode
 
 
-def get_all_wbs_levels(wbs_id: str, wbs_nodes: dict[str, Wbs]) -> list[Wbs]:
+def get_all_wbs_levels(wbs_id: str, wbs_nodes: dict[str, WbsNode]) -> list[WbsNode]:
     """Return hierarchy of wbs nodes in a list
 
     Args:
