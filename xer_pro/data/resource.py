@@ -6,8 +6,43 @@ from data.task import Task
 
 
 class CostAccount:
-    def __init__(self) -> None:
-        pass
+    """
+    A class to represent a cost account assigned to a Task Resource.
+
+    ...
+
+    Attributes
+    ----------
+    name : str
+        Short description of cost account
+    short_name : str
+        Short name of cost account
+    """
+    def __init__(self, **kwargs) -> None:
+        self._attr = kwargs
+        self.parent = None
+
+    def __eq__(self, __o: object) -> bool:
+        return (
+            self._attr['acct_name'] == __o._attr['acct_name'] and
+            self._attr['acct_short_name'] == __o._attr['acct_short_name'] and
+            self.parent == __o.parent)
+
+    def __hash__(self) -> int:
+        return ((
+            self._attr['acct_name'],
+            self._attr['acct_short_name'],
+            self.parent))
+
+    @property
+    def name(self) -> str:
+        """Short description of cost account"""
+        return self._attr['acct_name']
+
+    @property
+    def short_name(self) -> str:
+        """Short name of cost account"""
+        return self._attr['acct_short_name']
 
 
 @dataclass
@@ -42,7 +77,7 @@ class ResourceValues:
 
     def __post_init__(self):
         self.at_completion = self.actual + self.remaining
-        self.variance = self.at_completion - self.budget
+        self.variance = round(self.at_completion - self.budget, 2)
         self.percent = 0.0 \
             if (self.budget == 0 or self.actual == 0) \
             else self.actual / self.budget * 100
@@ -101,6 +136,13 @@ class TaskResource:
                      self._attr['target_lag_drtn_hr_cnt'],
                      self._attr['target_cost'],))
 
+    def __str__(self) -> str:
+        return f'{self.task.activity_id} | {self.name} | ${self.cost.budget:,.2f}'
+
+    @property
+    def lag(self) -> int:
+        return self._attr.get('target_lag_drtn_hr_cnt')
+
     @property
     def name(self) -> str:
         """Resouce name"""
@@ -121,6 +163,10 @@ class TaskResource:
         if not isinstance(cal, SchedCalendar):
             raise ValueError("Value Error: Argument must be type SchedCalendar")
         self._attr['calendar'] = cal
+
+    @property
+    def earned_value(self) -> float:
+        return self.cost.budget * self.task.percent_complete
 
     @property
     def finish(self) -> datetime:
