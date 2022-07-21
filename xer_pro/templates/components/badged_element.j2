@@ -1,14 +1,15 @@
 #jinja2: lstrip_blocks: True
-{% macro badge(description='', count=0, normal=0) %}
+{% macro badge(description='', element_id='#', count=0, normal=0) %}
     <div class="col-sm-6 col-lg-4 col-xl-3">
         <div class="p-1 border-bottom d-flex justify-content-between align-items-center">
             {{ description }}:
             {% if count == normal %}
                 {% set color = 'bg-primary' %}
+                <span class="text-end badge bg-primary rounded-pill">{{ count|formatnumber }}</span>
             {% else %}
                 {% set color = 'bg-danger' %}
+                <a href='#{{ element_id }}'><span class="text-end badge bg-danger rounded-pill">{{ count|formatnumber }}</span></a>
             {% endif %}
-            <span class="text-end badge {{ color }} rounded-pill">{{ count|formatnumber }}</span>
         </div>
     </div>
 {% endmacro %}
