@@ -87,7 +87,7 @@ def index():
     if request.method == 'GET':
         files = []
     if request.method == 'POST':
-        file: Schedule = parse_xer_file(request.files.get('file').read().decode(CODEC))
+        file = parse_xer_file(request.files.get('file').read().decode(CODEC))
         if not (errors := find_xer_errors(file)) is None:
             error_str = '\r\n'.join(errors)
             return f'XER contains errors!\r\n{error_str}', 400
