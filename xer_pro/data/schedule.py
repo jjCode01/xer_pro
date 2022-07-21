@@ -3,7 +3,7 @@ from statistics import mean
 from collections import Counter
 from typing import Iterator, Optional
 from data.sched_calendar import SchedCalendar
-from data.wbs import Wbs
+from data.wbs import WbsNode
 from data.task import Task
 from data.logic import Relationship
 from data.resource import ResourceValues, TaskResource
@@ -22,9 +22,12 @@ class Schedule:
                            for fin in tables.get('FINDATES', {})}
 
         self._wbs = {
-            wbs['wbs_id']: Wbs(**wbs)
+            wbs['wbs_id']: WbsNode(**wbs)
             for wbs in tables.get('PROJWBS', {})
             if wbs['proj_id'] == proj_id}
+
+        for wbs in self._wbs.values():
+            wbs.parent = self._wbs.get(wbs._attr['parent_wbs_id'])
 
         self.name = self._get_schedule_name()
 
@@ -167,7 +170,7 @@ class Schedule:
             remaining=sum((r.unit_qty.remaining for r in self.resources)))
 
     @property
-    def wbs(self) -> list[Wbs]:
+    def wbs(self) -> list[WbsNode]:
         """List of all Wbs objects included in the schedule"""
         return self._wbs.values()
 
@@ -206,6 +209,7 @@ class Schedule:
         for row in table:
             if row['proj_id'] == self._id:
                 row['calendar'] = self._calendars.get(row['clndr_id'])
+                row['wbs'] = self._wbs.get(row['wbs_id'])
                 yield (row['task_id'], Task(**row))
 
     def _generate_logic(self, table: list) -> dict[tuple[str, str, str], Relationship]:
@@ -219,23 +223,26 @@ class Schedule:
     def _generate_resources(self, table: list) -> dict[tuple[str, str, str], TaskResource]:
         for row in table:
             if row['proj_id'] == self._id:
-                row['task'] = self._tasks.get(row['task_id'])
+                task: Task = self._tasks.get(row['task_id'])
+                row['task'] = task
                 row['resource'] = self._resources.get(row['rsrc_id'], {})
                 row['calendar'] = self._calendars.get(row['task']['clndr_id'])
                 row['name'] = row['resource'].get('rsrc_name', '')
                 row['account'] = self._accounts.get(row['acct_id'])
 
-                yield TaskResource(**row)
+                res = TaskResource(**row)
+                yield res
 
-    def _generate_financials(self, table: list) -> dict[tuple[str, FinancialPeriod]]:
-        for row in table:
-            if row['proj_id'] == self._id:
-                row['period'] = self._fin_dates[row['fin_dates_id']]
-                row['task_resource'] = self._task_resources[row['taskrsrc_id']]
-                row['task'] = self._tasks.get(row['task_id'])
-                id = (row['period'].name, row['task']['task_code'], row['task_resource'].name)
+    def _generate_financials(self, table: list) -> dict[tuple[str, ResourceFinancial]]:
+        if table:
+            for row in table:
+                if row['proj_id'] == self._id:
+                    row['period'] = self._fin_dates[row['fin_dates_id']]
+                    row['task_resource'] = self._task_resources[row['taskrsrc_id']]
+                    row['task'] = self._tasks.get(row['task_id'])
+                    id = (row['period'].name, row['task']['task_code'], row['task_resource'].name)
 
-                yield (id, ResourceFinancial(**row))
+                    yield (id, ResourceFinancial(**row))
 
     def _get_project(self, table: list) -> dict:
         for row in table:
