@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from data.sched_calendar import SchedCalendar, rem_hours_per_day
-from data.wbs import Wbs
+from data.wbs import WbsNode
 
 STATUS = {
     'TK_NotStart': 'Not Started',
@@ -112,7 +112,7 @@ class Task:
 
     @property
     def is_loe(self) -> bool:
-        return self.__attr.get('task_type') == 'TT_LOE'
+        return self._attr.get('task_type') == 'TT_LOE'
 
     @property
     def is_longest_path(self) -> bool:
@@ -147,6 +147,32 @@ class Task:
         return int(self._attr['target_drtn_hr_cnt'] / 8)
 
     @property
+    def percent_type(self) -> str:
+        return PERCENTTYPES[self._attr['complete_pct_type']]
+
+    @property
+    def percent_complete(self) -> float:
+        if self._attr['complete_pct_type'] == 'CP_Phys':
+            return self._attr['phys_complete_pct'] / 100
+
+        if self._attr['complete_pct_type'] == 'CP_Drtn':
+            if self.is_not_started or self.original_duration == 0:
+                return 0.0
+            if self.is_completed:
+                return 1.0
+            if self.remaining_duration >= self.original_duration:
+                return 0.0
+
+            return 1 - self.remaining_duration / self.original_duration
+
+        if self._attr['complete_pct_type'] == 'CP_Units':
+            target_units = self._attr['target_work_qty'] + self._attr['target_equip_qty']
+            if target_units == 0:
+                return 0.0
+            actual_units = self._attr['act_work_qty'] + self._attr['act_equip_qty']
+            return 1 - actual_units / target_units
+
+    @property
     def remaining_duration(self) -> int:
         return int(self._attr['remain_drtn_hr_cnt'] / 8)
 
@@ -173,12 +199,12 @@ class Task:
         return TASKTYPES[self._attr['task_type']]
 
     @property
-    def wbs(self) -> Optional[Wbs]:
+    def wbs(self) -> Optional[WbsNode]:
         return self._attr.get('wbs')
 
     @wbs.setter
-    def wbs(self, wbs_node: Wbs):
-        if not isinstance(wbs_node, Wbs):
+    def wbs(self, wbs_node: WbsNode):
+        if not isinstance(wbs_node, WbsNode):
             raise ValueError("Value Error: argument must be a Wbs object")
 
         self._attr['wbs'] = wbs_node
