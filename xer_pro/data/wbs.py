@@ -27,6 +27,18 @@ class WbsNode:
     def __getitem__(self, name: str):
         return self._attr[name]
 
+    def __eq__(self, __o: object) -> bool:
+        self_path = ".".join([node.short_name for node in self.path(False)])
+        other_path = ".".join([node.short_name for node in __o.path(False)])
+        return (
+            self.name == __o.name and
+            self.short_name == __o.short_name and
+            self_path == other_path)
+
+    def __hash__(self) -> int:
+        self_path = ".".join([node.short_name for node in self.path(False)])
+        return (self.name, self.short_name, self_path)
+
     @property
     def name(self) -> str:
         return self._attr['wbs_name']
