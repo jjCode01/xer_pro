@@ -2,6 +2,7 @@ from collections import defaultdict, Counter
 from fuzzywuzzy import fuzz
 from data.schedule import Schedule
 from data.resource import TaskResource
+from data.wbs import WbsLinkedList, WbsNode
 
 
 def get_schedule_changes(schedule: Schedule, other_schedule: Schedule) -> dict[str, list]:
@@ -9,6 +10,7 @@ def get_schedule_changes(schedule: Schedule, other_schedule: Schedule) -> dict[s
     changes.update(get_task_changes(schedule, other_schedule))
     changes.update(get_logic_changes(schedule, other_schedule))
     changes.update(get_resource_changes(schedule.resources, other_schedule.resources))
+    changes.update(get_wbs_changes(schedule.wbs, other_schedule.wbs))
     return changes
 
 
@@ -48,11 +50,11 @@ def get_task_changes(schedule: Schedule, other_schedule: Schedule) -> dict[str, 
         if task.calendar != other.calendar:
             changes['act_calendar'].append((task, other))
 
-        task_wbs_string = u"\U0001F80A".join((w.short_name for w in task.wbs.path(include_proj_node=False)))
-        other_wbs_string = u"\U0001F80A".join((w.short_name for w in other.wbs.path(include_proj_node=False)))
+        task_wbs = WbsLinkedList(task.wbs)
+        other_wbs = WbsLinkedList(other.wbs)
 
-        if task_wbs_string != other_wbs_string:
-            changes['act_wbs'].append((task, task_wbs_string, other_wbs_string))
+        if task_wbs != other_wbs:
+            changes['act_wbs'].append((task, task_wbs.short_name_path(), other_wbs.short_name_path()))
 
         if task._attr['task_type'] != other._attr['task_type']:
             changes['act_type'].append((task, other))
@@ -85,7 +87,7 @@ def get_logic_changes(schedule: Schedule, other_schedule: Schedule):
     return changes
 
 
-def get_resource_changes(resources: list[TaskResource], other_resources: list[TaskResource]):
+def get_resource_changes(resources: list[TaskResource], other_resources: list[TaskResource]) -> dict[str, list]:
     def _shallow_compare1(res_1: TaskResource, res_2: TaskResource) -> bool:
         if res_1.task != res_2.task or \
                 res_1.name != res_2.name or \
@@ -127,3 +129,37 @@ def get_resource_changes(resources: list[TaskResource], other_resources: list[Ta
                 break
 
     return resources_changes
+
+
+def get_wbs_changes(wbs_nodes: list[WbsNode], other_wbs_nodes: list[WbsNode]) -> dict[str, list]:
+    wbs_changes = defaultdict(list)
+
+    wbs_node_by_path = {
+        WbsLinkedList(wbs): wbs
+        for wbs in wbs_nodes
+        if not wbs.is_project_node}
+
+    other_wbs_node_by_path = {
+        WbsLinkedList(wbs): wbs
+        for wbs in other_wbs_nodes
+        if not wbs.is_project_node}
+
+    wbs_changes['added_wbs'] = [
+        (path.short_name_path(), node) for path, node in wbs_node_by_path.items()
+        if path not in other_wbs_node_by_path]
+
+    wbs_changes['deleted_wbs'] = [
+        (path.short_name_path(), node) for path, node in other_wbs_node_by_path.items()
+        if path not in wbs_node_by_path]
+
+    for path, node in wbs_node_by_path.items():
+        if (other_node := other_wbs_node_by_path.get(path)):
+            if node.name != other_node.name:
+                wbs_changes['revised_wbs_name'].append((
+                    path.short_name_path(),
+                    node,
+                    other_node,
+                    fuzz.ratio(node.name, other_node.name),
+                    fuzz.partial_ratio(node.name, other_node.name)))
+
+    return wbs_changes
