@@ -1,4 +1,5 @@
 from data.task import Task
+from data.wbs import WbsLinkedList
 
 ADMIN_VERBS = (
     'submit', 'submittal', 'shop drawing', 'product data', 'review', 'approve', 'approval',
@@ -19,7 +20,8 @@ def is_construction_task(task: Task) -> bool:
     Returns:
         bool: True if is Construction; False if Administrative or Procurement
     """
-    for node in task.wbs.path(include_proj_node=False):
+    wbs_path = WbsLinkedList(task.wbs)
+    for node in wbs_path.iter_path():
         if any(verb in node.name.lower() for verb in ADMIN_VERBS):
             return False
 
