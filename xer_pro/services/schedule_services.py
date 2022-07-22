@@ -82,7 +82,10 @@ def parse_schedule_cash_flow(schedule: Schedule) -> dict[str, list]:
                 late[dt[0]] += dt[1]
 
         if resource.cost.this_period != 0:
-            start = max([resource.start, schedule.last_financial_period.finish + timedelta(days=1)])
+            if schedule.last_financial_period:
+                start = max([resource.start, schedule.last_financial_period.finish + timedelta(days=1)])
+            else:
+                start = resource.start
             finish = min([resource.finish, schedule.data_date - timedelta(hours=1)])
 
             if _interval_date(start) >= _interval_date(finish):
