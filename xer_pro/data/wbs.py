@@ -1,4 +1,7 @@
 
+from typing import Iterator
+
+
 class WbsNode:
     """A class to represent a schedule WBS node.
 
@@ -12,13 +15,6 @@ class WbsNode:
         Short name for WBS node
     is_project_node: bool
         Flags if node is Project Node
-
-    ...
-
-    Methods
-    ----------
-    path: list
-        Returns list of WBS node and all parent nodes
     """
     def __init__(self, **kwargs) -> None:
         self._attr = kwargs
@@ -28,16 +24,13 @@ class WbsNode:
         return self._attr[name]
 
     def __eq__(self, __o: object) -> bool:
-        self_path = ".".join([node.short_name for node in self.path(False)])
-        other_path = ".".join([node.short_name for node in __o.path(False)])
-        return (
-            self.name == __o.name and
-            self.short_name == __o.short_name and
-            self_path == other_path)
+        self_path = WbsLinkedList(self)
+        other_path = WbsLinkedList(__o)
+        return self_path.short_name_path(False) == other_path.short_name_path(False)
 
     def __hash__(self) -> int:
-        self_path = ".".join([node.short_name for node in self.path(False)])
-        return (self.name, self.short_name, self_path)
+        self_path = WbsLinkedList(self)
+        return self_path.short_name_path(False)
 
     @property
     def name(self) -> str:
@@ -51,18 +44,30 @@ class WbsNode:
     def is_project_node(self) -> bool:
         return self._attr['proj_node_flag']
 
-    def path(self, include_proj_node: bool = True) -> list:
-        if self.is_project_node:
-            return self._attr['short_name']
 
-        if not self.parent:
-            return []
+class WbsLinkedList:
+    def __init__(self, tail: WbsNode = None) -> None:
+        self.tail = tail
 
-        wbs_node = self
-        path = []
-        while wbs_node:
-            if wbs_node.is_project_node == include_proj_node:
-                path.append(wbs_node)
-            wbs_node = wbs_node.parent
+    def __eq__(self, __o: object) -> bool:
+        return self.short_name_path() == __o.short_name_path()
 
-        return reversed(path)
+    def __hash__(self) -> int:
+        return hash(self.short_name_path())
+
+    def iter_path(self, include_proj_node=False) -> Iterator[WbsNode]:
+        node = self.tail
+        if not include_proj_node and node.is_project_node:
+            node = None
+
+        while node is not None and not node.is_project_node:
+            yield node
+            node = node.parent
+
+    def short_name_path(self, include_proj_node=False) -> str:
+        short_path = '.'.join(reversed([node.short_name for node in self.iter_path(include_proj_node)]))
+        return short_path
+
+    def long_name_path(self, include_proj_node=False) -> str:
+        long_path = '.'.join(reversed([node.name for node in self.iter_path(include_proj_node)]))
+        return long_path
