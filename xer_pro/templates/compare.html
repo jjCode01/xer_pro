@@ -32,9 +32,9 @@
             {{ badge('Deleted Resource', 'deletedResourceTable', task_changes.deleted_resource|length) }}
             {{ badge('Revised Cost', 'revisedCostTable', task_changes.revised_cost|length) }}
             {{ badge('Revised Unit Qty', 'revisedQtyTable', task_changes.revised_qty|length) }}
-            {{ badge('**Added WBS', 0) }}
-            {{ badge('**Deleted WBS', 0) }}
-            {{ badge('**Revised WBS', 0) }}
+            {{ badge('Added WBS', 'addedWbsTable', task_changes.added_wbs|length) }}
+            {{ badge('Deleted WBS', 'deletedWbsTable', task_changes.deleted_wbs|length) }}
+            {{ badge('Revised WBS Name', 'revisedWbsTable', task_changes.revised_wbs_name|length) }}
             {{ badge('**Added Memo', 0) }}
             {{ badge('**Deleted Memo', 0) }}
             {{ badge('**Revised Memo', 0) }}
@@ -55,7 +55,7 @@
         {% if task_changes.added_tasks|length %}
         <div id="addedTaskTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Added Activities: {{ task_changes.added_tasks|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Added Activities: {{ task_changes.added_tasks|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary shadow-sm">
                         <th scope="col">#</th>
@@ -89,7 +89,7 @@
         {% if task_changes.deleted_tasks|length %}
         <div id="deletedTaskTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Deleted Activities: {{ task_changes.deleted_tasks|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Deleted Activities: {{ task_changes.deleted_tasks|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -123,7 +123,7 @@
         {% if task_changes.name %}
         <div id="taskNameChangeTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Activity Name Changes: {{ task_changes.name|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Activity Name Changes: {{ task_changes.name|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -159,7 +159,7 @@
             {% if task_changes.orig_duration %}
             <div id="taskOrigDurChangeTable" class="table-responsive-md  mb-5">
                 <table class="table table-hover caption-top">
-                    <caption class="h5 text-dark m-0">Original Duration Changes: {{ task_changes.orig_duration|length|formatnumber }}</caption>
+                    <caption class="h5 text-dark text-nowrap m-0">Original Duration Changes: {{ task_changes.orig_duration|length|formatnumber }}</caption>
                     <thead>
                         <tr class="table-secondary">
                             <th scope="col">#</th>
@@ -195,7 +195,7 @@
             {% if task_changes.rem_duration %}
             <div id="taskRemDurChangeTable" class="table-responsive-md  mb-5">
                 <table class="table table-hover caption-top">
-                    <caption class="h5 text-dark m-0">Remaining Duration Changes: {{ task_changes.rem_duration|length|formatnumber }}</caption>
+                    <caption class="h5 text-dark text-nowrap m-0">Remaining Duration Changes: {{ task_changes.rem_duration|length|formatnumber }}</caption>
                     <thead>
                         <tr class="table-secondary">
                             <th scope="col">#</th>
@@ -235,7 +235,7 @@
             {% if task_changes.act_start %}
             <div id="actStartChangeTable" class="table-responsive-md  mb-5">
                 <table class="table table-hover caption-top">
-                    <caption class="h5 text-dark m-0">Actual Start Changes: {{ task_changes.act_start|length|formatnumber }}</caption>
+                    <caption class="h5 text-dark text-nowrap m-0">Actual Start Changes: {{ task_changes.act_start|length|formatnumber }}</caption>
                     <thead>
                         <tr class="table-secondary">
                             <th scope="col">#</th>
@@ -275,7 +275,7 @@
             {% if task_changes.act_finish %}
             <div id="actFinishChangeTable" class="table-responsive-md  mb-5">
                 <table class="table table-hover caption-top">
-                    <caption class="h5 text-dark m-0">Actual Finish Changes: {{ task_changes.act_finish|length|formatnumber }}</caption>
+                    <caption class="h5 text-dark text-nowrap m-0">Actual Finish Changes: {{ task_changes.act_finish|length|formatnumber }}</caption>
                     <thead>
                         <tr class="table-secondary">
                             <th scope="col">#</th>
@@ -317,7 +317,7 @@
         {% if task_changes.act_calendar %}
         <div id="taskCalendarChangeTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Activity Calendar Changes: {{ task_changes.act_calendar|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Activity Calendar Changes: {{ task_changes.act_calendar|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -345,7 +345,7 @@
         {% if task_changes.act_wbs %}
         <div id="taskWbsChangeTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Activity WBS Changes: {{ task_changes.act_wbs|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Activity WBS Changes: {{ task_changes.act_wbs|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -373,7 +373,7 @@
         {% if task_changes.act_type %}
         <div id="taskTypeChangeTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Activity Type Changes: {{ task_changes.act_type|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Activity Type Changes: {{ task_changes.act_type|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -401,7 +401,7 @@
         {% if task_changes.revised_constraint %}
         <div id="constraintChangeTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Revised Constraints: {{ task_changes.revised_constraint|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Revised Constraints: {{ task_changes.revised_constraint|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -435,7 +435,7 @@
         {% if task_changes.added_logic %}
         <div id="addedLogicTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Added Relationships: {{ task_changes.added_logic|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Added Relationships: {{ task_changes.added_logic|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -467,7 +467,7 @@
         {% if task_changes.deleted_logic %}
         <div id="deletedLogicTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Deleted Relationships: {{ task_changes.deleted_logic|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Deleted Relationships: {{ task_changes.deleted_logic|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -499,7 +499,7 @@
         {% if task_changes.revised_logic %}
         <div id="revisedLogicTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Revised Relationships: {{ task_changes.revised_logic|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Revised Relationships: {{ task_changes.revised_logic|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -530,7 +530,7 @@
         {% if task_changes.added_resource %}
         <div id="addedResourceTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Added Resources: {{ task_changes.added_resource|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Added Resources: {{ task_changes.added_resource|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -559,7 +559,7 @@
         {% if task_changes.deleted_resource %}
         <div id="deletedResourceTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Deleted Resources: {{ task_changes.deleted_resource|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Deleted Resources: {{ task_changes.deleted_resource|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -588,7 +588,7 @@
         {% if task_changes.revised_cost %}
         <div id="revisedCostTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Revised Cost: {{ task_changes.revised_cost|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Revised Cost: {{ task_changes.revised_cost|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -619,7 +619,7 @@
         {% if task_changes.revised_qty %}
         <div id="revisedQtyTable" class="table-responsive-md  mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Revised Unit Qty: {{ task_changes.revised_qty|length|formatnumber }}</caption>
+                <caption class="h5 text-dark text-nowrap m-0">Revised Unit Qty: {{ task_changes.revised_qty|length|formatnumber }}</caption>
                 <thead>
                     <tr class="table-secondary">
                         <th scope="col">#</th>
@@ -641,6 +641,85 @@
                         <td class="text-end">{{ res[0].unit_qty.budget|formatnumber }}</td>
                         <td class="text-end">{{ res[1].unit_qty.budget|formatnumber }} </td>
                         <td class="text-end">{{ (res[0].unit_qty.budget - res[1].unit_qty.budget)|formatvariance }} </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.added_wbs %}
+        <div id="addedWbsTable" class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark text-nowrap m-0">Added WBS Nodes: {{ task_changes.added_wbs|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">WBS Code</th>
+                        <th scope="col" class="text-start">WBS Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wbs in task_changes.added_wbs %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ wbs[0] }}</td>
+                        <td class="text-start">{{ wbs[1].name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.deleted_wbs %}
+        <div id="deletedWbsTable" class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark text-nowrap m-0">Deleted WBS Nodes: {{ task_changes.deleted_wbs|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">WBS Code</th>
+                        <th scope="col" class="text-start">WBS Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wbs in task_changes.deleted_wbs %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ wbs[0] }}</td>
+                        <td class="text-start">{{ wbs[1].name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.revised_wbs_name %}
+        <div id="revisedWbsTable" class="table-responsive-md  mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark text-nowrap m-0">Revised WBS Names: {{ task_changes.revised_wbs_name|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">WBS Code</th>
+                        <th scope="col" class="text-start">New WBS Name</th>
+                        <th scope="col" class="text-start">Old WBS Name</th>
+                        <th scope="col" class="text-end">Match</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wbs in task_changes.revised_wbs_name %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ wbs[0] }}</td>
+                        <td class="text-start">{{ wbs[1].name }}</td>
+                        <td class="text-start">{{ wbs[2].name }}</td>
+                        {% if (60 <= wbs[3] < 80) and wbs[4] != 100 %}
+                            <td class="text-center bg-warning rounded"><strong>{{ wbs[3] }}%</strong></td>
+                        {% elif wbs[3] < 60 and wbs[4] != 100  %}
+                            <td class="text-center bg-danger text-light rounded"><strong>{{ wbs[3] }}%</strong></td>
+                        {% else %}
+                            <td class="text-center">{{ wbs[3] }}%</td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
