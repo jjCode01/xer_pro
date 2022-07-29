@@ -1,7 +1,9 @@
 from collections import defaultdict, Counter
 from fuzzywuzzy import fuzz
-from data.schedule import Schedule
+from data.logic import Relationship
 from data.resource import TaskResource
+from data.schedule import Schedule
+from data.task import Task
 from data.wbs import WbsLinkedList, WbsNode
 
 
@@ -65,6 +67,15 @@ def get_task_changes(schedule: Schedule, other_schedule: Schedule) -> dict[str, 
         if task.constraint_second != other.constraint_second:
             changes['revised_constraint'].append((task, task.constraint_second, other.constraint_second, 'Secondary'))
 
+        def sort_key(val):
+            if isinstance(val, Task):
+                return val.activity_id
+            if isinstance(val, tuple):
+                return val[0].activity_id
+
+        for change in changes:
+            changes[change].sort(key=sort_key)
+
     return changes
 
 
@@ -83,6 +94,15 @@ def get_logic_changes(schedule: Schedule, other_schedule: Schedule):
         if (other := other_schedule._logic.get(id)):
             if rel.lag != other.lag:
                 changes['revised_logic'].append((rel, other))
+
+    def sort_key(val):
+        if isinstance(val, Relationship):
+            return (val.predecessor.activity_id, val.successor.activity_id)
+        if isinstance(val, tuple):
+            return (val[0].predecessor.activity_id, val[0].successor.activity_id)
+
+    for change in changes:
+        changes[change].sort(key=sort_key)
 
     return changes
 
