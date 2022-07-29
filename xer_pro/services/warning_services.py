@@ -44,12 +44,28 @@ def get_duplicate_logic(logic: list[Relationship]) -> list[tuple[Relationship]]:
         key=lambda r: (r[0].predecessor.activity_id, r[0].successor.activity_id))
 
 
+class RedundantLogic:
+    def __init__(self, epoch_relationship: Relationship, redundant_relationship: Relationship, level: int) -> None:
+        self.epoch = epoch_relationship
+        self.redundant = redundant_relationship
+        self.level = level
+
+    def __eq__(self, __o: object) -> bool:
+        return (self.redundant == __o.redundant and self.epoch == __o.epoch)
+
+    def __hash__(self) -> int:
+        return hash((self.redundant, self.epoch))
+
+
 def get_redundant_logic(logic: list[Relationship]) -> list[Relationship]:
 
     def check_logic(epoch_relationship: Relationship, relationship: Relationship, level: int):
         for pred_rel in groupby_successor.get(relationship.successor, []):
-            if pred_rel.predecessor == epoch_relationship.predecessor:
-                redundant_logic.add(pred_rel)
+            if pred_rel.predecessor == epoch_relationship.predecessor \
+                    and (epoch_relationship.link == pred_rel.link
+                         or epoch_relationship.link in ('FS', 'FF')):
+                redundant_cache.add(pred_rel)
+                redundant[epoch_relationship].add(RedundantLogic(epoch_relationship, pred_rel, level))
                 continue
 
         next_relationships = groupby_predecessor.get(relationship.successor, [])
@@ -61,8 +77,8 @@ def get_redundant_logic(logic: list[Relationship]) -> list[Relationship]:
             logic_list.append(succ_rel)
             check_logic(epoch_relationship, succ_rel, level + 1)
 
-    redundant_logic = set()
-
+    redundant = defaultdict(set)
+    redundant_cache = set()
     groupby_predecessor = {
         key: list(group)
         for key, group in groupby(
@@ -76,18 +92,20 @@ def get_redundant_logic(logic: list[Relationship]) -> list[Relationship]:
             lambda rel: rel.successor)}
 
     for relationships in groupby_predecessor.values():
-        if len(relationships) <= 1:
+        if len(list(filter(lambda r: not r.successor.is_loe, relationships))) <= 1:
             continue
         rel_cache = set()
         logic_list = list()
         for relationship in relationships:
+            if relationship.successor.is_loe:
+                continue
             for next_relationship in groupby_predecessor.get(relationship.successor, []):
                 rel_cache.add(next_relationship)
                 logic_list.append(relationship)
                 logic_list.append(next_relationship)
                 check_logic(relationship, next_relationship, 1)
 
-    return sorted(list(redundant_logic), key=_sort_pred)
+    return {key: val for key, val in redundant.items() if key not in redundant_cache}
 
 
 def get_open_ends(schedule: Schedule) -> dict[str, list[Task]]:
