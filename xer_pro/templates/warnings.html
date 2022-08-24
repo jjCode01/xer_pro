@@ -37,9 +37,12 @@
 <section class="py-3 px-md-4 bg-white">
     <div class="container-lg">
         {% if warnings.open_predecessor|length > 1 %}
-        <div id="openPredecessorTable" >
+        <div id="openPredecessorTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Open Predecessors: {{ warnings.open_predecessor|length|formatnumber }}</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Open Predecessors: {{ warnings.open_predecessor|length|formatnumber }}</h5>
+                    <p class="f-sm m-0 p-0">The schedule should contain only one (1) activity with missing a Predecessor logic tie.</p>
+                </caption>
                 <thead>
                     <tr class="table-secondary ">
                         <th>#</th>
@@ -60,9 +63,12 @@
         </div>
         {% endif %}
         {% if warnings.open_successor|length > 1 %}
-        <div id="openSuccessorTable">
+        <div id="openSuccessorTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Open Successors: {{ warnings.open_successor|length|formatnumber }}</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Open Successors: {{ warnings.open_successor|length|formatnumber }}</h5>
+                    <p class="f-sm m-0 p-0">The schedule should contain only one (1) activity with missing a Successor logic tie.</p>
+                </caption>
                 <thead>
                     <tr class="table-secondary ">
                         <th>#</th>
@@ -83,9 +89,16 @@
         </div>
         {% endif %}
         {% if warnings.open_start|length %}
-        <div id="openStartTable">
+        <div id="openStartTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Open Starts: {{ warnings.open_start|length|formatnumber }}</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Open (Dangling) Starts: {{ warnings.open_start|length|formatnumber }}</h5>
+                    <p class="f-sm m-0 p-0">
+                        The following activities have at least one (1) Predecessor relationship,
+                        but they are missing either a Finish-Start [FS] or Start-Start [SS] Predecessor link
+                        necessary to drive their start date.
+                    </p>
+                </caption>
                 <thead>
                     <tr class="table-secondary ">
                         <th>#</th>
@@ -106,9 +119,16 @@
         </div>
         {% endif %}
         {% if warnings.open_finish|length %}
-        <div id="openFinishTable">
+        <div id="openFinishTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Open Finishes: {{ warnings.open_finish|length|formatnumber }}</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Open (Dangling) Finishes: {{ warnings.open_finish|length|formatnumber }}</h5>
+                    <p class="f-sm m-0 p-0">
+                        The following activities have at least one (1) Successor relationship,
+                        but they are missing either a Finish-Start [FS] or Finish-Finish [FF] Successor link
+                        necessary for their finish date to be tied into project completion.
+                    </p>
+                </caption>
                 <thead>
                     <tr class="table-secondary ">
                         <th>#</th>
@@ -121,7 +141,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ task.activity_id }}</td>
-                        <td class="w-100">{{ task.name }}</td>
+                        <td>{{ task.name }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -129,9 +149,16 @@
         </div>
         {% endif %}
         {% if warnings.negative_lag|length %}
-        <div id="negativeLagTable">
+        <div id="negativeLagTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Negative Lags: {{ warnings.negative_lag|length|formatnumber }}</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Negative Lags: {{ warnings.negative_lag|length|formatnumber }}</h5>
+                    <p class="f-sm m-0 p-0">
+                        Use of negative lags (leads) should be avoided. Either the predecessor activity
+                        should be broken up into greater detail to avoid the use of a lag, or a SS relationship
+                        with a positive lag should be used.
+                    </p>
+                </caption>
                 <thead>
                     <tr class="table-secondary ">
                         <th>#</th>
@@ -160,9 +187,15 @@
         </div>
         {% endif %}
         {% if warnings.fs_lag|length %}
-        <div id="fsLagTable">
+        <div id="fsLagTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Finish-Start Lags: {{ warnings.fs_lag|length|formatnumber }}</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Finish-Start Lags: {{ warnings.fs_lag|length|formatnumber }}</h5>
+                    <p class="f-sm m-0 p-0">
+                        Use of lags on Finish-Start [FS] relationships cause ambiguity and should be avoided.
+                        Instead, add a new activity to respresent what needs to occur during the lag or gap between activities.
+                    </p>
+                </caption>
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
@@ -191,9 +224,16 @@
         </div>
         {% endif %}
         {% if warnings.long_lag|length %}
-        <div id="longLagTable">
+        <div id="longLagTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Long Lags (> 10 days): {{ warnings.long_lag|length|formatnumber }}</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Long Lags (> 10 days): {{ warnings.long_lag|length|formatnumber }}</h5>
+                    <p class="f-sm m-0 p-0">
+                        Use of long lags can indicate that there is not enough detail in the schedule and should be avoided.
+                        Long lags may hide gaps in planning that can cause actual progress/sequencing to deviate from the schedule,
+                        making schedule projections unreliable.
+                    </p>
+                </caption>
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
@@ -222,9 +262,19 @@
         </div>
         {% endif %}
         {% if warnings.false_lag|length %}
-        <div id="falseLagTable">
+        <div id="falseLagTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Lags > Activity Duration: {{ warnings.false_lag|length|formatnumber }}</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Lags > Activity Duration: {{ warnings.false_lag|length|formatnumber }}</h5>
+                    <p class="f-sm m-0 p-0">
+                        Lags that are greater than the respective activity duration may hide available project float.
+                        These lags should be reduced, or replaced with a Finish-Start [FS] relationship with 0 lag.
+                        <ul>
+                            <li class="f-sm m-0 p-0">Start-Start [SS] Links - Lags should not exceed the predecessor duration</li>
+                            <li class="f-sm m-0 p-0">Finish-Finish [FF] Links - Lags should not exceed the successor duration</li>
+                        </ul>
+                    </p>
+                </caption>
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
@@ -257,9 +307,12 @@
         </div>
         {% endif %}
         {% if warnings.sf_logic|length %}
-        <div id="sfLogicTable">
+        <div id="sfLogicTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Start-Finish Relationships: {{ warnings.sf_logic|length|formatnumber }}</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Start-Finish Relationships: {{ warnings.sf_logic|length|formatnumber }}</h5>
+                    <p class="f-sm m-0 p-0">Use of Start-Finish [SF] relationship links should be avoided</p>
+                </caption>
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
@@ -292,9 +345,18 @@
         </div>
         {% endif %}
         {% if warnings.duplicate_logic|length %}
-        <div id="duplicateLogicTable">
+        <div id="duplicateLogicTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Duplicate Logic</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Duplicate Logic: {{ warnings.duplicate_logic|length|formatnumber }}</h5>
+                    <p class="f-sm m-0 p-0">
+                        Duplicate logic occurs when two activities have multiple relationship links where one of the 
+                        relationships is a Finish-Start [FS] link. The duplicate Start-Start [SS] and/or Finish-Finish [FF]
+                        links should be removed as they are overridden by the FS link.<br>
+                        Note: Activities having two relationship links where one is SS and the other is FF should not be
+                        considered as duplicate.
+                    </p>
+                </caption>
                 <thead>
                     <tr class="table-secondary ">
                         <th>#</th>
@@ -323,40 +385,64 @@
         </div>
         {% endif %}
         {% if warnings.redundant_logic|length %}
-        <div id="redundantLogicTable">
+        <div id="redundantLogicTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Redundant Logic</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Redundant Logic:</h5>
+                    <p class="f-sm m-0 p-0">
+                        Redundant logic is an unecessary relationship that can complicate the schedule.
+                        For example: Activity A is linked [FS] with Activity B which is linked [FS] with Activity C (A --> B --> C).
+                        Any relationship between Activities A and C would be considered redundant since Activity C 
+                        is linked to Activity B, which is already a successor to Activity A.<br>
+                    </p>
+                </caption>
                 <thead>
-                    <tr class="table-secondary ">
-                        <th>#</th>
-                        <th>Pred ID</th>
-                        <th>Pred Name</th>
-                        <th>Succ ID</th>
-                        <th>Succ Name</th>
+                    <tr class="table-secondary">
+                        <th colspan="3">
+                            Act ID<br>
+                            <i class="bi bi-arrow-return-right"></i> Succ ID
+                        </th>
+                        <th>Activity Name</th>
                         <th class="text-center">Link</th>
-                        <th class="text-center">Lag</th>
+                        <th class="text-center">Redundant : Steps</th>
                     </tr>
                 </thead>
                 <tbody>
-                {% for rel in warnings.redundant_logic %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td class="text-nowrap">{{ rel.predecessor.activity_id }}</td>
-                        <td>{{ rel.predecessor.name }}</td>
-                        <td class="text-nowrap">{{ rel.successor.activity_id }}</td>
-                        <td>{{ rel.successor.name }}</td>
-                        <td class="text-center">{{ rel.link }}</td>
-                        <td class="text-center">{{ rel.lag|formatnumber }}</td>
+                {% for epoch, rels in warnings.redundant_logic.items() %}
+                    <tr class="border-top">
+                        <td colspan="3" class="fw-bold text-nowrap border-bottom-0">{{ epoch.predecessor.activity_id }}</td>
+                        <td colspan="3" class="fw-bold border-bottom-0">{{ epoch.predecessor.name }}</td>
                     </tr>
+                    <tr>
+                        <td class="border-bottom-0"><i class="bi bi-arrow-return-right"></i></td>
+                        <td colspan="2" class="text-nowrap border-bottom-0">{{ epoch.successor.activity_id }}</td>
+                        <td class="border-bottom-0">{{ epoch.successor.name }}</td>
+                        <td class="text-center border-bottom-0">{{ epoch.link }}:{{ epoch.lag|formatnumber }}</td>
+                        
+                    </tr>
+                    {% for rel in rels %}
+                    <tr>
+                        <td class="border-bottom-0 badge bg-danger"><i class="bi bi-arrow-return-right"></i></td>
+                        <td class="border-bottom-0"><i class="bi bi-arrow-return-right"></i></td>
+                        <!-- <td class="text-end">Redundant <span class="f-md m-0 p-0">&#8680</span></td> -->
+                        <td class="text-nowrap table-danger">{{ rel.redundant.successor.activity_id }}</td>
+                        <td class="table-danger">{{ rel.redundant.successor.name }}</td>
+                        <td class="text-center table-danger">{{ rel.redundant.link }}:{{ rel.redundant.lag|formatnumber }}</td>
+                        <td class="table-danger">Redundant : {{ rel.level|formatnumber }}</td>
+                    </tr>
+                    {% endfor %}
                 {% endfor %}
                 </tbody>
             </table>
         </div>
         {% endif %}
         {% if warnings.long_durations|length %}
-        <div id="longDurationTable">
+        <div id="longDurationTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Long Durations (> 20 Days)</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Long Durations (> 20 Days)</h5>
+
+                </caption>
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
@@ -379,12 +465,22 @@
         </div>
         {% endif %}
         {% if warnings.duplicate_names|length %}
-        <div id="duplicateNameTable">
+        <div id="duplicateNameTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Duplicate Names</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Duplicate Names</h5>
+
+                </caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th>#</th>
+                        <th>Task ID</th>
+                        <th>Task Name</th>
+                    </tr>
+                </thead>
                 <tbody class="collapse show" id="duplicateNames">
                 {% for tasks in warnings.duplicate_names %}
-                    <tr>
+                    <tr class="mt-2">
                         <th colspan="3">{{ tasks[0].name }}: {{ tasks|length|formatnumber }}</th>
                     </tr>
                     {% for task in tasks %}
@@ -400,9 +496,12 @@
         </div>
         {% endif %}
         {% if warnings.cost_variance|length %}
-        <div id="costVarianceTable">
+        <div id="costVarianceTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Cost Variances: {{ warnings.cost_variance|length|formatnumber }}</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Cost Variances: {{ warnings.cost_variance|length|formatnumber }}</h5>
+
+                </caption>
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
@@ -431,9 +530,12 @@
         </div>
         {% endif %}
         {% if warnings.ev_variance|length %}
-        <div id="evVarianceTable">
+        <div id="evVarianceTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
-                <caption class="h5 text-dark m-0">Earned Value Variances: {{ warnings.ev_variance|length|formatnumber }}</caption>
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Earned Value Variances: {{ warnings.ev_variance|length|formatnumber }}</h5>
+
+                </caption>
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
