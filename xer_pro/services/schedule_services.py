@@ -1,11 +1,11 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-from data.schedule import Schedule
-from data.task import Task
-from data.logic import Relationship
-from data.resource import TaskResource
-from data.sched_calendar import rem_hours_per_day
+from xer_pro.data.schedule import Schedule
+from xer_pro.data.task import Task
+from xer_pro.data.logic import Relationship
+from xer_pro.data.resource import TaskResource
+from xer_pro.data.sched_calendar import rem_hours_per_day
 
 COLORS = {
     "DANGER": "#dc3545",

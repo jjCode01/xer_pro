@@ -1,4 +1,4 @@
-from data.task import Task
+from xer_pro.data.task import Task
 
 
 class Relationship:
@@ -9,23 +9,23 @@ class Relationship:
 
     def __eq__(self, other) -> bool:
         return (
-            self.predecessor == other.predecessor and
-            self.successor == other.successor and
-            self.link == other.link)
+            self.predecessor == other.predecessor
+            and self.successor == other.successor
+            and self.link == other.link
+        )
 
     def __hash__(self) -> int:
-        return hash((
-            self.predecessor.activity_id,
-            self.successor.activity_id,
-            self.link))
+        return hash(
+            (self.predecessor.activity_id, self.successor.activity_id, self.link)
+        )
 
     def __str__(self) -> str:
-        return f'{self.predecessor.activity_id} --> {self.successor.activity_id} [{self.link}:{self.lag}]'
+        return f"{self.predecessor.activity_id} --> {self.successor.activity_id} [{self.link}:{self.lag}]"
 
     @property
     def lag(self) -> int:
-        return int(self._attr['lag_hr_cnt'] / 8)
+        return int(self._attr["lag_hr_cnt"] / 8)
 
     @property
     def link(self) -> str:
-        return self._attr['pred_type'][-2:]
+        return self._attr["pred_type"][-2:]

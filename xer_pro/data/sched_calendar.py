@@ -10,34 +10,40 @@ import re
 from dataclasses import dataclass, field
 from typing import Iterator
 
-from services.calendar_services import calc_time_var_hrs, conv_excel_date, conv_time, clean_dates, clean_date
+from xer_pro.services.calendar_services import (
+    calc_time_var_hrs,
+    conv_excel_date,
+    conv_time,
+    clean_dates,
+    clean_date,
+)
 
-CALENDAR_TYPES = {
-    'CA_Base': 'Global',
-    'CA_Rsrc': 'Resource',
-    'CA_Project': 'Project'}
+CALENDAR_TYPES = {"CA_Base": "Global", "CA_Rsrc": "Resource", "CA_Project": "Project"}
 
 WEEKDAYS = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday']
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+]
 
 # Regular Expressions used to parse the Calendar Data
-REGEX_WEEKDAYS = r'(?<=0\|\|)[1-7]\(\).+?(?=\(0\|\|[1-7]\(\)|\(0\|\|VIEW|\(0\|\|Exceptions|\)$)'
-REGEX_SHIFT = r'[sf]\|[0-2]?\d:[0-5]\d\|[sf]\|[0-2]?\d:[0-5]\d'
-REGEX_HOUR = r'[0-2]?\d:[0-5]\d'
-REGEX_HOL = r'(?<=d\|)\d{5}(?=\)\(\))'
-REGEX_EXCEPT = r'(?<=d\|)\d{5}\)\([^\)]{1}.+?\(\)\)\)'
+REGEX_WEEKDAYS = (
+    r"(?<=0\|\|)[1-7]\(\).+?(?=\(0\|\|[1-7]\(\)|\(0\|\|VIEW|\(0\|\|Exceptions|\)$)"
+)
+REGEX_SHIFT = r"[sf]\|[0-2]?\d:[0-5]\d\|[sf]\|[0-2]?\d:[0-5]\d"
+REGEX_HOUR = r"[0-2]?\d:[0-5]\d"
+REGEX_HOL = r"(?<=d\|)\d{5}(?=\)\(\))"
+REGEX_EXCEPT = r"(?<=d\|)\d{5}\)\([^\)]{1}.+?\(\)\)\)"
 
 # Reference https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
 TERM_COLORS = {
-    'CYAN_FG': '\033[38;5;51m',
-    'BLUE_FG': '\033[38;5;45m',
-    'NATIVE_FG': '\033[m',
+    "CYAN_FG": "\033[38;5;51m",
+    "BLUE_FG": "\033[38;5;45m",
+    "NATIVE_FG": "\033[m",
 }
 
 
@@ -61,6 +67,7 @@ class WeekDay:
     finish: time
         Finish work time
     """
+
     week_day: str
     shifts: list[time] = field(default_factory=list)
     hours: float = field(init=False, default=0)
@@ -73,12 +80,14 @@ class WeekDay:
         """
         if self.shifts:
             shift_times = [hr for shift in self.shifts for hr in shift]
-            object.__setattr__(self, 'hours',
-                               sum(calc_time_var_hrs(shift[0], shift[1])
-                                   for shift in self.shifts))
+            object.__setattr__(
+                self,
+                "hours",
+                sum(calc_time_var_hrs(shift[0], shift[1]) for shift in self.shifts),
+            )
 
-            object.__setattr__(self, 'start', min(shift_times))
-            object.__setattr__(self, 'finish', max(shift_times))
+            object.__setattr__(self, "start", min(shift_times))
+            object.__setattr__(self, "finish", max(shift_times))
 
     def __len__(self) -> int:
         """
@@ -91,15 +100,20 @@ class WeekDay:
         Returns a string representation of a WeekDay object
         """
 
-        clr_cyan = TERM_COLORS['CYAN_FG']
-        clr_native = TERM_COLORS['NATIVE_FG']
+        clr_cyan = TERM_COLORS["CYAN_FG"]
+        clr_native = TERM_COLORS["NATIVE_FG"]
         clr = clr_cyan if self.hours else clr_native
 
-        hour_ct = f'{clr}{self.hours:04.1f}{clr_native}' if self else f'{clr_native}   -'
-        hour_wk = f'{clr}{self.start:%I:%M %p}{clr_native} to {clr}{self.finish:%I:%M %p}{clr_native}' \
-                  if self else f'{clr_native}Non-work day        '
+        hour_ct = (
+            f"{clr}{self.hours:04.1f}{clr_native}" if self else f"{clr_native}   -"
+        )
+        hour_wk = (
+            f"{clr}{self.start:%I:%M %p}{clr_native} to {clr}{self.finish:%I:%M %p}{clr_native}"
+            if self
+            else f"{clr_native}Non-work day        "
+        )
 
-        return f'{clr}{self.week_day[:3]}{clr_native} | {hour_ct} hrs | {hour_wk}'
+        return f"{clr}{self.week_day[:3]}{clr_native} | {hour_ct} hrs | {hour_wk}"
 
     def __bool__(self) -> bool:
         """
@@ -141,6 +155,7 @@ class SchedCalendar:
         Calculates the remaining work hours per date for a given date range.
         Only returns valid workdays.
     """
+
     def __init__(self, **kwargs) -> None:
         self._data = kwargs
 
@@ -152,14 +167,15 @@ class SchedCalendar:
         Compare two Calendar objects and return True if equal, False if not equal.
         """
         return (
-            self._data['clndr_name'] == o._data['clndr_name'] and
-            self._data['clndr_type'] == o._data['clndr_type'])
+            self._data["clndr_name"] == o._data["clndr_name"]
+            and self._data["clndr_type"] == o._data["clndr_type"]
+        )
 
     def __hash__(self) -> int:
         """
         Return a hash representation of a Calendar object.
         """
-        return hash((self._data['clndr_name'], self._data['clndr_type']))
+        return hash((self._data["clndr_name"], self._data["clndr_type"]))
 
     def __str__(self) -> str:
         """
@@ -168,61 +184,62 @@ class SchedCalendar:
         return f'{self._data["clndr_name"]} [{self.type}]'
 
     def print_cal(self) -> str:
-        clr_blue = TERM_COLORS['BLUE_FG']
-        clr_native = TERM_COLORS['NATIVE_FG']
+        clr_blue = TERM_COLORS["BLUE_FG"]
+        clr_native = TERM_COLORS["NATIVE_FG"]
 
         lines = [f'{clr_blue}{self["clndr_name"]}{clr_native}']
+        lines.append(f"Calendar Type:       {clr_blue}{self.type}{clr_native}")
+        lines.append(f"Non-work Exceptions: {clr_blue}{len(self.holidays)}{clr_native}")
         lines.append(
-            f'Calendar Type:       {clr_blue}{self.type}{clr_native}')
-        lines.append(
-            f'Non-work Exceptions: {clr_blue}{len(self.holidays)}{clr_native}')
-        lines.append(
-            f'Work Exceptions:     {clr_blue}{len(self.work_exceptions)}{clr_native}')
+            f"Work Exceptions:     {clr_blue}{len(self.work_exceptions)}{clr_native}"
+        )
 
         # Table of weekday objects
-        lines.append('\nDay | Hours    | Time Period')
+        lines.append("\nDay | Hours    | Time Period")
         lines.append(f'{"-"*4}+{"-"*10}+{"-"*22}')
         for day in self.work_week:
-            lines.append(f'{day}')
+            lines.append(f"{day}")
         lines.append(f'{"-"*38}')
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     @property
     def name(self) -> str:
         """Returns Calendar Name"""
-        return self._data.get('clndr_name')
+        return self._data.get("clndr_name")
 
     @property
     def type(self) -> str:
         """Returns Calendar Type (Project, Global, Resource)"""
-        return CALENDAR_TYPES[self._data['clndr_type']]
+        return CALENDAR_TYPES[self._data["clndr_type"]]
 
     @property
     def work_week(self) -> dict[str, WeekDay]:
         """Returns list of WeekDay objects"""
-        if self._data.get('work_week') is None:
-            self._data['work_week'] = _parse_work_week(self)
+        if self._data.get("work_week") is None:
+            self._data["work_week"] = _parse_work_week(self)
 
-        return self._data['work_week']
+        return self._data["work_week"]
 
     @property
     def holidays(self) -> dict[str, datetime]:
         """Returns list of non-work days"""
-        if self._data.get('holidays') is None:
-            self._data['holidays'] = _parse_nonwork_exceptions(self)
+        if self._data.get("holidays") is None:
+            self._data["holidays"] = _parse_nonwork_exceptions(self)
 
-        return self._data['holidays'].values()
+        return self._data["holidays"].values()
 
     @property
     def work_exceptions(self) -> dict[str, WeekDay]:
         """Returns list of work-day exceptions"""
-        if self._data.get('exceptions') is None:
-            self._data['exceptions'] = _parse_work_exceptions(self)
-        return self._data['exceptions']
+        if self._data.get("exceptions") is None:
+            self._data["exceptions"] = _parse_work_exceptions(self)
+        return self._data["exceptions"]
 
 
-def _calc_work_hours(clndr: SchedCalendar, date_to_calc: datetime, start_time: time, end_time: time) -> float:
+def _calc_work_hours(
+    clndr: SchedCalendar, date_to_calc: datetime, start_time: time, end_time: time
+) -> float:
     """
     Calculate the work hours for a given day based on a start time, end time,
     and work shifts apportioned for that day of the week.
@@ -289,7 +306,7 @@ def _get_workday(cldnr: SchedCalendar, date: datetime) -> WeekDay:
     if clean_date in cldnr.work_exceptions.keys():
         return cldnr.work_exceptions[clean_date]
 
-    return cldnr.work_week.get(f'{clean_date:%A}')
+    return cldnr.work_week.get(f"{clean_date:%A}")
 
 
 def _parse_work_week(clndr: SchedCalendar) -> dict[str, WeekDay]:
@@ -300,7 +317,8 @@ def _parse_work_week(clndr: SchedCalendar) -> dict[str, WeekDay]:
     """
     return {
         WEEKDAYS[int(day[0]) - 1]: _parse_work_day(day)
-        for day in _parse_clndr_data(clndr._data['clndr_data'], REGEX_WEEKDAYS)}
+        for day in _parse_clndr_data(clndr._data["clndr_data"], REGEX_WEEKDAYS)
+    }
 
 
 def _parse_clndr_data(clndr_data: str, reg_ex: str) -> list:
@@ -320,11 +338,11 @@ def _parse_nonwork_exceptions(clndr: SchedCalendar) -> dict[str, datetime]:
     Internal to class.
     """
     nonwork_dict = {}
-    for e in _parse_clndr_data(clndr._data['clndr_data'], REGEX_HOL):
+    for e in _parse_clndr_data(clndr._data["clndr_data"], REGEX_HOL):
         _date = conv_excel_date(int(e))
 
         # Verify exception is not already a non-work day on the standard calendar
-        if clndr.work_week.get(f'{_date:%A}'):
+        if clndr.work_week.get(f"{_date:%A}"):
             nonwork_dict[e] = _date
 
     return nonwork_dict
@@ -337,7 +355,7 @@ def _parse_work_exceptions(clndr: SchedCalendar) -> dict[datetime, WeekDay]:
     Internal to class.
     """
     exception_dict = {}
-    for exception in _parse_clndr_data(clndr._data['clndr_data'], REGEX_EXCEPT):
+    for exception in _parse_clndr_data(clndr._data["clndr_data"], REGEX_EXCEPT):
         _date = conv_excel_date(int(exception[:5]))
         _day = _parse_work_day(exception)
 
@@ -355,15 +373,11 @@ def _parse_work_day(day: str) -> WeekDay:
     Internal to class.
     """
     weekday = WEEKDAYS[int(day[0]) - 1]
-    shift_hours = sorted([
-        conv_time(hr) for hr
-        in re.findall(REGEX_HOUR, day)])
+    shift_hours = sorted([conv_time(hr) for hr in re.findall(REGEX_HOUR, day)])
 
     shift_hours_tuple = []
     for hr in range(0, len(shift_hours), 2):
-        shift_hours_tuple.append((
-            shift_hours[hr],
-            shift_hours[hr + 1]))
+        shift_hours_tuple.append((shift_hours[hr], shift_hours[hr + 1]))
 
     return WeekDay(weekday, shift_hours_tuple)
 
@@ -396,10 +410,12 @@ def is_workday(clndr: SchedCalendar, date_to_check: datetime) -> bool:
     if _date in clndr.work_exceptions.keys():
         return True
 
-    return bool(clndr.work_week[f'{date_to_check:%A}'])
+    return bool(clndr.work_week[f"{date_to_check:%A}"])
 
 
-def iter_nonwork_exceptions(clndr: SchedCalendar, start: datetime, end: datetime) -> Iterator[datetime]:
+def iter_nonwork_exceptions(
+    clndr: SchedCalendar, start: datetime, end: datetime
+) -> Iterator[datetime]:
     """Iterate through nonwork exceptions (i.e. holidays) between two dates.
 
     This is useful for getting nonwork exceptions during the projects period of performance.
@@ -429,7 +445,9 @@ def iter_nonwork_exceptions(clndr: SchedCalendar, start: datetime, end: datetime
         check_date += timedelta(days=1)
 
 
-def iter_workdays(clndr: SchedCalendar, start_date: datetime, end_date: datetime) -> Iterator[datetime]:
+def iter_workdays(
+    clndr: SchedCalendar, start_date: datetime, end_date: datetime
+) -> Iterator[datetime]:
     """Yields valid workdays between 2 dates
 
     Args:
@@ -458,7 +476,9 @@ def iter_workdays(clndr: SchedCalendar, start_date: datetime, end_date: datetime
         check_date += timedelta(days=1)
 
 
-def rem_hours_per_day(clndr: SchedCalendar, start_date: datetime, end_date: datetime) -> list[tuple[datetime, float]]:
+def rem_hours_per_day(
+    clndr: SchedCalendar, start_date: datetime, end_date: datetime
+) -> list[tuple[datetime, float]]:
     """
     Calculate the remaining workhours per day in a given date range.
     Will only return valid workdays in a list of tuples containing the date and workhour values.
@@ -479,7 +499,9 @@ def rem_hours_per_day(clndr: SchedCalendar, start_date: datetime, end_date: date
         raise ValueError("Arguments must be a datetime object")
 
     # edge case start date and end date are equal
-    if start_date.replace(microsecond=0, second=0) == end_date.replace(microsecond=0, second=0):
+    if start_date.replace(microsecond=0, second=0) == end_date.replace(
+        microsecond=0, second=0
+    ):
         return [(clean_date(start_date), 0.0)]
 
     # make sure dates were passed in the correct order
@@ -487,7 +509,9 @@ def rem_hours_per_day(clndr: SchedCalendar, start_date: datetime, end_date: date
 
     # edge case that start and end dates are equal
     if start_date.date() == end_date.date():
-        work_hrs = _calc_work_hours(clndr, start_date, start_date.time(), end_date.time())
+        work_hrs = _calc_work_hours(
+            clndr, start_date, start_date.time(), end_date.time()
+        )
         return [(clean_date(start_date), round(work_hrs, 3))]
 
     # Get a list of all workdays between the start and end dates
@@ -499,12 +523,16 @@ def rem_hours_per_day(clndr: SchedCalendar, start_date: datetime, end_date: date
     if len(date_range) == 1 and end_date.date() > start_date.date():
         if start_date.date() == date_range[0].date():
             work_day = _get_workday(clndr, start_date)
-            work_hrs = _calc_work_hours(clndr, start_date, start_date.time(), work_day.finish)
+            work_hrs = _calc_work_hours(
+                clndr, start_date, start_date.time(), work_day.finish
+            )
             return [(clean_date(start_date), round(work_hrs, 3))]
 
         if end_date.date() == date_range[0].date():
             work_day = _get_workday(clndr, end_date)
-            work_hrs = _calc_work_hours(clndr, end_date, work_day.start, end_date.time())
+            work_hrs = _calc_work_hours(
+                clndr, end_date, work_day.start, end_date.time()
+            )
             return [(clean_date(end_date), round(work_hrs, 3))]
 
         work_day = _get_workday(clndr, date_range[0])
@@ -512,25 +540,41 @@ def rem_hours_per_day(clndr: SchedCalendar, start_date: datetime, end_date: date
 
     # cases were multiple valid workdays between start and end date
     # initialize hours with start date
-    rem_hrs = [(clean_date(start_date),
-                round(_calc_work_hours(
+    rem_hrs = [
+        (
+            clean_date(start_date),
+            round(
+                _calc_work_hours(
                     clndr,
                     date_to_calc=start_date,
                     start_time=start_date.time(),
-                    end_time=_get_workday(clndr, start_date).finish), 3))]
+                    end_time=_get_workday(clndr, start_date).finish,
+                ),
+                3,
+            ),
+        )
+    ]
 
     # loop through 2nd to 2nd to last day in date range
     # these would be a full workday
-    for dt in date_range[1:len(date_range)-1]:
-        if (wd := _get_workday(clndr, dt)):
+    for dt in date_range[1 : len(date_range) - 1]:
+        if wd := _get_workday(clndr, dt):
             rem_hrs.append((dt, round(wd.hours, 3)))
 
     # calculate work hours for the last day
-    rem_hrs.append((clean_date(end_date),
-                    round(_calc_work_hours(
-                        clndr,
-                        date_to_calc=end_date,
-                        start_time=_get_workday(clndr, end_date).start,
-                        end_time=end_date.time()), 3)))
+    rem_hrs.append(
+        (
+            clean_date(end_date),
+            round(
+                _calc_work_hours(
+                    clndr,
+                    date_to_calc=end_date,
+                    start_time=_get_workday(clndr, end_date).start,
+                    end_time=end_date.time(),
+                ),
+                3,
+            ),
+        )
+    )
 
     return rem_hrs

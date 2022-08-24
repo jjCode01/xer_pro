@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
-from data.sched_calendar import SchedCalendar
-from data.task import Task
+from xer_pro.data.sched_calendar import SchedCalendar
+from xer_pro.data.task import Task
 
 
 class CostAccount:
@@ -18,31 +18,30 @@ class CostAccount:
     short_name : str
         Short name of cost account
     """
+
     def __init__(self, **kwargs) -> None:
         self._attr = kwargs
         self.parent = None
 
     def __eq__(self, __o: object) -> bool:
         return (
-            self._attr['acct_name'] == __o._attr['acct_name'] and
-            self._attr['acct_short_name'] == __o._attr['acct_short_name'] and
-            self.parent == __o.parent)
+            self._attr["acct_name"] == __o._attr["acct_name"]
+            and self._attr["acct_short_name"] == __o._attr["acct_short_name"]
+            and self.parent == __o.parent
+        )
 
     def __hash__(self) -> int:
-        return ((
-            self._attr['acct_name'],
-            self._attr['acct_short_name'],
-            self.parent))
+        return (self._attr["acct_name"], self._attr["acct_short_name"], self.parent)
 
     @property
     def name(self) -> str:
         """Short description of cost account"""
-        return self._attr['acct_name']
+        return self._attr["acct_name"]
 
     @property
     def short_name(self) -> str:
         """Short name of cost account"""
-        return self._attr['acct_short_name']
+        return self._attr["acct_short_name"]
 
 
 @dataclass
@@ -67,6 +66,7 @@ class ResourceValues:
     variance : float
         Difference between at_completion and budget cost or unit quantity
     """
+
     budget: float
     actual: float
     this_period: float
@@ -78,14 +78,14 @@ class ResourceValues:
     def __post_init__(self):
         self.at_completion = self.actual + self.remaining
         self.variance = round(self.at_completion - self.budget, 2)
-        self.percent = 0.0 \
-            if (self.budget == 0 or self.actual == 0) \
+        self.percent = (
+            0.0
+            if (self.budget == 0 or self.actual == 0)
             else self.actual / self.budget * 100
+        )
 
     def __bool__(self) -> bool:
-        return (
-            self.budget != 0 and
-            self.actual != 0)
+        return self.budget != 0 and self.actual != 0
 
 
 class TaskResource:
@@ -112,6 +112,7 @@ class TaskResource:
         Unity quantity values for resource (budget, actual, this_period, remaining)
 
     """
+
     def __init__(self, **kwargs) -> None:
         self._attr = kwargs
 
@@ -119,50 +120,57 @@ class TaskResource:
         return self._attr[name]
 
     def __eq__(self, other) -> bool:
-        return (self._attr['task'] == other._attr['task'] and
-                self._attr['name'] == other._attr['name'] and
-                self._attr['account'] == other._attr['account'] and
-                self._attr['rsrc_type'] == other._attr['rsrc_type'] and
-                self._attr['target_qty'] == other._attr['target_qty'] and
-                self._attr['target_lag_drtn_hr_cnt'] == other._attr['target_lag_drtn_hr_cnt'] and
-                self._attr['target_cost'] == other._attr['target_cost'])
+        return (
+            self._attr["task"] == other._attr["task"]
+            and self._attr["name"] == other._attr["name"]
+            and self._attr["account"] == other._attr["account"]
+            and self._attr["rsrc_type"] == other._attr["rsrc_type"]
+            and self._attr["target_qty"] == other._attr["target_qty"]
+            and self._attr["target_lag_drtn_hr_cnt"]
+            == other._attr["target_lag_drtn_hr_cnt"]
+            and self._attr["target_cost"] == other._attr["target_cost"]
+        )
 
     def __hash__(self) -> int:
-        return hash((self._attr['task'],
-                     self._attr['name'],
-                     self._attr['account'],
-                     self._attr['rsrc_type'],
-                     self._attr['target_qty'],
-                     self._attr['target_lag_drtn_hr_cnt'],
-                     self._attr['target_cost'],))
+        return hash(
+            (
+                self._attr["task"],
+                self._attr["name"],
+                self._attr["account"],
+                self._attr["rsrc_type"],
+                self._attr["target_qty"],
+                self._attr["target_lag_drtn_hr_cnt"],
+                self._attr["target_cost"],
+            )
+        )
 
     def __str__(self) -> str:
-        return f'{self.task.activity_id} | {self.name} | ${self.cost.budget:,.2f}'
+        return f"{self.task.activity_id} | {self.name} | ${self.cost.budget:,.2f}"
 
     @property
     def lag(self) -> int:
-        return self._attr.get('target_lag_drtn_hr_cnt')
+        return self._attr.get("target_lag_drtn_hr_cnt")
 
     @property
     def name(self) -> str:
         """Resouce name"""
-        return self._attr.get('name')
+        return self._attr.get("name")
 
     @property
     def resource_type(self) -> str:
         """Resource type (Labor, Material, Non-Labor)"""
-        return self._attr.get('rsrc_type')[3:]
+        return self._attr.get("rsrc_type")[3:]
 
     @property
     def calendar(self) -> SchedCalendar:
         """Calendar assigned to resource"""
-        return self._attr.get('calendar')
+        return self._attr.get("calendar")
 
     @calendar.setter
     def calendar(self, cal: SchedCalendar) -> None:
         if not isinstance(cal, SchedCalendar):
             raise ValueError("Value Error: Argument must be type SchedCalendar")
-        self._attr['calendar'] = cal
+        self._attr["calendar"] = cal
 
     @property
     def earned_value(self) -> float:
@@ -170,62 +178,64 @@ class TaskResource:
 
     @property
     def finish(self) -> datetime:
-        if self._attr['act_end_date']:
-            return self._attr['act_end_date']
+        if self._attr["act_end_date"]:
+            return self._attr["act_end_date"]
 
-        return self._attr['reend_date']
+        return self._attr["reend_date"]
 
     @property
     def start(self) -> datetime:
-        if self._attr['act_start_date']:
-            return self._attr['act_start_date']
+        if self._attr["act_start_date"]:
+            return self._attr["act_start_date"]
 
-        return self._attr['restart_date']
+        return self._attr["restart_date"]
 
     @property
     def task(self) -> Task:
         """Task the resource is assigned to"""
-        return self._attr.get('task')
+        return self._attr.get("task")
 
     @task.setter
     def task(self, task: Task) -> None:
         if not isinstance(task, Task):
             raise ValueError("Value Error: Argument must be type Task")
-        self._attr['task'] = task
+        self._attr["task"] = task
 
     @property
     def account(self) -> dict:
         """Account assigned to resource"""
-        return self._attr.get('account')
+        return self._attr.get("account")
 
     @property
     def cost(self) -> ResourceValues:
         return ResourceValues(
-            budget=self._attr.get('target_cost'),
-            actual=self._attr.get('act_reg_cost') + self._attr.get('act_ot_cost'),
-            this_period=self._attr.get('act_this_per_cost'),
-            remaining=self._attr.get('remain_cost'))
+            budget=self._attr.get("target_cost"),
+            actual=self._attr.get("act_reg_cost") + self._attr.get("act_ot_cost"),
+            this_period=self._attr.get("act_this_per_cost"),
+            remaining=self._attr.get("remain_cost"),
+        )
 
     @property
     def unit_qty(self) -> ResourceValues:
         return ResourceValues(
-            budget=self._attr.get('target_qty'),
-            actual=self._attr.get('act_reg_qty') + self._attr.get('act_ot_qty'),
-            this_period=self._attr.get('act_this_per_qty'),
-            remaining=self._attr.get('remain_qty'))
+            budget=self._attr.get("target_qty"),
+            actual=self._attr.get("act_reg_qty") + self._attr.get("act_ot_qty"),
+            this_period=self._attr.get("act_this_per_qty"),
+            remaining=self._attr.get("remain_qty"),
+        )
 
     @property
     def remaining_start(self) -> Optional[datetime]:
-        return self._attr.get('restart_date')
+        return self._attr.get("restart_date")
 
     @property
     def remaining_finish(self) -> Optional[datetime]:
-        return self._attr.get('reend_date')
+        return self._attr.get("reend_date")
 
     @property
     def remaining_late_start(self) -> Optional[datetime]:
-        return self._attr.get('rem_late_start_date')
+        return self._attr.get("rem_late_start_date")
 
     @property
     def remaining_late_finish(self) -> Optional[datetime]:
-        return self._attr.get('rem_late_end_date')
+        return self._attr.get("rem_late_end_date")

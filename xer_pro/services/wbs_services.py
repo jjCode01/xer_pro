@@ -1,4 +1,4 @@
-from data.wbs import WbsNode
+from xer_pro.data.wbs import WbsNode
 
 
 def get_all_wbs_levels(wbs_id: str, wbs_nodes: dict[str, WbsNode]) -> list[WbsNode]:
@@ -12,12 +12,12 @@ def get_all_wbs_levels(wbs_id: str, wbs_nodes: dict[str, WbsNode]) -> list[WbsNo
         list[Wbs]: hierarch of wbs nodes
     """
     if wbs_id is None:
-        raise ValueError('Value Error: wbs_id cannot be None type')
-    elif wbs_id == '':
-        raise ValueError('Value Error: wbs_id cannot be empty string')
+        raise ValueError("Value Error: wbs_id cannot be None type")
+    elif wbs_id == "":
+        raise ValueError("Value Error: wbs_id cannot be empty string")
 
     if wbs_nodes.get(wbs_id) is None:
-        raise ValueError(f'Value Error: {wbs_id} not found')
+        raise ValueError(f"Value Error: {wbs_id} not found")
 
     nodes = []
     node = wbs_nodes.get(wbs_id)
@@ -26,7 +26,7 @@ def get_all_wbs_levels(wbs_id: str, wbs_nodes: dict[str, WbsNode]) -> list[WbsNo
 
     while not node.is_project_node:
         nodes.append(node)
-        node = wbs_nodes.get(node._attr['parent_wbs_id'])
+        node = wbs_nodes.get(node._attr["parent_wbs_id"])
         if node is None:
             break
 

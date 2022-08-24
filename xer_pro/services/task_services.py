@@ -1,14 +1,42 @@
-from data.task import Task
-from data.wbs import WbsLinkedList
+from xer_pro.data.task import Task
+from xer_pro.data.wbs import WbsLinkedList
 
 ADMIN_VERBS = (
-    'submit', 'submittal', 'shop drawing', 'product data', 'review', 'approve', 'approval',
-    'procure', 'procurement', 'fabricate', 'lead time', 'deliver', 'obtain',
-    'buyout', 'purchase', 'coordination', 'coordinate', 'allowance', 'closeout')
+    "submit",
+    "submittal",
+    "shop drawing",
+    "product data",
+    "review",
+    "approve",
+    "approval",
+    "procure",
+    "procurement",
+    "fabricate",
+    "lead time",
+    "deliver",
+    "obtain",
+    "buyout",
+    "purchase",
+    "coordination",
+    "coordinate",
+    "allowance",
+    "closeout",
+)
 
 CONSTRUCTION_VERBS = (
-    'install', 'erect', 'swing', 'set', 'pour', 'place', 'form', 'layout',
-    'excavate', 'dig', 'rough in', 'rough-in')
+    "install",
+    "erect",
+    "swing",
+    "set",
+    "pour",
+    "place",
+    "form",
+    "layout",
+    "excavate",
+    "dig",
+    "rough in",
+    "rough-in",
+)
 
 
 def is_construction_task(task: Task) -> bool:
