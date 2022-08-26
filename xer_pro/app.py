@@ -1,6 +1,7 @@
 from flask import Flask, redirect, request, render_template, url_for
 from flask_dropzone import Dropzone
 from datetime import datetime
+import os
 
 from xer_pro.data.schedule import Schedule
 
@@ -19,8 +20,7 @@ CODEC = "cp1252"  # Encoding standard for xer file
 
 app = Flask(__name__)
 
-# ***** DO NOT SHARE THIS SECRET KEY - HIDE IF POST TO GITHUB
-app.config["SECRET_KEY"] = "this is the secret key to my web app"
+app.config["SECRET_KEY"] = os.environ.get("CPM_PRO_KEY", "dev")
 app.config.update(
     DROPZONE_ALLOWED_FILE_CUSTOM=True,
     DROPZONE_ALLOWED_FILE_TYPE=".xer",
@@ -90,6 +90,8 @@ def index():
     if request.method == "GET":
         files = []
     if request.method == "POST":
+        if len(files) > 2:
+            files = []
         file = parse_xer_file(request.files.get("file").read().decode(CODEC))
         if not (errors := find_xer_errors(file)) is None:
             error_str = "\r\n".join(errors)
