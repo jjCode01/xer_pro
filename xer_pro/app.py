@@ -87,8 +87,8 @@ def format_var(val):
 def index():
     global files
 
-    if request.method == "GET":
-        files = []
+    # if request.method == "GET":
+    #     files = []
     if request.method == "POST":
         if len(files) > 2:
             files = []
