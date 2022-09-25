@@ -172,9 +172,9 @@ def get_lag_warnings(logic: list[Relationship]) -> list[Relationship]:
         if rel.link == "FS" and rel.lag > 0:
             lag_warnings["fs_lag"].append(rel)
 
-        if rel.link == "SS" and rel.lag > rel.predecessor.original_duration:
+        if rel.link == "SS" and rel.lag >= rel.predecessor.original_duration:
             lag_warnings["false_lag"].append(rel)
-        elif rel.link == "FF" and rel.lag > rel.successor.original_duration:
+        elif rel.link == "FF" and rel.lag >= rel.successor.original_duration:
             lag_warnings["false_lag"].append(rel)
 
     return lag_warnings
