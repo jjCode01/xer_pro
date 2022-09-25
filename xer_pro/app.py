@@ -16,11 +16,9 @@ from xer_pro.services.warning_services import get_schedule_warnings
 
 CODEC = "cp1252"  # Encoding standard for xer file
 
-# basedir = os.path.abspath(os.path.dirname(__file__))
-
 app = Flask(__name__)
 
-app.config["SECRET_KEY"] = os.environ.get("CPM_PRO_KEY", "dev")
+app.config["SECRET_KEY"] = os.environ["CPM_PRO_KEY"]
 app.config.update(
     DROPZONE_ALLOWED_FILE_CUSTOM=True,
     DROPZONE_ALLOWED_FILE_TYPE=".xer",
@@ -171,11 +169,3 @@ def warnings():
     if not schedules:
         return redirect(url_for("index"))
     return render_template("warnings.html", schedules=schedules, warnings=warnings)
-
-
-# def main():
-#     app.run(debug=True)
-
-
-# if __name__ == "__main__":
-#     main()
