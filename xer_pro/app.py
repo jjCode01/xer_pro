@@ -19,6 +19,7 @@ CODEC = "cp1252"  # Encoding standard for xer file
 app = Flask(__name__)
 
 app.config["SECRET_KEY"] = os.environ.get("CPM_PRO_KEY", "dev")
+
 app.config.update(
     DROPZONE_ALLOWED_FILE_CUSTOM=True,
     DROPZONE_ALLOWED_FILE_TYPE=".xer",
