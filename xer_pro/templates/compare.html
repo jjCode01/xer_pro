@@ -38,13 +38,13 @@
             {{ badge('**Added Memo', 0) }}
             {{ badge('**Deleted Memo', 0) }}
             {{ badge('**Revised Memo', 0) }}
-            {{ badge('**Added Calendars', 0) }}
-            {{ badge('**Deleted Calendars', 0) }}
+            {{ badge('Added Calendars', 'addedCalTable', task_changes.added_calendar|length) }}
+            {{ badge('Deleted Calendars', 'deletedCalTable', task_changes.deleted_calendar|length) }}
             {{ badge('**Revised Work Weeks', 0) }}
-            {{ badge('**Added Non-Work Days', 0) }}
-            {{ badge('**Deleted Non-Work Days', 0) }}
-            {{ badge('**Added Work Days', 0) }}
-            {{ badge('**Deleted Work Days', 0) }}
+            {{ badge('Added Non-Work Days', 'addedHolTable', task_changes.added_holiday|length) }}
+            {{ badge('Deleted Non-Work Days', 'deletedHolTable', task_changes.deleted_holiday|length) }}
+            {{ badge('Added Work Days', 'addedWDTable', task_changes.added_workday|length) }}
+            {{ badge('Deleted Work Days', 'deletedWDTable', task_changes.deleted_workday|length) }}
         </div>
     </div>
 </section>
@@ -720,6 +720,161 @@
                         {% else %}
                             <td class="text-center">{{ wbs[3] }}%</td>
                         {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.added_calendar %}
+        <div id="addedCalTable" class="table-responsive-md mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark text-nowrap m-0">Added Calendars: {{ task_changes.added_calendar|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">Calendar</th>
+                        <th scope="col" class="text-start">Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cal in task_changes.added_calendar %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ cal.name }}</td>
+                        <td class="text-start text-nowrap">{{ cal.type }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.deleted_calendar %}
+        <div id="deletedCalTable" class="table-responsive-md mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark text-nowrap m-0">Deleted Calendars: {{ task_changes.deleted_calendar|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">Calendar</th>
+                        <th scope="col" class="text-start">Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cal in task_changes.deleted_calendar %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ cal.name }}</td>
+                        <td class="text-start text-nowrap">{{ cal.type }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.added_holiday %}
+        <div id="addedHolTable" class="table-responsive-md mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark text-nowrap m-0">Added Non-Work Days: {{ task_changes.added_holiday|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">Calendar</th>
+                        <th scope="col" class="text-start">Type</th>
+                        <th scope="col" class="text-start">Date</th>
+                        <th scope="col" class="text-start">Weekday</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cal in task_changes.added_holiday %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ cal[0].name }}</td>
+                        <td class="text-start text-nowrap">{{ cal[0].type }}</td>
+                        <td class="text-start">{{ cal[1]|formatdate }}</td>
+                        <td class="text-start">{{ cal[1]|weekday }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.deleted_holiday %}
+        <div id="deletedHolTable" class="table-responsive-md mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark text-nowrap m-0">Deleted Non-Work Days: {{ task_changes.deleted_holiday|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">Calendar</th>
+                        <th scope="col" class="text-start">Type</th>
+                        <th scope="col" class="text-start">Date</th>
+                        <th scope="col" class="text-start">Weekday</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cal in task_changes.deleted_holiday %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ cal[0].name }}</td>
+                        <td class="text-start text-nowrap">{{ cal[0].type }}</td>
+                        <td class="text-start">{{ cal[1]|formatdate }}</td>
+                        <td class="text-start">{{ cal[1]|weekday }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.added_workday %}
+        <div id="addedWDTable" class="table-responsive-md mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark text-nowrap m-0">Added Work Days: {{ task_changes.added_workday|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">Calendar</th>
+                        <th scope="col" class="text-start">Type</th>
+                        <th scope="col" class="text-start">Date</th>
+                        <th scope="col" class="text-start">Weekday</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cal in task_changes.added_workday %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ cal[0].name }}</td>
+                        <td class="text-start text-nowrap">{{ cal[0].type }}</td>
+                        <td class="text-start">{{ cal[1]|formatdate }}</td>
+                        <td class="text-start">{{ cal[1]|weekday }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if task_changes.deleted_workday %}
+        <div id="deletedWDTable" class="table-responsive-md mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="h5 text-dark text-nowrap m-0">Deleted Work Days: {{ task_changes.deleted_workday|length|formatnumber }}</caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th scope="col">#</th>
+                        <th scope="col" class="text-start">Calendar</th>
+                        <th scope="col" class="text-start">Type</th>
+                        <th scope="col" class="text-start">Date</th>
+                        <th scope="col" class="text-start">Weekday</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cal in task_changes.deleted_workday %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-start text-nowrap">{{ cal[0].name }}</td>
+                        <td class="text-start text-nowrap">{{ cal[0].type }}</td>
+                        <td class="text-start">{{ cal[1]|formatdate }}</td>
+                        <td class="text-start">{{ cal[1]|weekday }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

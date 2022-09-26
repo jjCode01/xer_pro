@@ -52,6 +52,13 @@ def format_date(val):
     return val
 
 
+@app.template_filter("weekday")
+def format_date_weekday(val):
+    if isinstance(val, datetime):
+        return datetime.strftime(val, "%A")
+    return val
+
+
 @app.template_filter("formatnumber")
 def format_int(val):
     if isinstance(val, int):

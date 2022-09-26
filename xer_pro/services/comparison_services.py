@@ -5,6 +5,7 @@ from xer_pro.data.resource import TaskResource
 from xer_pro.data.schedule import Schedule
 from xer_pro.data.task import Task
 from xer_pro.data.wbs import WbsLinkedList, WbsNode
+from xer_pro.data.sched_calendar import SchedCalendar
 
 
 def get_schedule_changes(
@@ -15,6 +16,7 @@ def get_schedule_changes(
     changes.update(get_logic_changes(schedule, other_schedule))
     changes.update(get_resource_changes(schedule.resources, other_schedule.resources))
     changes.update(get_wbs_changes(schedule.wbs, other_schedule.wbs))
+    changes.update(get_clndr_changes(schedule.calendars, other_schedule.calendars))
     return changes
 
 
@@ -207,3 +209,37 @@ def get_wbs_changes(
                 )
 
     return wbs_changes
+
+
+def get_clndr_changes(
+    calendars: list[SchedCalendar], other_calendars: list[SchedCalendar]
+) -> dict[SchedCalendar, list]:
+    clndr_changes = defaultdict(list)
+    clndr_changes["added_calendar"] = list(set(calendars) - set(other_calendars))
+    clndr_changes["deleted_calendar"] = list(set(other_calendars) - set(calendars))
+    for cal in calendars:
+        for other_cal in other_calendars:
+            if cal == other_cal:
+                added_hol = sorted(list(set(cal.holidays) - set(other_cal.holidays)))
+                for day in added_hol:
+                    clndr_changes["added_holiday"].append((cal, day))
+
+                deleted_hol = sorted(list(set(other_cal.holidays) - set(cal.holidays)))
+                for day in deleted_hol:
+                    clndr_changes["deleted_holiday"].append((cal, day))
+
+                added_work = sorted(
+                    list(set(cal.work_exceptions) - set(other_cal.work_exceptions))
+                )
+                for day in added_work:
+                    clndr_changes["added_workday"].append((cal, day))
+
+                deleted_work = sorted(
+                    list(set(other_cal.work_exceptions) - set(cal.work_exceptions))
+                )
+                for day in deleted_work:
+                    clndr_changes["deleted_workday"].append((cal, day))
+
+                break
+
+    return clndr_changes

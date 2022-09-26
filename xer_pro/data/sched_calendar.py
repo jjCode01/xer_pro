@@ -222,7 +222,7 @@ class SchedCalendar:
         return self._data["work_week"]
 
     @property
-    def holidays(self) -> dict[str, datetime]:
+    def holidays(self) -> list[datetime]:
         """Returns list of non-work days"""
         if self._data.get("holidays") is None:
             self._data["holidays"] = _parse_nonwork_exceptions(self)
