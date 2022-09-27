@@ -668,6 +668,7 @@
                         <th scope="col">#</th>
                         <th scope="col" class="text-start">WBS Code</th>
                         <th scope="col" class="text-start">WBS Name</th>
+                        <th scope="col" class="text-start">Tasks</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -676,6 +677,7 @@
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ wbs[0] }}</td>
                         <td class="text-start">{{ wbs[1].name }}</td>
+                        <td class="text-start">{{ wbs[1].assignments }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -691,6 +693,7 @@
                         <th scope="col">#</th>
                         <th scope="col" class="text-start">WBS Code</th>
                         <th scope="col" class="text-start">WBS Name</th>
+                        <th scope="col" class="text-start">Tasks</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -699,6 +702,7 @@
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ wbs[0] }}</td>
                         <td class="text-start">{{ wbs[1].name }}</td>
+                        <td class="text-start">{{ wbs[1].assignments }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -747,6 +751,7 @@
                         <th scope="col">#</th>
                         <th scope="col" class="text-start">Calendar</th>
                         <th scope="col" class="text-start">Type</th>
+                        <th scope="col" class="text-start">Tasks</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -755,6 +760,7 @@
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ cal.name }}</td>
                         <td class="text-start text-nowrap">{{ cal.type }}</td>
+                        <td class="text-start text-nowrap">{{ cal.assignments }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

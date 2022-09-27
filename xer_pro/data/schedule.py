@@ -51,6 +51,14 @@ class Schedule:
         }
         self._task_code_to_id_map = {t["task_code"]: t["task_id"] for t in self.tasks()}
 
+        _cal_counter = Counter([t["clndr_id"] for t in self.tasks()])
+        for cal in self.calendars:
+            cal.assignments = _cal_counter.get(cal["clndr_id"], 0)
+
+        _wbs_counter = Counter([t["wbs_id"] for t in self.tasks()])
+        for node in self.wbs:
+            node.assignments = _wbs_counter.get(node["wbs_id"], 0)
+
     def __str__(self) -> str:
         return self.name
 
