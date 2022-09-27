@@ -1,4 +1,3 @@
-
 from typing import Iterator
 
 
@@ -16,9 +15,11 @@ class WbsNode:
     is_project_node: bool
         Flags if node is Project Node
     """
+
     def __init__(self, **kwargs) -> None:
         self._attr = kwargs
         self.parent = None
+        self.assignments = 0
 
     def __getitem__(self, name: str):
         return self._attr[name]
@@ -34,15 +35,15 @@ class WbsNode:
 
     @property
     def name(self) -> str:
-        return self._attr['wbs_name']
+        return self._attr["wbs_name"]
 
     @property
     def short_name(self) -> str:
-        return self._attr['wbs_short_name']
+        return self._attr["wbs_short_name"]
 
     @property
     def is_project_node(self) -> bool:
-        return self._attr['proj_node_flag']
+        return self._attr["proj_node_flag"]
 
 
 class WbsLinkedList:
@@ -65,9 +66,13 @@ class WbsLinkedList:
             node = node.parent
 
     def short_name_path(self, include_proj_node=False) -> str:
-        short_path = '.'.join(reversed([node.short_name for node in self.iter_path(include_proj_node)]))
+        short_path = ".".join(
+            reversed([node.short_name for node in self.iter_path(include_proj_node)])
+        )
         return short_path
 
     def long_name_path(self, include_proj_node=False) -> str:
-        long_path = '.'.join(reversed([node.name for node in self.iter_path(include_proj_node)]))
+        long_path = ".".join(
+            reversed([node.name for node in self.iter_path(include_proj_node)])
+        )
         return long_path
