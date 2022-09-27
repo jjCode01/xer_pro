@@ -22,8 +22,8 @@
             {{ badge('Open Finishes', 'openFinishTable', warnings.open_finish|length) }}
             {{ badge('Negative Lags', 'negativeLagTable', warnings.negative_lag|length) }}
             {{ badge('Finish-Start Lags', 'fsLagTable', warnings.fs_lag|length) }}
-            {{ badge('Long Lags (> 10 days)', 'longLagTable', warnings.long_lag|length) }}
-            {{ badge('Lags > Task Duration', 'falseLagTable', warnings.false_lag|length) }}
+            {{ badge('Long Lags (&#8805 10 days)', 'longLagTable', warnings.long_lag|length) }}
+            {{ badge('Lags &#8805 Task Duration', 'falseLagTable', warnings.false_lag|length) }}
             {{ badge('Start-Finish Logic', 'sfLogicTable', warnings.sf_logic|length) }}
             {{ badge('Duplicate Logic', 'duplicateLogicTable', warnings.duplicate_logic|length) }}
             {{ badge('Redundant Logic', 'redundantLogicTable', warnings.redundant_logic|length) }}
@@ -265,7 +265,7 @@
         <div id="falseLagTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">
                 <caption class="text-dark m-0">
-                    <h5 class="text-nowrap">Lags > Activity Duration: {{ warnings.false_lag|length|formatnumber }}</h5>
+                    <h5 class="text-nowrap">Lags &#8805 Activity Duration: {{ warnings.false_lag|length|formatnumber }}</h5>
                     <p class="f-sm m-0 p-0">
                         Lags that are greater than the respective activity duration may hide available project float.
                         These lags should be reduced, or replaced with a Finish-Start [FS] relationship with 0 lag.
@@ -448,6 +448,7 @@
                         <th>#</th>
                         <th>Task ID</th>
                         <th>Task Name</th>
+                        <th>Cal</th>
                         <th class="text-center">Duration</th>
                     </tr>
                 </thead>
@@ -457,6 +458,7 @@
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ task.activity_id }}</td>
                         <td>{{ task.name }}</td>
+                        <td>{{ task.calendar.name }}</td>
                         <td class="text-center">{{ task.original_duration|formatnumber }}</td>
                     </tr>
                 {% endfor %}
@@ -508,6 +510,7 @@
                         <th>Task ID</th>
                         <th>Task Name</th>
                         <th>Resource</th>
+                        <th>Account</th>
                         <th class="text-end">Budget</th>
                         <th class="text-end">At Completion</th>
                         <th class="text-end">Variance</th>
@@ -520,6 +523,11 @@
                         <td class="text-nowrap">{{ res.task.activity_id }}</td>
                         <td>{{ res.task.name }}</td>
                         <td>{{ res.name }}</td>
+                        {% if res.account %}
+                            <td>{{ res.account.acct_name }}<td>
+                        {% else %}
+                            <td>-</td>
+                        {% endif %}
                         <td class="text-end">{{ res.cost.budget|formatnumber }}</td>
                         <td class="text-end">{{ res.cost.at_completion|formatnumber }}</td>
                         <td class="text-end">{{ res.cost.variance|formatvariance }}</td>
@@ -542,6 +550,7 @@
                         <th>Task ID</th>
                         <th>Task Name</th>
                         <th>Resource</th>
+                        <th>Account</th>
                         <th class="text-end">Budget</th>
                         <th class="text-end">Actual</th>
                         <th class="text-end">Earned</th>
@@ -555,6 +564,11 @@
                         <td class="text-nowrap">{{ res.task.activity_id }}</td>
                         <td>{{ res.task.name }}</td>
                         <td>{{ res.name }}</td>
+                        {% if res.account %}
+                            <td>{{ res.account.acct_name }}</td>
+                        {% else %}
+                            <td>-</td>
+                        {% endif %}
                         <td class="text-end">{{ res.cost.budget|formatnumber }}</td>
                         <td class="text-end">{{ res.cost.actual|formatnumber }}</td>
                         <td class="text-end">{{ res.earned_value|formatnumber }}</td>
