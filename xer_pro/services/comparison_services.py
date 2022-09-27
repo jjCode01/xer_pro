@@ -186,11 +186,14 @@ def get_wbs_changes(
         WbsLinkedList(wbs): wbs for wbs in other_wbs_nodes if not wbs.is_project_node
     }
 
-    wbs_changes["added_wbs"] = [
-        (path.short_name_path(), node)
-        for path, node in wbs_node_by_path.items()
-        if path not in other_wbs_node_by_path
-    ]
+    wbs_changes["added_wbs"] = sorted(
+        [
+            (path.short_name_path(), node)
+            for path, node in wbs_node_by_path.items()
+            if path not in other_wbs_node_by_path
+        ],
+        key=lambda w: w[0],
+    )
 
     wbs_changes["deleted_wbs"] = [
         (path.short_name_path(), node)
