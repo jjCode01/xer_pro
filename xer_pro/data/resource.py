@@ -132,11 +132,13 @@ class TaskResource:
         )
 
     def __hash__(self) -> int:
+        account = self._attr.get("account")
+        account_hash = account.get("short_name") if account else ""
         return hash(
             (
-                self._attr["task"],
+                self._attr["task"].activity_id,
                 self._attr["name"],
-                self._attr["account"],
+                account_hash,
                 self._attr["rsrc_type"],
                 self._attr["target_qty"],
                 self._attr["target_lag_drtn_hr_cnt"],

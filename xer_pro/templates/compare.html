@@ -537,6 +537,7 @@
                         <th scope="col" class="text-start">ID</th>
                         <th scope="col" class="text-start">Activity Name</th>
                         <th scope="col" class="text-start">Resource</th>
+                        <th scope="col" class="text-start">Account</th>
                         <th scope="col" class="text-end">Budgeted Cost</th>
                         <th scope="col" class="text-end">Budgeted Qty</th>
                     </tr>
@@ -548,8 +549,15 @@
                         <td class="text-start text-nowrap">{{ res.task.activity_id }}</td>
                         <td class="text-start">{{ res.task.name }}</td>
                         <td class="text-start text-nowrap">{{ res.name }}</td>
+                        {% if res.account %}
+                            <td class="text-start text-nowrap">{{ res.account.acct_name }}</td>
+                        {% else %}
+                        <td class="text-start text-nowrap">-</td>
+
+                        {% endif %}
                         <td class="text-end">{{ res.cost.budget|formatnumber }}</td>
                         <td class="text-end">{{ res.unit_qty.budget|formatnumber }} </td>
+
                     </tr>
                     {% endfor %}
                 </tbody>

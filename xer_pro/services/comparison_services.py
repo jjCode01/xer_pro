@@ -167,6 +167,9 @@ def get_resource_changes(
                 resources_changes["deleted_resource"].remove(old_res)
                 break
 
+    if resources_changes["added_resource"]:
+        resources_changes["added_resource"].sort(key=lambda r: r.task.activity_id)
+
     return resources_changes
 
 
