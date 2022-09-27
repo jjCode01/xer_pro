@@ -158,6 +158,7 @@ class SchedCalendar:
 
     def __init__(self, **kwargs) -> None:
         self._data = kwargs
+        self.assignments = 0
 
     def __getitem__(self, name: str):
         return self._data[name]
