@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from statistics import mean
 from collections import Counter
 from typing import Iterator, Optional
+from functools import cached_property
 from xer_pro.data.sched_calendar import SchedCalendar
 from xer_pro.data.wbs import WbsNode
 from xer_pro.data.task import Task
@@ -70,7 +71,7 @@ class Schedule:
         """List of all Calendar objects included in the schedule"""
         return self._calendars.values()
 
-    @property
+    @cached_property
     def cost(self) -> ResourceValues:
         return ResourceValues(
             budget=sum((r.cost.budget for r in self.resources)),
@@ -144,7 +145,7 @@ class Schedule:
         """Must Finish By date set in the Project Date settings"""
         return self._project.get("plan_end_date")
 
-    @property
+    @cached_property
     def percent_complete(self) -> float:
         od_sum = sum((t.original_duration for t in self.tasks()))
         rd_sum = sum((t.remaining_duration for t in self.tasks()))
@@ -174,7 +175,7 @@ class Schedule:
         """List of all TaskResource objects included in the schedule"""
         return self._task_resources.values()
 
-    @property
+    @cached_property
     def start(self) -> datetime:
         """Start date of first activity in schedule"""
         return min((t.start for t in self.tasks()))
@@ -199,7 +200,7 @@ class Schedule:
             )
         )
 
-    @property
+    @cached_property
     def unit_qty(self) -> ResourceValues:
         return ResourceValues(
             budget=sum((r.unit_qty.budget for r in self.resources)),
@@ -213,13 +214,13 @@ class Schedule:
         """List of all Wbs objects included in the schedule"""
         return self._wbs.values()
 
-    @property
+    @cached_property
     def average_tf(self) -> float:
         return mean(
             (t.total_float for t in self.tasks(not_started=True, in_progress=True))
         )
 
-    @property
+    @cached_property
     def lowest_tf(self) -> float:
         return min(
             (t.total_float for t in self.tasks(not_started=True, in_progress=True))
