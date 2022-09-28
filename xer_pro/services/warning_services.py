@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime
 from itertools import groupby
 from xer_pro.data.schedule import Schedule
 from xer_pro.data.logic import Relationship
@@ -27,6 +28,20 @@ def _sort_pred(rel: Relationship):
 
 def _sort_succ(rel: Relationship):
     return (rel.successor.activity_id, rel.predecessor.activity_id)
+
+
+def get_invalid_actual_dates(
+    data_date: datetime, tasks: list[Task]
+) -> dict[str, list[Task]]:
+    invalid_dates = dict()
+    invalid_dates["invalid_actual_start"] = [
+        t for t in tasks if not t.is_not_started and t.start >= data_date
+    ]
+    invalid_dates["invalid_actual_finish"] = [
+        t for t in tasks if t.is_completed and t.finish >= data_date
+    ]
+
+    return invalid_dates
 
 
 def get_duplicate_logic(logic: list[Relationship]) -> list[tuple[Relationship]]:
@@ -218,5 +233,6 @@ def get_schedule_warnings(
         and not task.is_loe
         and is_construction_task(task)
     ]
+    warnings.update(get_invalid_actual_dates(schedule.data_date, schedule.tasks()))
 
     return warnings
