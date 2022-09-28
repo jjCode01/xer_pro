@@ -20,6 +20,7 @@
             {{ badge('Open Successors', 'openSuccessorTable', warnings.open_successor|length, 1) }}
             {{ badge('Open Starts', 'openStartTable', warnings.open_start|length) }}
             {{ badge('Open Finishes', 'openFinishTable', warnings.open_finish|length) }}
+            {{ badge('Actual Dates &#8805 Data Date', 'actualDateTable', warnings.invalid_actual_dates|length) }}
             {{ badge('Negative Lags', 'negativeLagTable', warnings.negative_lag|length) }}
             {{ badge('Finish-Start Lags', 'fsLagTable', warnings.fs_lag|length) }}
             {{ badge('Long Lags (&#8805 10 days)', 'longLagTable', warnings.long_lag|length) }}
@@ -157,6 +158,48 @@
                         <td class="text-nowrap">{{ task.activity_id }}</td>
                         <td>{{ task.name }}</td>
                         <td>{{ task.type }}</td>
+                        <td>{{ task.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if warnings.invalid_actual_dates|length %}
+        <div id="actualDateTable" class="table-responsive-md mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Actual Dates &#8805 Data Date: {{ warnings.invalid_actual_dates|length|formatnumber }}</h5>
+                    <p class="f-sm m-0 p-0">
+                        The following activities have been updated with an Actual Date on or after the Data Date.
+                    </p>
+                </caption>
+                <thead>
+                    <tr class="table-secondary ">
+                        <th>#</th>
+                        <th>ID</th>
+                        <th>Activity Name</th>
+                        <th>Actual Start</th>
+                        <th>Actual Finish</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in warnings.invalid_actual_dates %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-nowrap">{{ task.activity_id }}</td>
+                        <td>{{ task.name }}</td>
+                        {% if task.act_start_date >= schedules.current.data_date %}
+                            <td>{{ task.act_start_date|formatdate }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                        {% if task.is_completed and task.act_end_date >= schedules.current.data_date %}
+                            <td>{{ task.act_end_date|formatdate }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
                         <td>{{ task.status }}</td>
                     </tr>
                     {% endfor %}

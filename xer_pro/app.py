@@ -143,7 +143,7 @@ def dashboard():
         )
 
         changes = get_schedule_changes(schedules["current"], schedules["previous"])
-        warnings = get_schedule_warnings(schedules["current"], schedules["previous"])
+        warnings = get_schedule_warnings(schedules["current"])
 
         files = []
 

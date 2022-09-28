@@ -30,15 +30,12 @@ def _sort_succ(rel: Relationship):
     return (rel.successor.activity_id, rel.predecessor.activity_id)
 
 
-def get_invalid_actual_dates(
-    data_date: datetime, tasks: list[Task]
-) -> dict[str, list[Task]]:
-    invalid_dates = dict()
-    invalid_dates["invalid_actual_start"] = [
-        t for t in tasks if not t.is_not_started and t.start >= data_date
-    ]
-    invalid_dates["invalid_actual_finish"] = [
-        t for t in tasks if t.is_completed and t.finish >= data_date
+def get_invalid_actual_dates(data_date: datetime, tasks: list[Task]) -> list[Task]:
+    invalid_dates = [
+        task
+        for task in tasks
+        if (not task.is_not_started and task.start >= data_date)
+        or (task.is_completed and task.finish >= data_date)
     ]
 
     return invalid_dates
@@ -215,9 +212,7 @@ def get_cost_warnings(resources: list[TaskResource]) -> list[TaskResource]:
     return cost_warnings
 
 
-def get_schedule_warnings(
-    schedule: Schedule, other_schedule: Schedule
-) -> dict[str, dict]:
+def get_schedule_warnings(schedule: Schedule) -> dict[str, dict]:
     warnings = defaultdict(set)
     warnings["duplicate_names"] = get_duplicate_names(schedule.tasks())
     warnings["duplicate_logic"] = get_duplicate_logic(schedule.logic())
@@ -233,6 +228,8 @@ def get_schedule_warnings(
         and not task.is_loe
         and is_construction_task(task)
     ]
-    warnings.update(get_invalid_actual_dates(schedule.data_date, schedule.tasks()))
+    warnings["invalid_actual_dates"] = get_invalid_actual_dates(
+        schedule.data_date, schedule.tasks()
+    )
 
     return warnings
