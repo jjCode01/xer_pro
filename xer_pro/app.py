@@ -4,6 +4,7 @@ from datetime import datetime
 import os
 
 from xer_pro.data.schedule import Schedule
+from xer_pro.data.task import Task
 
 from xer_pro.data.parse import parse_xer_file, find_xer_errors
 from xer_pro.services.schedule_services import (
@@ -88,12 +89,28 @@ def format_var(val):
     return val
 
 
+@app.template_filter("taskimage")
+def task_img(val: Task):
+    if not isinstance(val, Task):
+        return ""
+
+    pre = "ms-" if val.is_milestone else ""
+    post = "-lp.png" if val.is_longest_path and not val.is_completed else ".png"
+
+    if val.is_not_started:
+        return f"{pre}open{post}"
+    if val.is_in_progress:
+        return f"{pre}active{post}"
+    if val.is_completed:
+        return f"{pre}complete{post}"
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     global files
 
-    # if request.method == "GET":
-    #     files = []
+    if request.method == "GET":
+        files = []
     if request.method == "POST":
         if len(files) > 2:
             files = []
