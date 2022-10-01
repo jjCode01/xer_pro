@@ -284,6 +284,25 @@ def group_by_link(self) -> dict[str, list[Relationship]]:
     return links
 
 
+def get_tasks_in_time_frame(
+    tasks: list[Task], start_date: datetime, end_date: datetime
+) -> dict[str, list[Task]]:
+    tasks_in_time_frame = dict()
+    tasks_in_time_frame["planned_start"] = [
+        task
+        for task in tasks
+        if task.is_not_started and start_date <= task.start < end_date
+    ]
+
+    tasks_in_time_frame["planned_finish"] = [
+        task
+        for task in tasks
+        if not task.is_completed and start_date <= task.finish < end_date
+    ]
+
+    return tasks_in_time_frame
+
+
 def _interval_date(date: datetime) -> str:
     return _date_str(datetime(date.year, date.month, 1, 0, 0, 0))
 
