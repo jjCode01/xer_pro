@@ -1,4 +1,5 @@
 from collections import defaultdict, Counter
+from datetime import datetime
 from fuzzywuzzy import fuzz
 from xer_pro.data.logic import Relationship
 from xer_pro.data.resource import TaskResource
@@ -79,6 +80,12 @@ def get_task_changes(schedule: Schedule, other_schedule: Schedule) -> dict[str, 
             changes["revised_constraint"].append(
                 (task, task.constraint_second, other.constraint_second, "Secondary")
             )
+
+        if other.is_not_started and not task.is_not_started:
+            changes["started"].append(task)
+
+        if not other.is_completed and task.is_completed:
+            changes["finished"].append(task)
 
         def sort_key(val):
             if isinstance(val, Task):
@@ -226,24 +233,28 @@ def get_clndr_changes(
     for cal in calendars:
         for other_cal in other_calendars:
             if cal == other_cal:
-                added_hol = sorted(list(set(cal.holidays) - set(other_cal.holidays)))
-                for day in added_hol:
+                added_holiday = sorted(
+                    list(set(cal.holidays) - set(other_cal.holidays))
+                )
+                for day in added_holiday:
                     clndr_changes["added_holiday"].append((cal, day))
 
-                deleted_hol = sorted(list(set(other_cal.holidays) - set(cal.holidays)))
-                for day in deleted_hol:
+                deleted_holiday = sorted(
+                    list(set(other_cal.holidays) - set(cal.holidays))
+                )
+                for day in deleted_holiday:
                     clndr_changes["deleted_holiday"].append((cal, day))
 
-                added_work = sorted(
+                added_workday = sorted(
                     list(set(cal.work_exceptions) - set(other_cal.work_exceptions))
                 )
-                for day in added_work:
+                for day in added_workday:
                     clndr_changes["added_workday"].append((cal, day))
 
-                deleted_work = sorted(
+                deleted_workday = sorted(
                     list(set(other_cal.work_exceptions) - set(cal.work_exceptions))
                 )
-                for day in deleted_work:
+                for day in deleted_workday:
                     clndr_changes["deleted_workday"].append((cal, day))
 
                 break
