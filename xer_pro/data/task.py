@@ -111,7 +111,7 @@ class Task:
 
     @property
     def is_longest_path(self) -> bool:
-        return self._attr.get("driving_pathflag")
+        return self._attr.get("driving_path_flag")
 
     @property
     def is_milestone(self) -> bool:
