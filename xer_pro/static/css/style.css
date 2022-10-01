@@ -1,7 +1,8 @@
-td, .f-sm {font-size: 0.8em;}
-th {font-size: 0.9em;}
+td, .f-sm {font-size: 0.75em;}
+th {font-size: 0.8em;}
 .card:hover {box-shadow:0 .25rem .5rem rgba(0,0,0,.075)!important;}
 .card {transition:.3s;}
 html, body {min-height: 100%;}
 html {scroll-padding-top: 70px;}
+.f-md-sm {font-size: 0.95em;}
 .f-md {font-size: 1em;}
