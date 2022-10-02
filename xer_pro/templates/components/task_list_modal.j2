@@ -1,0 +1,39 @@
+#jinja2: lstrip_blocks: True
+{% macro task_list_modal(id, title, tasks) %}
+    <div class="modal fade" id={{ id }} tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">{{ title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <th>#</th>
+                            <th class="text-start">ID</th>
+                            <th class="text-start">Name</th>
+                            <th>Start</th>
+                            <th>Finish</th>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td class="text-start text-nowrap">{{ task.activity_id }}</td>
+                                    <td class="text-start">{{ task.name }}</td>
+                                    <td class="text-nowrap px-2">{{ task.start|formatdate }}</td>
+                                    <td class="text-nowrap">{{ task.finish|formatdate }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
