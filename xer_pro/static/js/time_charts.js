@@ -25,7 +25,7 @@ function timeChart(element, datasets) {
     })
 }
 
-function horizontalStackedChart(element, data) {
+function horizontalStackedChart(element, data, callback_add="") {
     return new Chart(element, {
         type: 'bar',
         data: data,
@@ -36,7 +36,7 @@ function horizontalStackedChart(element, data) {
                     stacked: true,
                     ticks: {
                         callback: function(value, index, ticks) {
-                            return value + '%';
+                            return value + callback_add;
                         }
                     }
                 },
