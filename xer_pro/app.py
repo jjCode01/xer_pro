@@ -11,7 +11,10 @@ from xer_pro.services.schedule_services import (
     parse_schedule_cash_flow,
     parse_schedule_work_flow,
 )
-from xer_pro.services.schedule_services import parse_float_chart_data
+from xer_pro.services.schedule_services import (
+    parse_float_chart_data,
+    parse_status_chart_data,
+)
 from xer_pro.services.comparison_services import get_schedule_changes
 from xer_pro.services.warning_services import get_schedule_warnings
 
@@ -37,6 +40,7 @@ schedules = dict()
 cash_flow = dict()
 work_flow = dict()
 float_data = dict()
+status_data = dict()
 changes = dict()
 warnings = dict()
 
@@ -138,6 +142,7 @@ def dashboard():
     global cash_flow
     global work_flow
     global float_data
+    global status_data
     global changes
     global warnings
 
@@ -158,6 +163,9 @@ def dashboard():
         float_data = parse_float_chart_data(
             schedules["current"].tasks(), schedules["previous"].tasks()
         )
+        status_data = parse_status_chart_data(
+            schedules["current"].tasks(), schedules["previous"].tasks()
+        )
 
         changes = get_schedule_changes(schedules["current"], schedules["previous"])
         warnings = get_schedule_warnings(schedules["current"])
@@ -173,6 +181,8 @@ def dashboard():
         cash_flow=cash_flow,
         work_flow=work_flow,
         float_data=float_data,
+        status_data=status_data,
+        changes=changes,
     )
 
 
