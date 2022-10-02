@@ -200,6 +200,28 @@ class Schedule:
             )
         )
 
+    def planned_progress(self, before_date: datetime) -> dict[str, list[Task]]:
+        progress = dict()
+        progress["planned_start"] = sorted(
+            [
+                task
+                for task in self.tasks()
+                if task.is_not_started and task.start < before_date
+            ],
+            key=lambda t: t.start,
+        )
+
+        progress["planned_finish"] = sorted(
+            [
+                task
+                for task in self.tasks()
+                if not task.is_completed and task.finish < before_date
+            ],
+            key=lambda t: t.finish,
+        )
+
+        return progress
+
     @cached_property
     def unit_qty(self) -> ResourceValues:
         return ResourceValues(
