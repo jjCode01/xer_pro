@@ -276,6 +276,42 @@ def parse_float_chart_data(
     }
 
 
+def parse_status_chart_data(
+    curr_tasks: list[Task],
+    prev_tasks: list[Task],
+) -> dict:
+
+    return {
+        "labels": ["Current", "Previous"],
+        "datasets": [
+            {
+                "label": "Complete",
+                "data": [
+                    sum((task.is_completed for task in curr_tasks)),
+                    sum((task.is_completed for task in prev_tasks)),
+                ],
+                "backgroundColor": [COLORS["PRIMARY"]],
+            },
+            {
+                "label": "In Progress",
+                "data": [
+                    sum((task.is_in_progress for task in curr_tasks)),
+                    sum((task.is_in_progress for task in prev_tasks)),
+                ],
+                "backgroundColor": [COLORS["SUCCESS"]],
+            },
+            {
+                "label": "Not Started",
+                "data": [
+                    sum((task.is_not_started for task in curr_tasks)),
+                    sum((task.is_not_started for task in prev_tasks)),
+                ],
+                "backgroundColor": [COLORS["DANGER"]],
+            },
+        ],
+    }
+
+
 def group_by_link(self) -> dict[str, list[Relationship]]:
     links = defaultdict(list)
     for rel in self.logic:
