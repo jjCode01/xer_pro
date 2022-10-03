@@ -13,6 +13,7 @@
 
 <section class="py-3 px-md-4 bg-light">
     <div class="container-lg">
+        {% from 'components/task_list_modal.j2' import task_list_modal %}
         <div class="row mb-3 gy-3 text-center">
             <!-- Update Period -->
             <div class="col-md-6"> 
@@ -157,8 +158,67 @@
                     </div>
                 </div>
             </div>
-            <!-- Activities -->
+            <!-- performance index -->
             <div class="col-lg-4 col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="m-0 pb-1 border-bottom fs-5">Performance Score</p>
+
+                        {% if schedules.current.data_date == schedules.previous.data_date %}
+                            <p class="lead mb-0"><strong>N/A</strong></p>
+
+                        {% else %}
+                            {% set planned_progress = schedules.previous.planned_progress(schedules.current.data_date) %}
+                            {% if planned_progress.planned_start %}
+                                {% set start_score = changes.started|length / planned_progress.planned_start|length * 100 %}
+                            {% else %}
+                                {% set start_score = 100 %}
+                            {% endif %}
+
+                            {% if planned_progress.planned_finish %}
+                                {% set finish_score = changes.finished|length / planned_progress.planned_finish|length * 100 %}
+                            {% else %}
+                                {% set finish_score = 100 %}
+                            {% endif %}
+
+                            {% if planned_progress.planned_start and planned_progress.planned_finish %}
+                                {% set total_score = (changes.finished|length + changes.started|length) / (planned_progress.planned_finish|length + planned_progress.planned_start|length) * 100 %}
+                                <p class="lead mb-0"><strong>{{ total_score|formatnumber }}%</strong></p>
+                            {% else %}
+                                <p class="lead mb-0"><strong>N/A</strong></p>
+                            {% endif %}
+                            
+                            <p class="mb-1 text-secondary">
+                                {{ start_score|formatnumber }}% Start
+                                (<a href="#startedProgressModal" data-bs-toggle="modal">{{ changes.started|length }}</a> of
+                                <a href="#plannedStartModal" data-bs-toggle="modal">{{ planned_progress.planned_start|length }})</a>
+                            </p>
+                            <p class="mb-1 text-secondary">{{ finish_score|formatnumber }}% Finish
+                                (<a href="#finishedProgressModal" data-bs-toggle="modal">{{ changes.finished|length }}</a> of
+                                <a href="#plannedFinishModal" data-bs-toggle="modal">{{ planned_progress.planned_finish|length }})</a>
+                            </p>
+                            {{ task_list_modal("startedProgressModal", "Started This Update", changes.started) }}
+                            {{ task_list_modal("finishedProgressModal", "Completed This Update", changes.finished) }}
+                            {{ task_list_modal("plannedStartModal", "Planned to Start This Update", planned_progress.planned_start) }}
+                            {{ task_list_modal("plannedFinishModal", "Planned to Finish This Update", planned_progress.planned_finish) }}
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+            <!-- Activity Status Chart -->
+            <div class="col-lg-7 d-print-block">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="m-0 pb-1 border-bottom fs-5">Activity Status Chart</p>
+                        <div class="pt-3 px-2" style="height: 150px;">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>       
+            </div>
+            <!-- Activities -->
+            <div class="col-lg-5 col-md-6">
                 <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Activities</p>
@@ -196,9 +256,9 @@
                             </div>
                         {% endwith %}
                         </div>
-                        <p class="small mb-0">
+                        <a href="#completedTasksModal" class="small mb-0" data-bs-toggle="modal" data-bs-target="#completedTasksModal">
                         {% with %}
-                            {% set diff = schedules.current.tasks(completed=True)|length - schedules.previous.tasks(completed=True)|length %}                            
+                            {% set diff = changes.finished|length %}                            
                             {% if diff > 0 %}
                                 <i class="bi bi-caret-up-fill h5 text-info p-0"></i>
                                 <strong>{{ diff|formatvariance }}</strong> completed this update
@@ -209,7 +269,8 @@
                                 No activities completed this update
                             {% endif %}
                         {% endwith %}
-                        </p>
+                        </a>
+                        {{ task_list_modal("completedTasksModal", "Completed This Update", changes.finished) }}
                         
                     </div>
                 </div>
@@ -423,6 +484,7 @@
     const cost_data = JSON.parse('{{ cash_flow.current | tojson | safe}}')
     const work_data = JSON.parse('{{ work_flow.current | tojson | safe}}')
     const float_data = JSON.parse('{{ float_data | tojson | safe}}')
+    const status_data = JSON.parse('{{ status_data | tojson | safe}}')
 
     let ctxWorkChart = document.getElementById('progressChart');
     let workChart = new timeChart(ctxWorkChart, work_data)
@@ -433,6 +495,9 @@
     }
 
     let ctxFloatChart = document.getElementById('floatChart');
-    let floatChart = new horizontalStackedChart(ctxFloatChart, float_data)
+    let floatChart = new horizontalStackedChart(ctxFloatChart, float_data, '%')
+
+    let ctxStatusChart = document.getElementById('statusChart');
+    let statusChart = new horizontalStackedChart(ctxStatusChart, status_data)
 </script>
 {% endblock %}
