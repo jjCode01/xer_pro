@@ -155,20 +155,22 @@ def get_open_ends(schedule: Schedule) -> dict[str, list[Task]]:
         if task not in groupby_predecessor:
             open_ends["open_successor"].append(task)
         else:
-            for rel in groupby_predecessor.get(task):
-                if rel.link in ("FS", "FF"):
-                    break
-            else:
-                open_ends["open_finish"].append(task)
+            if not task.is_milestone:
+                for rel in groupby_predecessor.get(task):
+                    if rel.link in ("FS", "FF"):
+                        break
+                else:
+                    open_ends["open_finish"].append(task)
 
         if task not in groupby_successor:
             open_ends["open_predecessor"].append(task)
         else:
-            for rel in groupby_successor.get(task):
-                if rel.link in ("FS", "SS"):
-                    break
-            else:
-                open_ends["open_start"].append(task)
+            if not task.is_milestone:
+                for rel in groupby_successor.get(task):
+                    if rel.link in ("FS", "SS"):
+                        break
+                else:
+                    open_ends["open_start"].append(task)
 
     return open_ends
 
