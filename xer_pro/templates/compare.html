@@ -50,6 +50,8 @@
 </section>
 
 <section class="py-3 px-md-4 bg-white">
+    {% from 'components/image_element.j2' import task_image %}
+
     <div class="container-lg">
 
         {% if task_changes.added_tasks|length %}
@@ -73,7 +75,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ task.activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~task|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(task) }}</td>
                         <td class="text-start">{{ task.name }}</td>
                         <td class="text-start">{{ task.calendar.name }}</td>
                         <td class="text-center">{{ task.original_duration|formatnumber }}</td>
@@ -108,7 +110,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ task.activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~task|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(task) }}</td>
                         <td class="text-start">{{ task.name }}</td>
                         <td class="text-start">{{ task.calendar.name }}</td>
                         <td class="text-center">{{ task.original_duration|formatnumber }}</td>
@@ -140,7 +142,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ task[0].activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~task[0]|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(task[0]) }}</td>
                         <td>{{ task[0].name }}</td>
                         <td>{{ task[1].name }}</td>
                         {% if (60 <= task[2] < 80) and task[3] != 100 %}
@@ -179,7 +181,7 @@
                         <tr>
                             <td>{{ loop.index }}</td>
                             <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                            <td><img src="{{ url_for('static', filename='img/'~task[0]|taskimage) }}" width="20px" height="10px" alt=""></td>
+                            <td>{{ task_image(task[0]) }}</td>
                             <td class="text-start">{{ task[0].name }}</td>
                             <td class="text-start">{{ task[0].calendar.name }}</td>
                             <td class="text-center">{{ task[0].original_duration|formatnumber }}</td>
@@ -575,8 +577,7 @@
                         {% if res.account %}
                             <td class="text-start text-nowrap">{{ res.account.acct_name }}</td>
                         {% else %}
-                        <td class="text-start text-nowrap">-</td>
-
+                            <td class="text-start text-nowrap">-</td>
                         {% endif %}
                         <td class="text-end">${{ res.cost.budget|formatnumber }}</td>
                         <td class="text-end">{{ res.unit_qty.budget|formatnumber }} </td>
@@ -597,6 +598,7 @@
                         <th colspan="2" scope="col" class="text-start">ID</th>
                         <th scope="col" class="text-start">Activity Name</th>
                         <th scope="col" class="text-start">Resource</th>
+                        <th scope="col" class="text-start">Account</th>
                         <th scope="col" class="text-end">Budgeted Cost</th>
                         <th scope="col" class="text-end">Budgeted Qty</th>
                     </tr>
@@ -609,6 +611,11 @@
                         <td><img src="{{ url_for('static', filename='img/'~res.task|taskimage) }}" width="20px" height="10px" alt=""></td>
                         <td class="text-start">{{ res.task.name }}</td>
                         <td class="text-start text-nowrap">{{ res.name }}</td>
+                        {% if res.account %}
+                            <td class="text-start text-nowrap">{{ res.account.acct_name }}</td>
+                        {% else %}
+                            <td class="text-start text-nowrap">-</td>
+                        {% endif %}
                         <td class="text-end">{{ res.cost.budget|formatnumber }}</td>
                         <td class="text-end">{{ res.unit_qty.budget|formatnumber }} </td>
                     </tr>
@@ -627,6 +634,7 @@
                         <th colspan="2" scope="col" class="text-start">ID</th>
                         <th scope="col" class="text-start">Activity Name</th>
                         <th scope="col" class="text-start">Resource</th>
+                        <th scope="col" class="text-start">Account</th>
                         <th scope="col" class="text-end">New Cost</th>
                         <th scope="col" class="text-end">Old Cost</th>
                         <th scope="col" class="text-end">Variance</th>
@@ -640,6 +648,11 @@
                         <td><img src="{{ url_for('static', filename='img/'~res[0].task|taskimage) }}" width="20px" height="10px" alt=""></td>
                         <td class="text-start">{{ res[0].task.name }}</td>
                         <td class="text-start text-nowrap">{{ res[0].name }}</td>
+                        {% if res[0].account %}
+                            <td class="text-start text-nowrap">{{ res[0].account.acct_name }}</td>
+                        {% else %}
+                            <td class="text-start text-nowrap">-</td>
+                        {% endif %}
                         <td class="text-end">{{ res[0].cost.budget|formatnumber }}</td>
                         <td class="text-end">{{ res[1].cost.budget|formatnumber }} </td>
                         <td class="text-end">{{ (res[0].cost.budget - res[1].cost.budget)|formatvariance }} </td>
@@ -659,6 +672,7 @@
                         <th colspan="2" scope="col" class="text-start">ID</th>
                         <th scope="col" class="text-start">Activity Name</th>
                         <th scope="col" class="text-start">Resource</th>
+                        <th scope="col" class="text-start">Account</th>
                         <th scope="col" class="text-end">New Unit Qty</th>
                         <th scope="col" class="text-end">Old Unit Qty</th>
                         <th scope="col" class="text-end">Variance</th>
@@ -672,6 +686,11 @@
                         <td><img src="{{ url_for('static', filename='img/'~res[0].task|taskimage) }}" width="20px" height="10px" alt=""></td>
                         <td class="text-start">{{ res[0].task.name }}</td>
                         <td class="text-start text-nowrap">{{ res[0].name }}</td>
+                        {% if res[0].account %}
+                            <td class="text-start text-nowrap">{{ res[0].account.acct_name }}</td>
+                        {% else %}
+                            <td class="text-start text-nowrap">-</td>
+                        {% endif %}
                         <td class="text-end">{{ res[0].unit_qty.budget|formatnumber }}</td>
                         <td class="text-end">{{ res[1].unit_qty.budget|formatnumber }} </td>
                         <td class="text-end">{{ (res[0].unit_qty.budget - res[1].unit_qty.budget)|formatvariance }} </td>
