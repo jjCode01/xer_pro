@@ -93,8 +93,23 @@ def format_var(val):
     return val
 
 
+@app.template_filter("currenttask")
+def curr_task(task: Task):
+    if not task:
+        return None
+
+    global schedules
+    if not schedules["current"]:
+        return None
+
+    return schedules["current"].tasks_by_id.get(task.activity_id)
+
+
 @app.template_filter("taskimage")
 def task_img(val: Task):
+    if not val:
+        return "deleted.png"
+
     if not isinstance(val, Task):
         return ""
 
