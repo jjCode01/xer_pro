@@ -16,8 +16,8 @@
         {% from 'components/task_list_modal.j2' import task_list_modal %}
         <div class="row mb-3 gy-3 text-center">
             <!-- Update Period -->
-            <div class="col-md-6"> 
-                <div class="card h-100">
+            <div class="col-md-6 no-break"> 
+                <div class="card h-100 no-break">
                     <div class="card-body pb-0">
                         <p class="m-0 pb-1 mb-1 border-bottom fs-5">Update Period</p>
                         <p class="lead mb-1"><strong>
@@ -36,8 +36,8 @@
                 </div>
             </div>
             <!-- Finish Date -->
-            <div class="col-md-6">
-                <div class="card h-100">
+            <div class="col-md-6 no-break">
+                <div class="card h-100 no-break">
                     <div class="card-body pb-0">
                         <p class="m-0 pb-1 mb-1 border-bottom fs-5">Finish Date</p>
                         <p class="lead mb-1"><strong>
@@ -73,8 +73,8 @@
                 </div>
             </div>
             <!-- Work Complete -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card h-100">
+            <div class="col-lg-4 col-md-6 no-break">
+                <div class="card h-100 no-break">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Work Complete</p>
                         <p class="lead mb-0"><strong>{{ schedules.current.percent_complete|formatnumber }}%</strong></p>
@@ -122,8 +122,8 @@
                 </div>
             </div>
             <!-- Schedule Duration -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card h-100">
+            <div class="col-lg-4 col-md-6 no-break">
+                <div class="card h-100 no-break">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Schedule Duration</p>
                         {% with %}
@@ -159,8 +159,8 @@
                 </div>
             </div>
             <!-- performance index -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card h-100">
+            <div class="col-lg-4 col-md-6 no-break">
+                <div class="card h-100 no-break">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Performance Score</p>
 
@@ -207,8 +207,8 @@
                 </div>
             </div>
             <!-- Activity Status Chart -->
-            <div class="col-lg-7 d-print-block">
-                <div class="card h-100">
+            <div class="col-lg-7 d-print-block no-break">
+                <div class="card h-100 no-break">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Activity Status Chart</p>
                         <div class="pt-3 px-2" style="height: 150px;">
@@ -218,8 +218,8 @@
                 </div>       
             </div>
             <!-- Activities -->
-            <div class="col-lg-5 col-md-6">
-                <div class="card h-100">
+            <div class="col-lg-5 col-md-6 no-break">
+                <div class="card h-100 no-break">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Activities</p>
                         <p class="lead mb-0"><strong>{{ schedules.current.tasks()|length|formatnumber }}</strong> total</p>
@@ -276,8 +276,8 @@
                 </div>
             </div>
             <!-- Activity Float -->
-            <div class="col-lg-5 col-md-6">
-                <div class="card h-100">
+            <div class="col-lg-5 col-md-6 no-break">
+                <div class="card h-100 no-break">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Activity Float</p>
                         <p class="lead mb-0">Average total float <strong>{{ schedules.current.average_tf|formatnumber }}</strong> days</p>
@@ -312,8 +312,8 @@
                 </div>       
             </div>
             <!-- Activity Float Chart -->
-            <div class="col-lg-7 d-print-block">
-                <div class="card h-100">
+            <div class="col-lg-7 d-print-block no-break">
+                <div class="card h-100 no-break">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Total Float Chart</p>
                         <div class="pt-3 px-2" style="height: 150px;">
@@ -325,8 +325,8 @@
         </div>
         <div class="row mb-3 gy-3 text-center">
             <!-- Cost Loading -->
-            <div class="col-md-6">
-                <div class="card h-100">
+            <div class="col-md-6 no-break">
+                <div class="card h-100 no-break">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Cost Loading</p>
                         <div class="row gy-3">
@@ -386,8 +386,8 @@
                 </div>
             </div>
             <!-- Resource Loading -->
-            <div class="col-md-6">
-                <div class="card h-100">
+            <div class="col-md-6 no-break">
+                <div class="card h-100 no-break">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Resource Loading</p>
                         <div class="row gy-3">
@@ -447,9 +447,9 @@
                 </div>
             </div>
         </div>
-        <div class="row mb-3 gy-3 text-center">
+        <div class="row mb-3 gy-3 text-center no-break">
             <div class="col">
-                <div class="card h-100">
+                <div class="card h-100 no-break">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Progress Histogram</p>
                         <div class="pt-3 px-2" style="height: 400px;">
@@ -460,7 +460,7 @@
             </div>
         </div>
         {% if schedules.current.cost %}
-        <div class="row mb-3 gy-3 text-center">
+        <div class="row mb-3 gy-3 text-center no-break">
             <div class="col">
                 <div class="card h-100">
                     <div class="card-body">

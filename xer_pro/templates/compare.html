@@ -221,7 +221,7 @@
                         <tr>
                             <td>{{ loop.index }}</td>
                             <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                            <td><img src="{{ url_for('static', filename='img/'~task[0]|taskimage) }}" width="20px" height="10px" alt=""></td>
+                            <td>{{ task_image(task[0]) }}</td>
                             <td class="text-start">{{ task[0].name }}</td>
                             <td class="text-start">{{ task[0].calendar.name }}</td>
                             <td class="text-center">{{ task[0].remaining_duration|formatnumber }}</td>
@@ -263,7 +263,7 @@
                         <tr>
                             <td>{{ loop.index }}</td>
                             <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                            <td><img src="{{ url_for('static', filename='img/'~task[0]|taskimage) }}" width="20px" height="10px" alt=""></td>
+                            <td>{{ task_image(task[0]) }}</td>
                             <td class="text-start">{{ task[0].name }}</td>
                             <td class="text-center">{{ task[0].act_start_date|formatdate }}</td>
                             <td class="text-center">{{ task[1].act_start_date|formatdate }}</td>
@@ -304,7 +304,7 @@
                         <tr>
                             <td>{{ loop.index }}</td>
                             <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                            <td><img src="{{ url_for('static', filename='img/'~task[0]|taskimage) }}" width="20px" height="10px" alt=""></td>
+                            <td>{{ task_image(task[0]) }}</td>
                             <td class="text-start">{{ task[0].name }}</td>
                             <td class="text-center">{{ task[0].act_end_date|formatdate }}</td>
                             <td class="text-center">{{ task[1].act_end_date|formatdate }}</td>
@@ -346,7 +346,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~task[0]|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(task[0]) }}</td>
                         <td class="text-start">{{ task[0].name }}</td>
                         <td class="text-center">{{ task[0].calendar|string }}</td>
                         <td class="text-center">{{ task[1].calendar|string }}</td>
@@ -375,7 +375,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~task[0]|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(task[0]) }}</td>
                         <td class="text-start">{{ task[0].name }}</td>
                         <td class="text-start">{{ task[1] }}</td>
                         <td class="text-start">{{ task[2] }}</td>
@@ -404,7 +404,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~task[0]|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(task[0]) }}</td>
                         <td class="text-start">{{ task[0].name }}</td>
                         <td class="text-center">{{ task[0].type }}</td>
                         <td class="text-center">{{ task[1].type }}</td>
@@ -436,7 +436,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ task[0].activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~task[0]|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(task[0]) }}</td>
                         <td class="text-start">{{ task[0].name }}</td>
                         <td class="text-start">{{ task[3] }}</td>
                         <td class="text-center">{{ task[1].type }}</td>
@@ -470,10 +470,10 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ rel.predecessor.activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~rel.predecessor|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(rel.predecessor) }}</td>
                         <td class="text-start">{{ rel.predecessor.name }}</td>
                         <td class="text-start text-nowrap">{{ rel.successor.activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~rel.successor|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(rel.successor) }}</td>
                         <td class="text-start">{{ rel.successor.name }}</td>
                         <td class="text-center">{{ rel.link }}</td>
                         <td class="text-center">{{ rel.lag|formatnumber }}</td>
@@ -504,10 +504,10 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ rel.predecessor.activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~rel.predecessor|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(rel.predecessor|currenttask) }}</td>
                         <td class="text-start">{{ rel.predecessor.name }}</td>
                         <td class="text-start text-nowrap">{{ rel.successor.activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~rel.successor|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(rel.successor|currenttask) }}</td>
                         <td class="text-start">{{ rel.successor.name }}</td>
                         <td class="text-center">{{ rel.link }}</td>
                         <td class="text-center">{{ rel.lag|formatnumber }}</td>
@@ -538,10 +538,10 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ rel[0].predecessor.activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~rel[0].predecessor|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(rel[0].predecessor) }}</td>
                         <td class="text-start">{{ rel[0].predecessor.name }}</td>
                         <td class="text-start text-nowrap">{{ rel[0].successor.activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~rel[0].successor|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(rel[0].successor) }}</td>
                         <td class="text-start">{{ rel[0].successor.name }}</td>
                         <td class="text-center">{{ rel[0].link }}:{{ rel[0].lag|formatnumber }} </td>
                         <td class="text-center">{{ rel[1].link }}:{{ rel[1].lag|formatnumber }} </td>
@@ -571,7 +571,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ res.task.activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~res.task|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(res.task) }}</td>
                         <td class="text-start">{{ res.task.name }}</td>
                         <td class="text-start text-nowrap">{{ res.name }}</td>
                         {% if res.account %}
@@ -608,7 +608,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ res.task.activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~res.task|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(res.task) }}</td>
                         <td class="text-start">{{ res.task.name }}</td>
                         <td class="text-start text-nowrap">{{ res.name }}</td>
                         {% if res.account %}
@@ -616,7 +616,7 @@
                         {% else %}
                             <td class="text-start text-nowrap">-</td>
                         {% endif %}
-                        <td class="text-end">{{ res.cost.budget|formatnumber }}</td>
+                        <td class="text-end">${{ res.cost.budget|formatnumber }}</td>
                         <td class="text-end">{{ res.unit_qty.budget|formatnumber }} </td>
                     </tr>
                     {% endfor %}
@@ -645,7 +645,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ res[0].task.activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~res[0].task|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(res[0].task) }}</td>
                         <td class="text-start">{{ res[0].task.name }}</td>
                         <td class="text-start text-nowrap">{{ res[0].name }}</td>
                         {% if res[0].account %}
@@ -683,7 +683,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-start text-nowrap">{{ res[0].task.activity_id }}</td>
-                        <td><img src="{{ url_for('static', filename='img/'~res[0].task|taskimage) }}" width="20px" height="10px" alt=""></td>
+                        <td>{{ task_image(res[0].task) }}</td>
                         <td class="text-start">{{ res[0].task.name }}</td>
                         <td class="text-start text-nowrap">{{ res[0].name }}</td>
                         {% if res[0].account %}

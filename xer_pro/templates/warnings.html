@@ -27,7 +27,7 @@
             {{ badge('Lags &#8805 Task Duration', 'falseLagTable', warnings.false_lag|length) }}
             {{ badge('Start-Finish Logic', 'sfLogicTable', warnings.sf_logic|length) }}
             {{ badge('Duplicate Logic', 'duplicateLogicTable', warnings.duplicate_logic|length) }}
-            {{ badge('Redundant Logic', 'redundantLogicTable', warnings.redundant_logic|length) }}
+            {{ badge('Redundant Logic', 'redundantLogicTable', warnings.redundant_logic|length) }}</label>
             {{ badge('Durations > 20 Days', 'longDurationTable', warnings.long_durations|length) }}
             {{ badge('Duplicate Names', 'duplicateNameTable', warnings.duplicate_names|length) }}
             {{ badge('Cost Variances', 'costVarianceTable', warnings.cost_variance|length) }}
@@ -36,6 +36,8 @@
     </div>
 </section>
 <section class="py-3 px-md-4 bg-white">
+    {% from 'components/image_element.j2' import task_image %}
+
     <div class="container-lg">
         {% if warnings.open_predecessor|length > 1 %}
         <div id="openPredecessorTable" class="table-responsive-md mb-5">
@@ -47,10 +49,8 @@
                 <thead>
                     <tr class="table-secondary ">
                         <th>#</th>
-                        <th>ID</th>
+                        <th colspan="2">ID</th>
                         <th>Activity Name</th>
-                        <th>Type</th>
-                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,9 +58,8 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ task.activity_id }}</td>
+                        <td>{{ task_image(task) }}</td>
                         <td>{{ task.name }}</td>
-                        <td>{{ task.type }}</td>
-                        <td>{{ task.status }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -77,10 +76,8 @@
                 <thead>
                     <tr class="table-secondary ">
                         <th>#</th>
-                        <th>ID</th>
+                        <th colspan="2">ID</th>
                         <th>Activity Name</th>
-                        <th>Type</th>
-                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -88,9 +85,8 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ task.activity_id }}</td>
+                        <td>{{ task_image(task) }}</td>
                         <td>{{ task.name }}</td>
-                        <td>{{ task.type }}</td>
-                        <td>{{ task.status }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -111,10 +107,8 @@
                 <thead>
                     <tr class="table-secondary ">
                         <th>#</th>
-                        <th>ID</th>
+                        <th colspan="2">ID</th>
                         <th>Activity Name</th>
-                        <th>Type</th>
-                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -122,9 +116,8 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ task.activity_id }}</td>
+                        <td>{{ task_image(task) }}</td>
                         <td>{{ task.name }}</td>
-                        <td>{{ task.type }}</td>
-                        <td>{{ task.status }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -147,8 +140,6 @@
                         <th>#</th>
                         <th>ID</th>
                         <th>Activity Name</th>
-                        <th>Type</th>
-                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -156,9 +147,8 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ task.activity_id }}</td>
+                        <td>{{ task_image(task) }}</td>
                         <td>{{ task.name }}</td>
-                        <td>{{ task.type }}</td>
-                        <td>{{ task.status }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -177,11 +167,10 @@
                 <thead>
                     <tr class="table-secondary ">
                         <th>#</th>
-                        <th>ID</th>
+                        <th colspan="2">ID</th>
                         <th>Activity Name</th>
                         <th>Actual Start</th>
                         <th>Actual Finish</th>
-                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -189,6 +178,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ task.activity_id }}</td>
+                        <td>{{ task_image(task) }}</td>
                         <td>{{ task.name }}</td>
                         {% if task.act_start_date >= schedules.current.data_date %}
                             <td>{{ task.act_start_date|formatdate }}</td>
@@ -200,7 +190,6 @@
                         {% else %}
                             <td></td>
                         {% endif %}
-                        <td>{{ task.status }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -221,9 +210,9 @@
                 <thead>
                     <tr class="table-secondary ">
                         <th>#</th>
-                        <th>Pred ID</th>
+                        <th colspan="2">Pred ID</th>
                         <th>Pred Name</th>
-                        <th>Succ ID</th>
+                        <th colspan="2">Succ ID</th>
                         <th>Succ Name</th>
                         <th class="text-center">Link</th>
                         <th class="text-center">Lag</th>
@@ -234,8 +223,10 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ rel.predecessor.activity_id }}</td>
+                        <td>{{ task_image(rel.predecessor) }}</td>
                         <td>{{ rel.predecessor.name }}</td>
                         <td class="text-nowrap">{{ rel.successor.activity_id }}</td>
+                        <td>{{ task_image(rel.successor) }}</td>
                         <td>{{ rel.successor.name }}</td>
                         <td class="text-center">{{ rel.link }}</td>
                         <td class="text-center">{{ rel.lag|formatnumber }}</td>
@@ -258,9 +249,9 @@
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
-                        <th>Pred ID</th>
+                        <th colspan="2">Pred ID</th>
                         <th>Pred Name</th>
-                        <th>Succ ID</th>
+                        <th colspan="2">Succ ID</th>
                         <th>Succ Name</th>
                         <th class="text-center">Link</th>
                         <th class="text-center">Lag</th>
@@ -271,13 +262,15 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ rel.predecessor.activity_id }}</td>
+                        <td>{{ task_image(rel.predecessor) }}</td>
                         <td>{{ rel.predecessor.name }}</td>
                         <td class="text-nowrap">{{ rel.successor.activity_id }}</td>
+                        <td>{{ task_image(rel.successor) }}</td>
                         <td>{{ rel.successor.name }}</td>
                         <td class="text-center">{{ rel.link }}</td>
                         <td class="text-center">{{ rel.lag|formatnumber }}</td>
                     </tr>
-                {% endfor %}
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -296,9 +289,9 @@
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
-                        <th>Pred ID</th>
+                        <th colspan="2">Pred ID</th>
                         <th>Pred Name</th>
-                        <th>Succ ID</th>
+                        <th colspan="2">Succ ID</th>
                         <th>Succ Name</th>
                         <th class="text-center">Link</th>
                         <th class="text-center">Lag</th>
@@ -309,8 +302,10 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ rel.predecessor.activity_id }}</td>
+                        <td>{{ task_image(rel.predecessor) }}</td>
                         <td>{{ rel.predecessor.name }}</td>
                         <td class="text-nowrap">{{ rel.successor.activity_id }}</td>
+                        <td>{{ task_image(rel.successor) }}</td>
                         <td>{{ rel.successor.name }}</td>
                         <td class="text-center">{{ rel.link }}</td>
                         <td class="text-center">{{ rel.lag|formatnumber }}</td>
@@ -337,10 +332,10 @@
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
-                        <th>Pred ID</th>
+                        <th colspan="2">Pred ID</th>
                         <th>Pred Name</th>
                         <th>Pred Dur</th>
-                        <th>Succ ID</th>
+                        <th colspan="2">Succ ID</th>
                         <th>Succ Name</th>
                         <th>Succ Dur</th>
                         <th class="text-center">Link</th>
@@ -352,9 +347,11 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ rel.predecessor.activity_id }}</td>
+                        <td>{{ task_image(rel.predecessor) }}</td>
                         <td>{{ rel.predecessor.name }}</td>
                         <td>{{ rel.predecessor.original_duration }}</td>
                         <td class="text-nowrap">{{ rel.successor.activity_id }}</td>
+                        <td>{{ task_image(rel.successor) }}</td>
                         <td>{{ rel.successor.name }}</td>
                         <td>{{ rel.successor.original_duration }}</td>
                         <td class="text-center">{{ rel.link }}</td>
@@ -375,10 +372,10 @@
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
-                        <th>Pred ID</th>
+                        <th colspan="2">Pred ID</th>
                         <th>Pred Name</th>
                         <th>Pred Dur</th>
-                        <th>Succ ID</th>
+                        <th colspan="2">Succ ID</th>
                         <th>Succ Name</th>
                         <th>Succ Dur</th>
                         <th class="text-center">Link</th>
@@ -390,9 +387,11 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ rel.predecessor.activity_id }}</td>
+                        <td>{{ task_image(rel.predecessor) }}</td>
                         <td>{{ rel.predecessor.name }}</td>
                         <td>{{ rel.predecessor.original_duration }}</td>
                         <td class="text-nowrap">{{ rel.successor.activity_id }}</td>
+                        <td>{{ task_image(rel.successor) }}</td>
                         <td>{{ rel.successor.name }}</td>
                         <td>{{ rel.successor.original_duration }}</td>
                         <td class="text-center">{{ rel.link }}</td>
@@ -419,9 +418,9 @@
                 <thead>
                     <tr class="table-secondary ">
                         <th>#</th>
-                        <th>Pred ID</th>
+                        <th colspan="2">Pred ID</th>
                         <th>Pred Name</th>
-                        <th>Succ ID</th>
+                        <th colspan="2">Succ ID</th>
                         <th>Succ Name</th>
                         <th colspan="4">Links</th>
                     </tr>
@@ -431,8 +430,10 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ rels[0].predecessor.activity_id }}</td>
+                        <td>{{ task_image(rels[0].predecessor) }}</td>
                         <td>{{ rels[0].predecessor.name }}</td>
                         <td class="text-nowrap">{{ rels[0].successor.activity_id }}</td>
+                        <td>{{ task_image(rels[0].successor) }}</td>
                         <td>{{ rels[0].successor.name }}</td>
                         {% for rel in rels %}
                             <td class="text-center">{{ rel.link }}:{{ rel.lag|formatnumber }}</td>
@@ -444,7 +445,7 @@
         </div>
         {% endif %}
         {% if warnings.redundant_logic|length %}
-        <div id="redundantLogicTable" class="table-responsive-md mb-5">
+        <div id="redundantLogicTable" class="table-responsive-md mb-5 d-print-none">
             <table class="table table-hover caption-top">
                 <caption class="text-dark m-0">
                     <h5 class="text-nowrap">Redundant Logic:</h5>
@@ -505,7 +506,7 @@
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
-                        <th>Task ID</th>
+                        <th colspan="2">Task ID</th>
                         <th>Task Name</th>
                         <th>Cal</th>
                         <th class="text-center">Duration</th>
@@ -516,6 +517,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ task.activity_id }}</td>
+                        <td>{{ task_image(task) }}</td>
                         <td>{{ task.name }}</td>
                         <td>{{ task.calendar.name }}</td>
                         <td class="text-center">{{ task.original_duration|formatnumber }}</td>
@@ -535,7 +537,7 @@
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
-                        <th>Task ID</th>
+                        <th colspan="2">Task ID</th>
                         <th>Task Name</th>
                     </tr>
                 </thead>
@@ -548,6 +550,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ task.activity_id }}</td>
+                        <td>{{ task_image(task) }}</td>
                         <td>{{ task.name }}</td>
                     </tr>
                     {% endfor %}
@@ -566,7 +569,7 @@
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
-                        <th>Task ID</th>
+                        <th colspan="2">Task ID</th>
                         <th>Task Name</th>
                         <th>Resource</th>
                         <th>Account</th>
@@ -580,6 +583,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ res.task.activity_id }}</td>
+                        <td>{{ task_image(task) }}</td>
                         <td>{{ res.task.name }}</td>
                         <td>{{ res.name }}</td>
                         {% if res.account %}
@@ -587,9 +591,9 @@
                         {% else %}
                             <td>-</td>
                         {% endif %}
-                        <td class="text-end">{{ res.cost.budget|formatnumber }}</td>
-                        <td class="text-end">{{ res.cost.at_completion|formatnumber }}</td>
-                        <td class="text-end">{{ res.cost.variance|formatvariance }}</td>
+                        <td class="text-end text-nowrap">{{ res.cost.budget|formatnumber }}</td>
+                        <td class="text-end text-nowrap">{{ res.cost.at_completion|formatnumber }}</td>
+                        <td class="text-end text-nowrap">{{ res.cost.variance|formatvariance }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -606,7 +610,7 @@
                 <thead>
                     <tr class="table-secondary">
                         <th>#</th>
-                        <th>Task ID</th>
+                        <th colspan="2">Task ID</th>
                         <th>Task Name</th>
                         <th>Resource</th>
                         <th>Account</th>
@@ -621,6 +625,7 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td class="text-nowrap">{{ res.task.activity_id }}</td>
+                        <td>{{ task_image(task) }}</td>
                         <td>{{ res.task.name }}</td>
                         <td>{{ res.name }}</td>
                         {% if res.account %}
@@ -628,10 +633,10 @@
                         {% else %}
                             <td>-</td>
                         {% endif %}
-                        <td class="text-end">{{ res.cost.budget|formatnumber }}</td>
-                        <td class="text-end">{{ res.cost.actual|formatnumber }}</td>
-                        <td class="text-end">{{ res.earned_value|formatnumber }}</td>
-                        <td class="text-end">{{ (res.cost.actual - res.earned_value)|formatvariance }}</td>
+                        <td class="text-end text-nowrap">{{ res.cost.budget|formatnumber }}</td>
+                        <td class="text-end text-nowrap">{{ res.cost.actual|formatnumber }}</td>
+                        <td class="text-end text-nowrap">{{ res.earned_value|formatnumber }}</td>
+                        <td class="text-end text-nowrap">{{ (res.cost.actual - res.earned_value)|formatvariance }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

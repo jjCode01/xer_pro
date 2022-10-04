@@ -1,5 +1,4 @@
 from collections import defaultdict, Counter
-from datetime import datetime
 from fuzzywuzzy import fuzz
 from xer_pro.data.logic import Relationship
 from xer_pro.data.resource import TaskResource
