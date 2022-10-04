@@ -21,15 +21,15 @@
             {{ badge('Open Starts', 'openStartTable', warnings.open_start|length) }}
             {{ badge('Open Finishes', 'openFinishTable', warnings.open_finish|length) }}
             {{ badge('Actual Dates &#8805 Data Date', 'actualDateTable', warnings.invalid_actual_dates|length) }}
+            {{ badge('Durations > 20 Days', 'longDurationTable', warnings.long_durations|length) }}
+            {{ badge('Duplicate Names', 'duplicateNameTable', warnings.duplicate_names|length) }}
             {{ badge('Negative Lags', 'negativeLagTable', warnings.negative_lag|length) }}
             {{ badge('Finish-Start Lags', 'fsLagTable', warnings.fs_lag|length) }}
             {{ badge('Long Lags (&#8805 10 days)', 'longLagTable', warnings.long_lag|length) }}
             {{ badge('Lags &#8805 Task Duration', 'falseLagTable', warnings.false_lag|length) }}
             {{ badge('Start-Finish Logic', 'sfLogicTable', warnings.sf_logic|length) }}
             {{ badge('Duplicate Logic', 'duplicateLogicTable', warnings.duplicate_logic|length) }}
-            {{ badge('Redundant Logic', 'redundantLogicTable', warnings.redundant_logic|length) }}</label>
-            {{ badge('Durations > 20 Days', 'longDurationTable', warnings.long_durations|length) }}
-            {{ badge('Duplicate Names', 'duplicateNameTable', warnings.duplicate_names|length) }}
+            {{ badge('Redundant Logic', 'redundantLogicTable', warnings.redundant_logic|length) }}
             {{ badge('Cost Variances', 'costVarianceTable', warnings.cost_variance|length) }}
             {{ badge('Earned Value Variances', 'evVarianceTable', warnings.ev_variance|length) }}
         </div>
@@ -192,6 +192,69 @@
                         {% endif %}
                     </tr>
                     {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if warnings.long_durations|length %}
+        <div id="longDurationTable" class="table-responsive-md mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Long Durations (> 20 Days)</h5>
+
+                </caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th>#</th>
+                        <th colspan="2">Task ID</th>
+                        <th>Task Name</th>
+                        <th>Cal</th>
+                        <th class="text-center">Duration</th>
+                    </tr>
+                </thead>
+                <tbody class="collapse show" id="duplicateNames">
+                {% for task in warnings.long_durations %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-nowrap">{{ task.activity_id }}</td>
+                        <td>{{ task_image(task) }}</td>
+                        <td>{{ task.name }}</td>
+                        <td>{{ task.calendar.name }}</td>
+                        <td class="text-center">{{ task.original_duration|formatnumber }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if warnings.duplicate_names|length %}
+        <div id="duplicateNameTable" class="table-responsive-md mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Duplicate Names</h5>
+
+                </caption>
+                <thead>
+                    <tr class="table-secondary">
+                        <th>#</th>
+                        <th colspan="2">Task ID</th>
+                        <th>Task Name</th>
+                    </tr>
+                </thead>
+                <tbody class="collapse show" id="duplicateNames">
+                {% for tasks in warnings.duplicate_names %}
+                    <tr class="mt-2">
+                        <th colspan="4">{{ tasks[0].name }}: {{ tasks|length|formatnumber }}</th>
+                    </tr>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-nowrap">{{ task.activity_id }}</td>
+                        <td>{{ task_image(task) }}</td>
+                        <td>{{ task.name }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -496,69 +559,7 @@
             </table>
         </div>
         {% endif %}
-        {% if warnings.long_durations|length %}
-        <div id="longDurationTable" class="table-responsive-md mb-5">
-            <table class="table table-hover caption-top">
-                <caption class="text-dark m-0">
-                    <h5 class="text-nowrap">Long Durations (> 20 Days)</h5>
 
-                </caption>
-                <thead>
-                    <tr class="table-secondary">
-                        <th>#</th>
-                        <th colspan="2">Task ID</th>
-                        <th>Task Name</th>
-                        <th>Cal</th>
-                        <th class="text-center">Duration</th>
-                    </tr>
-                </thead>
-                <tbody class="collapse show" id="duplicateNames">
-                {% for task in warnings.long_durations %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td class="text-nowrap">{{ task.activity_id }}</td>
-                        <td>{{ task_image(task) }}</td>
-                        <td>{{ task.name }}</td>
-                        <td>{{ task.calendar.name }}</td>
-                        <td class="text-center">{{ task.original_duration|formatnumber }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% endif %}
-        {% if warnings.duplicate_names|length %}
-        <div id="duplicateNameTable" class="table-responsive-md mb-5">
-            <table class="table table-hover caption-top">
-                <caption class="text-dark m-0">
-                    <h5 class="text-nowrap">Duplicate Names</h5>
-
-                </caption>
-                <thead>
-                    <tr class="table-secondary">
-                        <th>#</th>
-                        <th colspan="2">Task ID</th>
-                        <th>Task Name</th>
-                    </tr>
-                </thead>
-                <tbody class="collapse show" id="duplicateNames">
-                {% for tasks in warnings.duplicate_names %}
-                    <tr class="mt-2">
-                        <th colspan="4">{{ tasks[0].name }}: {{ tasks|length|formatnumber }}</th>
-                    </tr>
-                    {% for task in tasks %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td class="text-nowrap">{{ task.activity_id }}</td>
-                        <td>{{ task_image(task) }}</td>
-                        <td>{{ task.name }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% endif %}
         {% if warnings.cost_variance|length %}
         <div id="costVarianceTable" class="table-responsive-md mb-5">
             <table class="table table-hover caption-top">

@@ -197,8 +197,8 @@
                                 (<a href="#finishedProgressModal" data-bs-toggle="modal">{{ changes.finished|length }}</a> of
                                 <a href="#plannedFinishModal" data-bs-toggle="modal">{{ planned_progress.planned_finish|length }})</a>
                             </p>
-                            {{ task_list_modal("startedProgressModal", "Started This Update", changes.started) }}
-                            {{ task_list_modal("finishedProgressModal", "Completed This Update", changes.finished) }}
+                            {{ task_list_modal("startedProgressModal", "Started This Update", changes.started|sortbystart) }}
+                            {{ task_list_modal("finishedProgressModal", "Completed This Update", changes.finished|sortbyfinish) }}
                             {{ task_list_modal("plannedStartModal", "Planned to Start This Update", planned_progress.planned_start) }}
                             {{ task_list_modal("plannedFinishModal", "Planned to Finish This Update", planned_progress.planned_finish) }}
                         {% endif %}

@@ -124,6 +124,16 @@ def task_img(val: Task):
         return f"{pre}complete{post}"
 
 
+@app.template_filter("sortbystart")
+def sort_by_start(tasks: list[Task]):
+    return sorted(tasks, key=lambda t: (t.start, t.finish))
+
+
+@app.template_filter("sortbyfinish")
+def sort_by_finish(tasks: list[Task]):
+    return sorted(tasks, key=lambda t: (t.finish, t.start))
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     global files
