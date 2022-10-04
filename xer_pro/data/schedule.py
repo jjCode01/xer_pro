@@ -200,6 +200,10 @@ class Schedule:
             )
         )
 
+    @cached_property
+    def tasks_by_id(self) -> dict[str, Task]:
+        return {task["task_code"]: task for task in self.tasks()}
+
     def planned_progress(self, before_date: datetime) -> dict[str, list[Task]]:
         progress = dict()
         progress["planned_start"] = sorted(
