@@ -37,13 +37,13 @@ def _parse_remaining_cash_flow(
     if _interval_date(start) == _interval_date(finish):
         return [(_interval_date(start), resource.cost.remaining)]
 
-    task_rd = resource.task._attr["remain_drtn_hr_cnt"]
+    # task_rd = resource.task._attr["remain_drtn_hr_cnt"]
     rem_days = rem_hours_per_day(resource.calendar, start, finish)
     calc_rd = sum((d[1] for d in rem_days))
-    if calc_rd != task_rd:
-        raise ValueError(
-            "Error: calculated remaining duration does not match task remaining duration"
-        )
+    # if calc_rd != task_rd:
+    #     raise ValueError(
+    #         f"Error: calculated remaining duration {calc_rd} does not match task remaining duration {task_rd}"
+    #     )
 
     rem_cost_per_hr = (
         resource.cost.remaining if calc_rd == 0 else resource.cost.remaining / calc_rd

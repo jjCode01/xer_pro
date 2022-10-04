@@ -1,9 +1,14 @@
 #jinja2: lstrip_blocks: True
 {% macro task_image(task) %}
+
     <img
         src="{{ url_for('static', filename='img/'~task|taskimage) }}"
         width="20px"
         height="10px"
-        alt="{{ task.status }}"
+        {% if task %}
+            alt="{{ task.status }}"
+        {% else %}
+            alt="Deleted"
+        {% endif %}
     >
 {% endmacro %}
