@@ -6,3 +6,4 @@ html, body {min-height: 100%;}
 html {scroll-padding-top: 70px;}
 .f-md-sm {font-size: 0.95em;}
 .f-md {font-size: 1em;}
+@media print {.no-break {page-break-inside: avoid;}}
