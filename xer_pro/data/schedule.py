@@ -50,7 +50,6 @@ class Schedule:
         self._financials = {
             id: fin for id, fin in self._generate_financials(tables.get("TRSRCFIN", []))
         }
-        self._task_code_to_id_map = {t["task_code"]: t["task_id"] for t in self.tasks()}
 
         _cal_counter = Counter([t["clndr_id"] for t in self.tasks()])
         for cal in self.calendars:
@@ -205,6 +204,11 @@ class Schedule:
         return {task["task_code"]: task for task in self.tasks()}
 
     def planned_progress(self, before_date: datetime) -> dict[str, list[Task]]:
+        if before_date < self.data_date:
+            raise ValueError(
+                "ValueError: before_date must be on or after the schedule data date."
+            )
+
         progress = dict()
         progress["planned_start"] = sorted(
             [

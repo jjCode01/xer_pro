@@ -1,0 +1,96 @@
+{% extends "_layout.html" %}
+{% block nav_content %}
+    <a class="nav-link" aria-current="page" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+    <a class="nav-link" aria-current="page" href="{{ url_for('comparison') }}">Comparison</a>
+    <a class="nav-link" aria-current="page" href="{{ url_for('warnings') }}">Warnings</a>
+    <a class="nav-link active" href="#">Critical Path</a>
+
+{% endblock %}
+{% block main_content %}
+<section class="bg-light text-dark border-bottom p-1">
+    <div class="container-fluid">
+        <h5 class="mt-1">{{ schedules.current.name }}</h5>
+    </div>
+</section>
+
+<section class="py-3 px-md-4 bg-white">
+    {% from 'components/image_element.j2' import task_image %}
+
+    <div class="container-lg">
+        {% if critical.current %}
+        <div class="table-responsive-md mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Current Critical Path: {{ critical.current|length|formatnumber }}</h5>
+                </caption>
+                <thead>
+                    <tr class="table-secondary ">
+                        <th>#</th>
+                        <th colspan="2">ID</th>
+                        <th>Activity Name</th>
+                        <th>Start</th>
+                        <th>Finish</th>
+                        <th>Prev Start</th>
+                        <th>Prev Finish</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in critical.current %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-nowrap">{{ task[0].activity_id }}</td>
+                        <td>{{ task_image(task[0]) }}</td>
+                        <td>{{ task[0].name }}</td>
+                        <td>{{ task[0].start|formatdate}}</td>
+                        <td>{{ task[0].finish|formatdate }}</td>
+                        {% if not task[1] is none %}
+                            <td>{{ task[1].start|formatdate }}</td>
+                            <td>{{ task[1].finish|formatdate }}</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if critical.previous %}
+        <div class="table-responsive-md mb-5">
+            <table class="table table-hover caption-top">
+                <caption class="text-dark m-0">
+                    <h5 class="text-nowrap">Previous Critical Path: {{ critical.previous|length|formatnumber }}</h5>
+                </caption>
+                <thead>
+                    <tr class="table-secondary ">
+                        <th>#</th>
+                        <th colspan="2">ID</th>
+                        <th>Activity Name</th>
+                        <th>Prev Start</th>
+                        <th>Prev Finish</th>
+                        <th>Curr Start</th>
+                        <th>Curr Finish</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in critical.previous %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="text-nowrap">{{ task[0].activity_id }}</td>
+                        <td>{{ task_image(task[1]) }}</td>
+                        <td>{{ task[0].name }}</td>
+                        <td>{{ task[0].start|formatdate}}</td>
+                        <td>{{ task[0].finish|formatdate }}</td>
+                        {% if not task[1] is none %}
+                            <td>{{ task[1].start|formatdate }}</td>
+                            <td>{{ task[1].finish|formatdate }}</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

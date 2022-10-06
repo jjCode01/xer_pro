@@ -1,3 +1,4 @@
+import sched
 from flask import Flask, redirect, request, render_template, url_for
 from flask_dropzone import Dropzone
 from datetime import datetime
@@ -43,6 +44,7 @@ float_data = dict()
 status_data = dict()
 changes = dict()
 warnings = dict()
+longest_path = dict()
 
 
 @app.context_processor
@@ -106,21 +108,21 @@ def curr_task(task: Task):
 
 
 @app.template_filter("taskimage")
-def task_img(val: Task):
-    if not val:
+def task_img(task: Task):
+    if not task:
         return "deleted.png"
 
-    if not isinstance(val, Task):
+    if not isinstance(task, Task):
         return ""
 
-    pre = "ms-" if val.is_milestone else ""
-    post = "-lp.png" if val.is_longest_path and not val.is_completed else ".png"
+    pre = "ms-" if task.is_milestone else ""
+    post = "-lp.png" if task.is_longest_path and not task.is_completed else ".png"
 
-    if val.is_not_started:
+    if task.is_not_started:
         return f"{pre}open{post}"
-    if val.is_in_progress:
+    if task.is_in_progress:
         return f"{pre}active{post}"
-    if val.is_completed:
+    if task.is_completed:
         return f"{pre}complete{post}"
 
 
@@ -146,7 +148,7 @@ def index():
         file = parse_xer_file(request.files.get("file").read().decode(CODEC))
         if not (errors := find_xer_errors(file)) is None:
             error_str = "\r\n".join(errors)
-            return f"XER contains errors!\r\n{error_str}", 400
+            return error_str, 400
 
         export_xer_projects = tuple(
             p for p in file.get("PROJECT", []) if p["export_flag"]
@@ -170,6 +172,7 @@ def dashboard():
     global status_data
     global changes
     global warnings
+    global longest_path
 
     if files:
         if files[0] >= files[1]:
@@ -194,6 +197,23 @@ def dashboard():
 
         changes = get_schedule_changes(schedules["current"], schedules["previous"])
         warnings = get_schedule_warnings(schedules["current"])
+
+        longest_path["current"] = sorted(
+            [
+                (task, schedules["previous"].tasks_by_id.get(task.activity_id))
+                for task in schedules["current"].tasks()
+                if task.is_longest_path and not task.is_completed
+            ],
+            key=lambda t: (t[0].start, t[0].finish),
+        )
+        longest_path["previous"] = sorted(
+            [
+                (task, schedules["current"].tasks_by_id.get(task.activity_id))
+                for task in schedules["previous"].tasks()
+                if task.is_longest_path and not task.is_completed
+            ],
+            key=lambda t: (t[0].start, t[0].finish),
+        )
 
         files = []
 
@@ -228,3 +248,13 @@ def warnings():
     if not schedules:
         return redirect(url_for("index"))
     return render_template("warnings.html", schedules=schedules, warnings=warnings)
+
+
+@app.route("/critical")
+def critical():
+    global schedules
+    global longest_path
+    if not schedules:
+        return redirect(url_for("index"))
+
+    return render_template("critical.html", schedules=schedules, critical=longest_path)

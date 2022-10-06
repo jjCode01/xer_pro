@@ -33,7 +33,7 @@
         </section>
         <div class="my-5 mx-auto bg-light text-dark text-center">
             <div class="container">
-                <p class="lead" >Upload your .xer files to begin... (Maximun of 2 files)</p>
+                <p class="lead" >Upload your .xer files to begin... (2 files)</p>
                 {{ dropzone.create(action=url_for('index')) }}
                 {{ dropzone.load_js() }}
                 {{ dropzone.config(custom_init='

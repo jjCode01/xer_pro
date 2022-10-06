@@ -1,8 +1,9 @@
 {% extends "_layout.html" %}
 {% block nav_content %}
     <a class="nav-link active" aria-current="page" href="#"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
-    <a class="nav-link" href="{{ url_for('comparison') }}">Comparison</a>
-    <a class="nav-link" href="{{ url_for('warnings') }}">Warnings</a>
+    <a class="nav-link" aria-current="page" href="{{ url_for('comparison') }}">Comparison</a>
+    <a class="nav-link" aria-current="page" href="{{ url_for('warnings') }}">Warnings</a>
+    <a class="nav-link" aria-current="page" href="{{ url_for('critical') }}">Critical Path</a>
 {% endblock %}
 {% block main_content %}
 <section class="bg-light text-dark border-bottom p-1">
@@ -16,15 +17,15 @@
         {% from 'components/task_list_modal.j2' import task_list_modal %}
         <div class="row mb-3 gy-3 text-center">
             <!-- Update Period -->
-            <div class="col-md-6 no-break"> 
-                <div class="card h-100 no-break">
+            <div class="col-md-6 no-page-break"> 
+                <div class="card h-100">
                     <div class="card-body pb-0">
                         <p class="m-0 pb-1 mb-1 border-bottom fs-5">Update Period</p>
                         <p class="lead mb-1"><strong>
                             {{ schedules.previous.data_date|formatdate }} <i class="bi bi-forward-fill h5"></i> {{ schedules.current.data_date|formatdate}}
                         </strong></p>
                         <p class="mb-1"><strong>{{ (schedules.current.data_date - schedules.previous.data_date).days|formatnumber }}</strong> day update period</p>
-                        <p class="small text-secondary">
+                        <p class="small text-secondary d-print-none">
                         {% if today_date >= schedules.current.data_date %}
                             Updated<strong> {{ (today_date - schedules.current.data_date).days|formatnumber }}</strong> days ago
                         {% else %}
@@ -36,8 +37,8 @@
                 </div>
             </div>
             <!-- Finish Date -->
-            <div class="col-md-6 no-break">
-                <div class="card h-100 no-break">
+            <div class="col-md-6 no-page-break">
+                <div class="card h-100">
                     <div class="card-body pb-0">
                         <p class="m-0 pb-1 mb-1 border-bottom fs-5">Finish Date</p>
                         <p class="lead mb-1"><strong>
@@ -59,22 +60,22 @@
                         {% endwith %}
                         {% with %}
                             {% set dur_from_now = (schedules.current.finish - today_date).days %}
-                            <p class="small text-secondary">
-                            {% if dur_from_now > 0 %}
-                                Finish date is <strong>{{ dur_from_now|abs|formatnumber }}</strong> days from now
-                            {% elif dur_from_now < 0 %}
-                                Finish date was <strong>{{ dur_from_now|abs|formatnumber }}</strong> days ago
-                            {% else %}
-                                Finish date is today!
-                            {% endif %}
+                            <p class="small text-secondary d-print-none">
+                                {% if dur_from_now > 0 %}
+                                    Finish date is <strong>{{ dur_from_now|abs|formatnumber }}</strong> days from now
+                                {% elif dur_from_now < 0 %}
+                                    Finish date was <strong>{{ dur_from_now|abs|formatnumber }}</strong> days ago
+                                {% else %}
+                                    Finish date is today!
+                                {% endif %}
                             </p>
                         {% endwith %}
                     </div>
                 </div>
             </div>
             <!-- Work Complete -->
-            <div class="col-lg-4 col-md-6 no-break">
-                <div class="card h-100 no-break">
+            <div class="col-lg-4 col-md-6 no-page-break">
+                <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Work Complete</p>
                         <p class="lead mb-0"><strong>{{ schedules.current.percent_complete|formatnumber }}%</strong></p>
@@ -122,8 +123,8 @@
                 </div>
             </div>
             <!-- Schedule Duration -->
-            <div class="col-lg-4 col-md-6 no-break">
-                <div class="card h-100 no-break">
+            <div class="col-lg-4 col-md-6 no-page-break">
+                <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Schedule Duration</p>
                         {% with %}
@@ -159,8 +160,8 @@
                 </div>
             </div>
             <!-- performance index -->
-            <div class="col-lg-4 col-md-6 no-break">
-                <div class="card h-100 no-break">
+            <div class="col-lg-4 col-md-6 no-page-break">
+                <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Performance Score</p>
 
@@ -207,8 +208,8 @@
                 </div>
             </div>
             <!-- Activity Status Chart -->
-            <div class="col-lg-7 d-print-block no-break">
-                <div class="card h-100 no-break">
+            <div class="col-lg-7 d-print-block">
+                <div class="card h-100 no-page-break">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Activity Status Chart</p>
                         <div class="pt-3 px-2" style="height: 150px;">
@@ -218,8 +219,8 @@
                 </div>       
             </div>
             <!-- Activities -->
-            <div class="col-lg-5 col-md-6 no-break">
-                <div class="card h-100 no-break">
+            <div class="col-lg-5 col-md-6 no-page-break">
+                <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Activities</p>
                         <p class="lead mb-0"><strong>{{ schedules.current.tasks()|length|formatnumber }}</strong> total</p>
@@ -276,8 +277,8 @@
                 </div>
             </div>
             <!-- Activity Float -->
-            <div class="col-lg-5 col-md-6 no-break">
-                <div class="card h-100 no-break">
+            <div class="col-lg-5 col-md-6 no-page-break">
+                <div class="card h-100">
                     <div class="card-body">
                         <p class="m-0 pb-1 border-bottom fs-5">Activity Float</p>
                         <p class="lead mb-0">Average total float <strong>{{ schedules.current.average_tf|formatnumber }}</strong> days</p>
