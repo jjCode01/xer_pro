@@ -32,6 +32,7 @@
                         <th>Finish</th>
                         <th>Prev Start</th>
                         <th>Prev Finish</th>
+                        <th class="text-end">Gain/Loss</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,11 +42,23 @@
                         <td class="text-nowrap">{{ task[0].activity_id }}</td>
                         <td>{{ task_image(task[0]) }}</td>
                         <td>{{ task[0].name }}</td>
-                        <td>{{ task[0].start|formatdate}}</td>
-                        <td>{{ task[0].finish|formatdate }}</td>
+                        <td class="text-nowrap">{{ task[0].start|formatdate}}</td>
+                        <td class="text-nowrap">{{ task[0].finish|formatdate }}</td>
                         {% if not task[1] is none %}
-                            <td>{{ task[1].start|formatdate }}</td>
-                            <td>{{ task[1].finish|formatdate }}</td>
+                            <td class="text-nowrap">{{ task[1].start|formatdate }}</td>
+                            <td class="text-nowrap">{{ task[1].finish|formatdate }}</td>
+                            {% set diff = (task[1].finish - task[0].finish).days %}
+                            {% if diff < 0 %}
+                                <td class="text-end"><span class="badge bg-danger f-md">{{ diff|formatvariance }}</span></td>
+                            {% elif diff > 0 %}
+                                <td class="text-end"><span class="badge bg-info f-md">{{ diff|formatvariance }}</span></td>
+                            {% else %}
+                                <td class="text-end">{{ diff|formatvariance }}</td>
+                            {% endif %}
+                        {% else %}
+                            <td>-</td>
+                            <td>-</td>
+                            <td class="text-end">-</td>
                         {% endif %}
                     </tr>
                     {% endfor %}
@@ -69,6 +82,7 @@
                         <th>Prev Finish</th>
                         <th>Curr Start</th>
                         <th>Curr Finish</th>
+                        <th class="text-end">Gain/Loss</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -78,11 +92,23 @@
                         <td class="text-nowrap">{{ task[0].activity_id }}</td>
                         <td>{{ task_image(task[1]) }}</td>
                         <td>{{ task[0].name }}</td>
-                        <td>{{ task[0].start|formatdate}}</td>
-                        <td>{{ task[0].finish|formatdate }}</td>
+                        <td class="text-nowrap">{{ task[0].start|formatdate}}</td>
+                        <td class="text-nowrap">{{ task[0].finish|formatdate }}</td>
                         {% if not task[1] is none %}
-                            <td>{{ task[1].start|formatdate }}</td>
-                            <td>{{ task[1].finish|formatdate }}</td>
+                            <td class="text-nowrap">{{ task[1].start|formatdate }}</td>
+                            <td class="text-nowrap">{{ task[1].finish|formatdate }}</td>
+                            {% set diff = (task[0].finish - task[1].finish).days %}
+                            {% if diff < 0 %}
+                                <td class="text-end"><span class="badge bg-danger f-md">{{ diff|formatvariance }}</span></td>
+                            {% elif diff > 0 %}
+                                <td class="text-end"><span class="badge bg-info f-md">{{ diff|formatvariance }}</span></td>
+                            {% else %}
+                                <td class="text-end">{{ diff|formatvariance }}</td>
+                            {% endif %}
+                        {% else %}
+                            <td>-</td>
+                            <td>-</td>
+                            <td class="text-end">-</td>
                         {% endif %}
                     </tr>
                     {% endfor %}
